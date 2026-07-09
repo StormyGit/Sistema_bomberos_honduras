@@ -1,0 +1,7 @@
+npm run build
+npx cap sync android
+npx cap open android
+
+
+
+android/app/src/main/res/xml/network_security_config.xml

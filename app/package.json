@@ -5,7 +5,7 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ionic serve --port 8100",
+    "start": "ionic serve --lab --port 8100",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -48,6 +48,7 @@
     "@angular/language-service": "20.3.25",
     "@capacitor/cli": "8.4.1",
     "@ionic/angular-toolkit": "^12.0.0",
+    "@ionic/lab": "^3.2.15",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",

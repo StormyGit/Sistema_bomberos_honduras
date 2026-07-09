@@ -13,6 +13,13 @@
     ></ion-refresher-content>
   </ion-refresher>
 
+  @if (errorApi()) {
+  <ion-card color="danger">
+    <ion-card-content>
+      {{ errorApi() }}
+    </ion-card-content>
+  </ion-card>
+}
   <div class="space-y-6">
     @for (i of listIncidente(); track $index) {
 

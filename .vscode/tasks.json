@@ -23,6 +23,7 @@
       "label": "Frontend Web",
       "type": "shell",
       "command": "npm start",
+      //"command": "npm start",
       "options": {
         "cwd": "${workspaceFolder}/fe"
       },
