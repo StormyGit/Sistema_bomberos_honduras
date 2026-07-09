@@ -1,0 +1,14 @@
+<google-map
+  [height]="height"
+  [width]="width"
+  [center]="center"
+  [zoom]="zoom"
+  [options]="mapOptions"
+  (mapClick)="selectLocation($event)"
+>
+  @if (markerPosition) {
+    <map-marker
+      [position]="markerPosition">
+    </map-marker>
+  }
+</google-map>

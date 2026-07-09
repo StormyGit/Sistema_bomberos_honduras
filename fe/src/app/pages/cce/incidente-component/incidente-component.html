@@ -1,0 +1,173 @@
+<div class="w-full">
+  <app-card-component [titulo]="'Busqueda por Filtros'">
+    <div class="flex flex-col gap-6">
+      <app-form-component
+        #formRef
+        [Formulary]="svFormData.filtrosIncidentes()"
+        [labelSudmit]="'Buscar'"
+        (getSubmit)="onSubmit($event)"
+      />
+    </div>
+  </app-card-component>
+
+  <div class="mb-6"></div>
+
+  <app-card-component [titulo]="'Resultados'">
+    <div class="flex flex-col gap-6">
+      <section class="rounded-2xl border border-slate-700 bg-[#111820] p-5 shadow-xl">
+
+        <div class="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-white">
+              <!-- EL DÍA DE HOY HEMOS ATENDIDO -->
+            </h2>
+            <p class="text-sm text-slate-400">
+              Resumen de incidentes agrupados por tipo
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-orange-500/40 bg-orange-500/10 px-5 py-3">
+            <span class="text-xs font-bold uppercase text-orange-300">
+              Total incidentes
+            </span>
+            <div class="text-3xl font-black text-white">
+              {{ totalIncidentes() }}
+            </div>
+          </div>
+        </div>
+
+        @if (loading()) {
+          <div class="flex justify-center py-10">
+            <span class="text-slate-300 font-semibold">
+              Cargando resumen...
+            </span>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 m-5">
+
+            @for (item of tipoResumenList(); track item.tipo) {
+              <article
+                class="rounded-2xl border border-slate-700 bg-[#0f151d] p-4 text-center shadow-lg transition hover:border-orange-500/60 hover:bg-[#151f2c]"
+              >
+                <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-orange-500/30 bg-orange-500/10">
+                  <span class="text-2xl">
+                    🚒
+                  </span>
+                </div>
+
+                <h3 class="min-h-12 text-sm font-black uppercase leading-tight text-white">
+                  {{ item.nombre }}
+                </h3>
+
+                <div class="mt-4 text-5xl font-black text-red-500">
+                  {{ item.total }}
+                </div>
+              </article>
+            } @empty {
+              <div class="col-span-full rounded-xl border border-slate-700 bg-[#0f151d] p-8 text-center">
+                <p class="font-semibold text-slate-300">
+                  No hay datos para mostrar.
+                </p>
+              </div>
+            }
+
+          </div>
+          <div>
+            <p class="text-sm text-slate-400">
+              Tabla de Detalles
+            </p>
+          </div>
+
+
+<div class="mt-8 w-full overflow-x-auto rounded-2xl border border-slate-800 bg-[#111820] p-4 shadow-xl">
+
+  <div class="mb-4 flex flex-col gap-1">
+    <h3 class="text-lg font-black uppercase text-white">
+      Incidentes por municipio
+    </h3>
+    <p class="text-sm text-slate-400">
+      Resumen agrupado por municipio y tipo de incidente
+    </p>
+  </div>
+
+  <div class="min-w-[850px] overflow-hidden rounded-xl border border-slate-800">
+    <table class="w-full table-fixed border-collapse bg-[#0f151d] text-sm text-white">
+
+      <thead class="bg-[#111820]">
+        <tr class="border-b border-slate-800">
+          <th class="w-[260px] px-4 py-3 text-left text-xs font-black uppercase tracking-wide text-slate-400">
+            Municipio
+          </th>
+
+          <th class="w-[80px] px-4 py-3 text-center text-xs font-black uppercase tracking-wide text-slate-400">
+            Total
+          </th>
+
+          <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wide text-slate-400">
+            Incidentes
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (row of tablaMunicipiosAndTipos(); track row.municipioId) {
+          <tr class="border-b border-slate-800 transition hover:bg-[#151f2c]">
+
+            <td class="px-4 py-2 align-middle">
+              <div class="font-black uppercase leading-tight text-white">
+                {{ row.municipio }}
+              </div>
+            </td>
+
+            <td class="px-4 py-2 text-center align-middle">
+              <span class="inline-flex min-w-10 items-center justify-center rounded-full border border-orange-500/40 bg-orange-500/10 px-2 py-0.5 text-xs font-black text-orange-300">
+                {{ row.totalTexto }}
+              </span>
+            </td>
+
+            <td class="px-4 py-2 align-middle">
+              <div class="flex flex-wrap gap-2 leading-tight">
+                @for (incidente of row.incidentes; track incidente.key) {
+                  <span
+                    class="rounded-full border border-slate-700 bg-[#111820] px-3 py-1 text-xs font-bold uppercase text-slate-100"
+                    [class.border-red-500\/40]="incidente.total > 1"
+                    [class.bg-red-500\/10]="incidente.total > 1"
+                    [class.text-red-300]="incidente.total > 1"
+                  >
+                    {{ incidente.label }}
+                  </span>
+                }
+              </div>
+            </td>
+
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3" class="px-4 py-8 text-center">
+              <div class="font-bold text-slate-300">
+                No hay datos para mostrar.
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+
+          <app-table-custom
+            [columns]="columnasUsuarios"
+            [data]="tableList()"
+            (actionClick)="onTableAction($event)">
+          </app-table-custom>
+        }
+
+
+
+
+      </section>
+    </div>
+  </app-card-component>
+</div>

@@ -1,0 +1,27 @@
+<div class="relative inline-block w-full">
+
+  <!-- TRIGGER -->
+  <div (click)="toggle(); $event.stopPropagation()">
+    <ng-content select="[popoverTrigger]" />
+  </div>
+
+  <!-- POPOVER -->
+  @if (isOpen) {
+    <div
+      class="
+        absolute
+        z-50
+        rounded-xl
+        bg-[#111418]
+        border border-white/10
+        shadow-2xl shadow-black/50
+        overflow-hidden
+      "
+      [ngClass]="[getPositionClasses(), panelClass]"
+      (click)="onContentClick(); $event.stopPropagation()"
+    >
+      <ng-content select="[popoverContent]" />
+    </div>
+  }
+
+</div>

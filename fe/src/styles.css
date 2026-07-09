@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@import 'leaflet/dist/leaflet.css';
+
+.color-bombero {
+  @apply bg-gradient-to-r from-[#3A0E0A] via-red-600 to-[#3A0E0A]
+}
+
+.color-botton{
+
+  @apply bg-red-600;
+}
+
+/* Base */
+.btn,
+.botton {
+  @apply inline-flex items-center justify-center gap-2
+  px-3 py-2
+  rounded-lg
+  text-sm font-semibold
+  border
+  shadow-sm
+  transition-all duration-200 ease-in-out
+  focus:outline-none focus:ring-2 focus:ring-offset-2
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Tamaños */
+.btn-sm {
+  @apply px-2.5 py-1.5 text-xs rounded-md;
+}
+
+.btn-md {
+  @apply px-3 py-2 text-sm rounded-lg;
+}
+
+.btn-lg {
+  @apply px-4 py-2.5 text-base rounded-xl;
+}
+
+/* Botón blanco / neutro */
+.btn-white,
+.botton-white {
+  @apply bg-white text-gray-700 border-gray-300
+  hover:bg-gray-50 hover:border-gray-400
+  focus:ring-gray-300;
+}
+
+/* Botón gris profesional */
+.btn-gray,
+.botton-gray {
+  @apply bg-gray-100 text-gray-800 border-gray-300
+  hover:bg-gray-200
+  focus:ring-gray-400;
+}
+
+/* Ver / Detalle */
+.btn-blue,
+.botton-blue {
+  @apply bg-blue-600 text-white border-blue-600
+  hover:bg-blue-700 hover:border-blue-700
+  focus:ring-blue-400;
+}
+
+/* Editar */
+.btn-yellow,
+.botton-yellow {
+  @apply bg-amber-500 text-white border-amber-500
+  hover:bg-amber-600 hover:border-amber-600
+  focus:ring-amber-300;
+}
+
+/* Guardar / Finalizado */
+.btn-green,
+.botton-green {
+  @apply bg-green-600 text-white border-green-600
+  hover:bg-green-700 hover:border-green-700
+  focus:ring-green-400;
+}
+
+/* Eliminar / Cancelar */
+.btn-red,
+.botton-red {
+  @apply bg-red-600 text-white border-red-600
+  hover:bg-red-700 hover:border-red-700
+  focus:ring-red-400;
+}
+
+/* Información */
+.btn-cyan,
+.botton-cyan {
+  @apply bg-cyan-600 text-white border-cyan-600
+  hover:bg-cyan-700 hover:border-cyan-700
+  focus:ring-cyan-400;
+}
+
+/* Botón oscuro */
+.btn-dark,
+.botton-dark {
+  @apply bg-gray-900 text-white border-gray-900
+  hover:bg-gray-800
+  focus:ring-gray-500;
+}
+
+/* Botón transparente */
+.btn-ghost,
+.botton-ghost {
+  @apply bg-transparent text-gray-700 border-transparent
+  hover:bg-gray-100
+  focus:ring-gray-300 shadow-none;
+}
+
+/* Botón peligro suave */
+.btn-red-soft,
+.botton-red-soft {
+  @apply bg-red-50 text-red-700 border-red-200
+  hover:bg-red-100 hover:border-red-300
+  focus:ring-red-300;
+}
+
+/* Botón editar suave */
+.btn-yellow-soft,
+.botton-yellow-soft {
+  @apply bg-amber-50 text-amber-700 border-amber-200
+  hover:bg-amber-100 hover:border-amber-300
+  focus:ring-amber-300;
+}
+
+/* Botón ver suave */
+.btn-blue-soft,
+.botton-blue-soft {
+  @apply bg-blue-50 text-blue-700 border-blue-200
+  hover:bg-blue-100 hover:border-blue-300
+  focus:ring-blue-300;
+}
+
+:host {
+  display: block;
+}

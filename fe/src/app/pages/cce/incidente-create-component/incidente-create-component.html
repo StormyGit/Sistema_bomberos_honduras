@@ -1,0 +1,407 @@
+<button
+  type="button"
+  class="
+    m-2 group
+    w-1/5
+    h-[130px]
+    bg-[#14181D]
+    hover:border-red-500 hover:bg-red-950/30
+    rounded-2xl shadow-sm hover:shadow-md p-5 transition-all duration-200 flex flex-col items-center justify-center gap-3"
+  (click)="abrirModal_creacion()"
+>
+  <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white flex items-center justify-center transition-all duration-200">
+    <span class="text-3xl font-bold leading-none">!</span>
+  </div>
+
+  <div class="text-center">
+    <p class="text-base font-bold text-gray-100">
+      Nuevo Incidente
+    </p>
+    <p class="text-xs text-gray-400">
+      Registrar una nueva emergencia
+    </p>
+  </div>
+</button>
+
+<div class="w-full flex flex-col gap-4 p-2">
+  <!-- SECCIÓN INFERIOR: TABLA -->
+
+    <div class="flex w-full space-x-4">
+      <!-- Leyendas -->
+      <app-card-component
+        class="block w-1/5"
+        [titulo]="'Información'"
+        [Showtitulo]="false"
+      >
+        <div class="space-y-4">
+
+          <!-- Total -->
+          <div class="bg-[#14181D] border border-gray-200/30 rounded-xl p-4">
+            <p class="text-xs text-gray-400 uppercase font-semibold">
+              Total incidentes
+            </p>
+
+            <p class="text-3xl font-bold text-gray-50 mt-1">
+              {{ tableList().length }}
+            </p>
+          </div>
+
+          <!-- Resumen por estado -->
+          <div class="space-y-2">
+            <p class="text-xs text-gray-400 uppercase font-semibold mb-3">
+              Estados
+            </p>
+
+            <!-- Pendientes -->
+            <div
+              class="
+                flex items-center justify-between
+                bg-amber-500/10
+                border border-amber-400/30
+                rounded-lg
+                px-3 py-2
+              "
+            >
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <span class="text-sm text-amber-200">
+                  Pendientes
+                </span>
+              </div>
+
+              <span class="text-sm font-black text-amber-100">
+                {{ getCountByStatus('Pendiente') }}
+              </span>
+            </div>
+
+            <!-- En ejecución -->
+            <div
+              class="
+                flex items-center justify-between
+                bg-orange-500/10
+                border border-orange-400/30
+                rounded-lg
+                px-3 py-2
+              "
+            >
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
+                <span class="text-sm text-orange-200">
+                  En ejecución
+                </span>
+              </div>
+
+              <span class="text-sm font-black text-orange-100">
+                {{ getCountByStatus('Ejecucion') }}
+              </span>
+            </div>
+
+            <!-- Finalizados -->
+            <div
+              class="
+                flex items-center justify-between
+                bg-emerald-500/10
+                border border-emerald-400/30
+                rounded-lg
+                px-3 py-2
+              "
+            >
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-sm text-emerald-200">
+                  Finalizados
+                </span>
+              </div>
+
+              <span class="text-sm font-black text-emerald-100">
+                {{ getCountByStatus('Finalizado') }}
+              </span>
+            </div>
+
+            <!-- Cancelados -->
+            <div
+              class="
+                flex items-center justify-between
+                bg-rose-500/10
+                border border-rose-400/30
+                rounded-lg
+                px-3 py-2
+              "
+            >
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+                <span class="text-sm text-rose-200">
+                  Cancelados
+                </span>
+              </div>
+
+              <span class="text-sm font-black text-rose-100">
+                {{ getCountByStatus('Cancelado') }}
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Nota -->
+          <div class="rounded-lg p-3">
+            <p class="text-xs text-gray-400">
+              Última actualización
+            </p>
+            <p class="text-sm font-semibold text-gray-200">
+              Hoy · {{horaRecarga}}
+            </p>
+          </div>
+
+        </div>
+      </app-card-component>
+
+      <!-- incidentes en ejecución -->
+      <app-card-component
+        class="block w-4/5"
+        [titulo]="'En ejecución'"
+        [Showtitulo]="true"
+      >
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          @for (inc of getListEjecucion(); track inc.id) {
+            <button
+              type="button"
+              class="text-left bg-[#14181D] border border-gray-200/20 hover:border-gray-400 rounded-2xl shadow-sm hover:shadow-md p-4 transition-all duration-200"
+              (click)="abrirModal_detalles(inc)"
+            >
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <p class="text-sm font-bold text-gray-100">
+                    {{ inc.incidente }}
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    {{ inc.fecha }} · {{ inc.hora }}
+                  </p>
+                </div>
+
+                <app-badge-component [estado]="inc.estado"></app-badge-component>
+              </div>
+
+              <div class="space-y-2">
+                <div>
+                  <p class="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
+                    Lugar
+                  </p>
+                  <p class="text-sm text-gray-300 font-medium">
+                    {{ inc.colonia }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
+                    Región
+                  </p>
+                  <p class="text-sm text-gray-300">
+                    {{ inc.direccion }}
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-gray-200/20">
+                  <div>
+                    <p class="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
+                      Unidad
+                    </p>
+                    <p class="text-sm font-bold text-gray-100">
+                      {{ inc.recursos.unidad }}
+                    </p>
+                  </div>
+
+                  <span class="text-xs text-gray-400">
+                    Ver detalles
+                  </span>
+                </div>
+              </div>
+            </button>
+          }
+
+        </div>
+      </app-card-component>
+    </div>
+
+    <div class="w-full space-x-4">
+
+      <app-table-custom
+        [columns]="columnasUsuarios"
+        [data]="tableList()"
+        [actions]="actions"
+        (actionClick)="onTableAction($event)">
+      </app-table-custom>
+
+    </div>
+
+</div>
+
+
+
+<app-modal-component
+  [show]="showModal()"
+  [titulo]="'Registrar incidente'"
+  [width]="'100%'"
+  [height]="'90%'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="false"
+
+  (closed)="cerrarModal_creacion()"
+>
+  <div class="">
+    <!-- <p>
+      id: <span class="font-bold">{{this.incidente_create?.id}}</span> <br>
+      incidente: <span class="font-bold">{{this.incidente_create?.incidente}}</span>
+    </p> -->
+
+  </div>
+  <app-wizard-component  class="block h-full"
+    [showHeader]="true"
+    [showButtons]="false"
+    [disableHeader]="true"
+    [finishText]="'Guardar'"
+    (finished)="guardarWizard()"
+  >
+
+    <!-- informacion -->
+    <app-wizard-step
+      titulo="Incidente"
+      descripcion="Datos principales"
+    >
+      <app-form-component
+        [Formulary]="svFormData.incidente('info')"
+        (getSubmit)="submitForm_info($event)"
+        [labelSudmit]="'Siguiente'"
+        [ShowButtonCancel]="true"
+        (getCancel)=" cerrarModal_creacion() "
+      />
+    </app-wizard-step>
+
+    <!-- mapa y estaciones -->
+    <app-wizard-step
+      titulo="Mapa y Estaciones"
+      descripcion="apuntar y asignar estación"
+    >
+    <div class="flex w-full space-x-2">
+      <div class="w-3/5">
+        <app-map-picker
+          [height]="'600px'"
+          (pointSelected)="onPointSelected($event)"
+          [setPoint]="true"
+          (estacionesCercanas)="estaciones_cercanas($event)"
+          >
+        </app-map-picker>
+      </div>
+      <div class="w-2/5">
+        <app-incidente-info-components [dataIncidente]="incidente_create"/>
+      </div>
+    </div>
+      <div>
+        <app-form-component #formCreate
+          [Formulary]="svFormData.incidente('recursos')"
+          (getSubmit)="submitForm_despacho($event)"
+          [labelSudmit]="'Siguiente'"
+        />
+      </div>
+      <!-- <div class="space-y-4">
+        <h3 class="text-xl font-bold text-gray-700">
+          Información del denunciante
+        </h3>
+
+        <input
+          class="w-full border rounded-lg px-3 py-2"
+          placeholder="Nombre del denunciante"
+        >
+
+        <input
+          class="w-full border rounded-lg px-3 py-2"
+          placeholder="Teléfono"
+        >
+      </div> -->
+    </app-wizard-step>
+
+    <!-- Bitacora y segimiento -->
+    <app-wizard-step
+      titulo="Bitacora y seguimiento"
+      descripcion="Control de tiempos del incidente"
+    >
+      <div class="space-y-5">
+
+        <!-- Resumen superior -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <p class="text-xs text-gray-500 font-semibold uppercase">
+              Tiempo estimado
+            </p>
+            <p class="text-lg font-bold text-gray-800">
+              @if (tiempoTotalEjecucionTexto) {
+                {{tiempoTotalEjecucionTexto}}
+              }
+            </p>
+          </div>
+        </div>
+
+        <!-- Lista de tiempos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          @if(incidente_create?.id && mostrarTimers){
+
+            @for (timer of listTimer; track timer.key) {
+              <app-incidente-tiempo-component
+              [tipo]="timer.key"
+              [id_incidente]="incidente_create?.id ?? null"
+              [descripcion]="timer.description"
+              [disable]="timer.index != timer_index()"
+              (press)="sumaContador()"
+              (tiempoChange)="guardarTiempo($event)"
+              />
+            }
+
+          }
+
+        </div>
+
+        <!-- Observaciones -->
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <app-form-component
+            [Formulary]="svFormData.incidente('seguimiento')"
+            (getSubmit)="submitForm_seguimineto($event)"
+            [labelSudmit]="'Finalizar Inciente'"
+          />
+
+          <!-- <label class="text-sm font-bold text-gray-700 block mb-2">
+            Observaciones de la bitácora
+          </label> -->
+
+          <!-- <textarea
+            class="w-full min-h-[90px] border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+            placeholder="Ejemplo: unidad llegó al lugar, se confirmó emergencia, se solicitó apoyo adicional..."
+          ></textarea> -->
+        </div>
+
+      </div>
+    </app-wizard-step>
+
+  </app-wizard-component>
+</app-modal-component>
+
+<app-modal-component
+  [show]="showModal_detalles"
+  [titulo]="'detalles incidente'"
+  [width]="'90%'"
+  [height]="'90%'"
+  [closeOnBackdrop]="true"
+  [showCloseButton]="true"
+  (closed)="cerrarModal_detalles()"
+>
+  <div class="flex w-full space-x-2 ">
+    <div class="w-1/2">
+      <app-map-picker #mapa_detalle
+        [height]="'700px'"/>
+    </div>
+    <div class="w-1/2 overflow-auto h-[700px]">
+      <app-incidente-info-components [dataIncidente]="incidente_selection" [showImage]="true" [showRecurso]="true" [showTimer]="true"></app-incidente-info-components>
+    </div>
+  </div>
+
+</app-modal-component>

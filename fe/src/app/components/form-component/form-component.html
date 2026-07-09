@@ -1,0 +1,426 @@
+<div>
+    <form [formGroup]="_formGroup" (submit)="Submit()"
+        class="p-2 ">
+
+        <div class="flex flex-wrap">
+            @for (form of Formulary?.seccions; track $index) {
+
+                <div class="p-2"
+                    [ngClass]="{
+                        'w-full': !form.w || form.w === 1,
+                        'w-1/2': form.w === 2,
+                        'w-1/3': form.w === 3,
+                        'w-1/4': form.w === 4,
+                        'w-1/5': form.w === 5,
+                        'w-1/6': form.w === 6
+                        }">
+                <div class="p-4 border rounded-2xl border-gray-200/20 bg-[#14181D] h-full">
+
+                    @if (form.title && form.showTitle) {
+                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200/10">
+                        <span class="h-4 w-1 rounded-full bg-blue-600"></span>
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            {{ form.title }}
+                        </h3>
+                    </div>
+                    }
+
+                    <div class="flex flex-wrap -m-2">
+                        @for (field of form.field; track field.name) {
+
+                            <div class="flex flex-col gap-1.5 p-2"
+                                [ngClass]="{
+                                    'w-full': !field.w || field.w === 1,
+                                    'w-1/2': field.w === 2,
+                                    'w-1/3': field.w === 3,
+                                    'w-1/4': field.w === 4
+                                    }">
+
+                                <!-- label -->
+                                <label class="text-sm font-medium text-gray-300">
+                                    {{ field.label }}
+                                    @if (field.required) {
+                                        <span class="text-red-500">*</span>
+                                    }
+                                </label>
+
+                                <!-- inputs -->
+                                @if(field.type !== 'select' && field.type !== 'select-search' && field.type !== 'image' && field.type !== 'file' && field.type !== 'textarea' && field.type !== 'checkbox'){
+                                    <input
+                                        class="rounded-lg border px-3.5 py-2.5 text-sm text-gray-100 w-full
+                                            placeholder:text-gray-500
+                                            transition-colors duration-150
+                                            border-gray-600 bg-gray-800
+                                            hover:border-gray-500
+                                            focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+                                            read-only:bg-gray-800/50 read-only:text-gray-500 read-only:cursor-default
+                                        "
+                                        [ngClass]="{
+                                            '!border-emerald-400 !bg-emerald-950/30':
+                                                _formGroup.get(field.name)?.valid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                            '!border-red-400 !bg-red-950/30':
+                                                _formGroup.get(field.name)?.invalid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty)
+                                            }"
+
+                                        [type]="field.type"
+                                        [placeholder]="field.placeholder ?? ''"
+                                        [readonly]="field.readonly ?? false"
+                                        [formControlName]="field.name"
+                                    >
+                                }
+                                @if(field.type === 'checkbox'){
+                                  <label class="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+                                      <input
+                                          type="checkbox"
+                                          class="hidden peer"
+                                          [formControlName]="field.name"
+                                      >
+                                      <span
+                                          class="
+                                              flex items-center justify-center
+                                              h-5 w-5 rounded-md border-2
+                                              border-gray-600 bg-gray-800
+                                              transition-colors duration-150
+                                              peer-checked:bg-blue-600 peer-checked:border-blue-600
+                                              peer-focus:ring-4 peer-focus:ring-blue-500/20
+                                          "
+                                      >
+                                          <svg
+                                              class="h-3 w-3 text-white opacity-0 peer-checked:opacity-100"
+                                              [class.opacity-100]="_formGroup.get(field.name)?.value"
+                                              width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                              stroke="currentColor" stroke-width="3"
+                                              stroke-linecap="round" stroke-linejoin="round"
+                                          >
+                                              <polyline points="20 6 9 17 4 12"></polyline>
+                                          </svg>
+                                      </span>
+                                      <span class="text-sm text-gray-300">
+                                          {{ field.placeholder ?? '' }}
+                                      </span>
+                                  </label>
+                              }
+                                @if(field.type === 'textarea'){
+                                      <textarea
+                                        class="rounded-lg border px-3.5 py-2.5 text-sm text-gray-100 w-full
+                                            placeholder:text-gray-500
+                                            transition-colors duration-150
+                                            border-gray-600 bg-gray-800
+                                            hover:border-gray-500
+                                            focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+                                            read-only:bg-gray-800/50 read-only:text-gray-500 read-only:cursor-default
+                                        "
+                                        [ngClass]="{
+                                            '!border-emerald-400 !bg-emerald-950/30':
+                                                _formGroup.get(field.name)?.valid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                            '!border-red-400 !bg-red-950/30':
+                                                _formGroup.get(field.name)?.invalid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty)
+                                            }"
+
+                                        [placeholder]="field.placeholder ?? ''"
+                                        [readonly]="field.readonly ?? false"
+                                        [formControlName]="field.name"
+                                    ></textarea>
+                                }
+                                @if(field.type === 'select'){
+                                    <div class="relative w-full" #panelRef>
+                                        <!-- Botón -->
+                                        <button
+                                            type="button"
+                                            class="w-full"
+                                            (click)="toggleSelect(field.name)"
+                                        >
+                                            <div class="relative">
+                                                <input
+                                                  class="rounded-lg border px-3.5 py-2.5 pr-9 text-sm text-gray-100 w-full
+                                                          placeholder:text-gray-500
+                                                          transition-colors duration-150
+                                                          border-gray-600 bg-gray-800
+                                                          hover:border-gray-500
+                                                          cursor-pointer
+                                                  "
+                                                  [ngClass]="{
+                                                    '!border-emerald-400 !bg-emerald-950/30':
+                                                      _formGroup.get(field.name)?.valid &&
+                                                      (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                                    '!border-red-400 !bg-red-950/30':
+                                                      _formGroup.get(field.name)?.invalid &&
+                                                      (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                                    '!border-blue-500 ring-4 ring-blue-500/10':
+                                                      _OpenSelectInput === field.name
+                                                  }"
+                                                  type="text"
+                                                  [placeholder]="field.placeholder ?? 'Seleccionar...'"
+                                                  [value]="getSelectedLabel(field)"
+                                                  readonly
+                                                />
+                                                <span
+                                                    class="
+                                                        pointer-events-none
+                                                        absolute right-3 top-1/2 -translate-y-1/2
+                                                        text-gray-500
+                                                        transition-transform duration-200
+                                                    "
+                                                    [class.rotate-90]="_OpenSelectInput === field.name"
+                                                    >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                                </span>
+                                            </div>
+                                        </button>
+
+                                        <!-- Panel -->
+                                        @if (_OpenSelectInput === field.name) {
+                                            <div
+                                            class="
+                                                absolute left-0 mt-1.5 w-full
+                                                z-50
+                                                rounded-lg
+                                                bg-gray-800
+                                                border border-gray-200/10
+                                                shadow-lg
+                                                py-1.5
+                                                max-h-60 overflow-y-auto
+                                            "
+                                            >
+                                            @for (op of getFieldOptions(field); track op.value) {
+                                                <button
+                                                type="button"
+                                                class="
+                                                    w-full text-left px-3.5 py-2 text-sm
+                                                    text-gray-300
+                                                    hover:bg-gray-700
+                                                    transition-colors duration-100
+                                                "
+                                                [ngClass]="{
+                                                    'text-blue-400 font-medium bg-blue-950/40':
+                                                        _formGroup.get(field.name)?.value === op.value
+                                                }"
+                                                (click)="selectOption(field.name, op.value)"
+                                                >
+                                                {{ op.label !== "" ? op.label : "Seleccionar..." }}
+                                                </button>
+                                            }
+                                            </div>
+                                        }
+
+                                    </div>
+                                }
+
+                                @if(field.type === 'select-search'){
+                                    <div class="relative w-full" #panelRef>
+                                        <div class="relative">
+                                            <input
+                                              class="rounded-lg border px-3.5 py-2.5 pr-9 text-sm text-gray-100 w-full
+                                                      placeholder:text-gray-500
+                                                      transition-colors duration-150
+                                                      border-gray-600 bg-gray-800
+                                                      hover:border-gray-500
+                                                      focus:outline-none
+                                              "
+                                              [ngClass]="{
+                                                '!border-emerald-400 !bg-emerald-950/30':
+                                                  _formGroup.get(field.name)?.valid &&
+                                                  (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                                '!border-red-400 !bg-red-950/30':
+                                                  _formGroup.get(field.name)?.invalid &&
+                                                  (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                                '!border-blue-500 ring-4 ring-blue-500/10':
+                                                  _OpenSelectInput === field.name
+                                              }"
+                                              type="text"
+                                              [placeholder]="field.placeholder ?? 'Buscar...'"
+                                              [value]="getSelectSearchValue(field)"
+                                              (focus)="onSelectSearchFocus(field)"
+                                              (input)="onSelectSearchInput($event, field)"
+                                            />
+                                            <button
+                                                type="button"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                                (click)="toggleSelect(field.name)"
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="transition-transform duration-200"
+                                                    [class.rotate-90]="_OpenSelectInput === field.name">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        @if (_OpenSelectInput === field.name) {
+                                            <div class="absolute left-0 mt-1.5 w-full z-50 rounded-lg bg-gray-800 border border-gray-200/10 shadow-lg py-1.5 max-h-60 overflow-y-auto">
+                                                @for (op of getFilteredOptions(field); track op.value) {
+                                                    <button
+                                                        type="button"
+                                                        class="w-full text-left px-3.5 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors duration-100"
+                                                        [ngClass]="{
+                                                            'text-blue-400 font-medium bg-blue-950/40':
+                                                                _formGroup.get(field.name)?.value === op.value
+                                                        }"
+                                                        (click)="selectOption(field.name, op.value)"
+                                                    >
+                                                        {{ op.label !== "" ? op.label : "Seleccionar..." }}
+                                                    </button>
+                                                } @empty {
+                                                    <div class="px-3.5 py-2 text-sm text-gray-500">Sin resultados</div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                
+                                @if(field.type === 'image' || field.type === 'file'){
+                                    <div>
+                                        <label
+                                            [for]="field.name"
+                                            class="flex flex-col items-center justify-center gap-1.5 w-full rounded-lg border-2 border-dashed px-4 py-6 cursor-pointer text-center
+                                                transition-colors duration-150
+                                                border-gray-600 bg-gray-800/40
+                                                hover:bg-gray-800 hover:border-gray-500
+                                            "
+                                            [ngClass]="{
+                                                '!border-emerald-400 !bg-emerald-950/20':
+                                                    _formGroup.get(field.name)?.valid &&
+                                                    (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                                '!border-red-400 !bg-red-950/20':
+                                                    _formGroup.get(field.name)?.invalid &&
+                                                    (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty)
+                                                }"
+                                        >
+                                            @if (field.type === 'image') {
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                                    <circle cx="9" cy="9" r="2"/>
+                                                    <path d="m21 15-5-5L5 21"/>
+                                                </svg>
+                                            } @else {
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <path d="M14 2v6h6"/>
+                                                </svg>
+                                            }
+                                            <span class="text-sm font-medium text-blue-400">
+                                                Seleccionar {{ field.type === 'image' ? 'imagen' : 'archivo' }}{{ field.file_Multiple ? 's' : '' }}
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                {{ getFileHint(field) }}
+                                            </span>
+                                        </label>
+                                        <input
+                                            [id]="field.name"
+                                            type="file"
+                                            class="hidden"
+                                            [accept]="getFileAccept(field)"
+                                            [multiple]="field.file_Multiple ?? false"
+                                            (change)="onFileChange($event, field)"
+                                        >
+
+                                        <!-- previsualización -->
+                                        @if (_filesPreview[field.name]?.length) {
+                                            <div class="flex flex-wrap gap-2 mt-2.5">
+                                                @for (item of _filesPreview[field.name]; track item.name; let i = $index) {
+                                                    <div class="relative flex items-center gap-2 rounded-lg border border-gray-200/10 bg-gray-800 pl-2 pr-7 py-1.5 max-w-full">
+                                                        @if (field.type === 'image' && item.url) {
+                                                            <img [src]="item.url" class="h-8 w-8 rounded-md object-cover flex-shrink-0">
+                                                        } @else {
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 flex-shrink-0">
+                                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                                <path d="M14 2v6h6"/>
+                                                            </svg>
+                                                        }
+                                                        <span class="flex flex-col leading-tight">
+                                                            <span class="text-xs text-gray-300 truncate max-w-[140px]">{{ item.name }}</span>
+                                                            <span class="text-[11px] text-gray-500">{{ formatFileSize(item.size) }}</span>
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            (click)="removeFile(field, i)"
+                                                            class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors"
+                                                        >
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                <!-- alertas -->
+                                @if (_formGroup.get(field.name)?.touched && _formGroup.get(field.name)?.invalid) {
+                                    <small class="text-red-500 text-xs -mt-1">
+                                        Campo requerido
+                                    </small>
+                                }
+                            </div>
+
+                        }
+                    </div>
+                </div>
+                </div>
+            }
+        </div>
+
+        <div
+          class="
+            mt-8 pt-5
+            border-t border-slate-700/60
+            flex flex-col-reverse sm:flex-row
+            justify-end items-stretch sm:items-center
+            gap-2 sm:gap-3
+          "
+        >
+          @if(ShowButtonCancel){
+            <button
+              type="button"
+              class="
+                h-9 px-4
+                rounded-lg
+                text-sm font-medium
+                text-slate-200
+                bg-slate-700/70 hover:bg-slate-600 active:bg-slate-500
+                border border-slate-600/70
+                shadow-sm
+                transition-all duration-150
+                focus:outline-none focus:ring-4 focus:ring-slate-500/20
+              "
+              (click)="Cancelar()"
+            >
+              Cancelar
+            </button>
+          }
+
+          <button
+            type="button"
+            class="
+              h-9 px-5
+              rounded-lg
+              text-sm font-semibold
+              text-white
+              bg-blue-600 hover:bg-blue-700 active:bg-blue-800
+              border border-blue-500/40
+              shadow-sm shadow-blue-950/30
+              transition-all duration-150
+              focus:outline-none focus:ring-4 focus:ring-blue-500/25
+            "
+            (click)="Submit()"
+          >
+            {{ labelSudmit ? labelSudmit : 'Enviar' }}
+          </button>
+        </div>
+
+    </form>
+</div>

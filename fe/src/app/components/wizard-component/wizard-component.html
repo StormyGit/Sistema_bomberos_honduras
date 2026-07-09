@@ -1,0 +1,104 @@
+<!-- WIZARD -->
+
+<div class="w-full h-full min-h-0 flex flex-col">
+
+  <!-- HEADER / INDICADOR DE PASOS -->
+  @if (showHeader) {
+    <div class="w-full mb-4 shrink-0">
+
+      <div class="flex items-center gap-2 overflow-auto pb-2">
+
+        @for (step of stepsArray; track $index) {
+          <div
+            [class.cursor-pointer]="!disableHeader"
+            class="
+              flex items-center gap-2
+              shrink-0
+            "
+            (click)="goToStep($index)"
+          >
+
+            <!-- CÍRCULO -->
+            <div
+              class="
+                w-8 h-8 rounded-full
+                flex items-center justify-center
+                font-bold text-sm
+              "
+              [class.bg-red-600]="$index === currentIndex"
+              [class.text-white]="$index === currentIndex"
+              [class.bg-gray-700]="$index !== currentIndex"
+              [class.text-gray-300]="$index !== currentIndex"
+            >
+              {{ $index + 1 }}
+            </div>
+
+            <!-- TEXTO -->
+            <div class="text-left">
+              <div
+                class="text-sm font-bold"
+                [class.text-red-600]="$index === currentIndex"
+                [class.text-gray-300]="$index !== currentIndex"
+              >
+                {{ step.titulo }}
+              </div>
+
+              @if (step.descripcion) {
+                <div class="text-xs text-gray-500">
+                  {{ step.descripcion }}
+                </div>
+              }
+            </div>
+
+            <!-- LÍNEA ENTRE PASOS -->
+            @if ($index < stepsArray.length - 1) {
+              <div class="w-8 h-[2px] bg-gray-600"></div>
+            }
+
+          </div>
+        }
+
+      </div>
+
+    </div>
+  }
+
+  <!-- CONTENIDO DEL PASO -->
+  <div class="flex-1 min-h-0 overflow-auto">
+    @if (stepsArray[currentIndex]) {
+      <ng-container *ngTemplateOutlet="stepsArray[currentIndex].content"></ng-container>
+    }
+  </div>
+
+  <!-- BOTONES ABAJO DEL TODO -->
+  @if (showButtons) {
+    <div class="mt-auto shrink-0 flex justify-between items-center pt-4 border-t border-gray-200/20">
+
+      <button
+        type="button"
+        class="
+          px-4 py-2 rounded-lg
+          bg-gray-700 text-gray-200 font-bold
+          disabled:opacity-40
+        "
+        [disabled]="isFirstStep()"
+        (click)="previous()"
+      >
+        Anterior
+      </button>
+
+      <button
+        type="button"
+        class="
+          px-4 py-2 rounded-lg
+          bg-red-600 text-white font-bold
+        "
+        (click)="next()"
+      >
+        {{ isLastStep() ? finishText : 'Siguiente' }}
+      </button>
+
+    </div>
+  }
+
+</div>

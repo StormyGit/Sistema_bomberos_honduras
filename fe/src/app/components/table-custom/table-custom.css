@@ -1,0 +1,46 @@
+/* Fondo y texto general de la tabla */
+::ng-deep .custom-dark-table {
+  background-color: #14181D !important;
+}
+
+::ng-deep .custom-dark-table .mat-mdc-header-row {
+  background-color: #14181D !important;
+}
+
+::ng-deep .custom-dark-table .mat-mdc-header-cell {
+  color: #9ca3af !important; /* gray-400 */
+  font-weight: 700 !important;
+  border-bottom-color: rgba(229, 231, 235, 0.1) !important;
+}
+
+::ng-deep .custom-dark-table .mat-mdc-row {
+  background-color: #14181D !important;
+}
+
+::ng-deep .custom-dark-table .mat-mdc-row:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+::ng-deep .custom-dark-table .mat-mdc-cell {
+  color: #e5e7eb !important; /* gray-200 */
+  border-bottom-color: rgba(229, 231, 235, 0.08) !important;
+}
+
+/* Paginador */
+::ng-deep .custom-dark-paginator {
+  background-color: #14181D !important;
+  color: #d1d5db !important; /* gray-300 */
+}
+
+::ng-deep .custom-dark-paginator .mat-mdc-select-value,
+::ng-deep .custom-dark-paginator .mat-mdc-paginator-range-label {
+  color: #d1d5db !important;
+}
+
+::ng-deep .custom-dark-paginator .mat-mdc-icon-button svg {
+  fill: #d1d5db !important;
+}
+
+::ng-deep .custom-dark-paginator .mat-mdc-icon-button[disabled] svg {
+  fill: #4b5563 !important; /* gray-600, para el estado disabled */
+}

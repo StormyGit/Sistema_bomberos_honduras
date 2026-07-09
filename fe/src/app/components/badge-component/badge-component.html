@@ -1,0 +1,24 @@
+<span
+  class="
+    inline-flex
+    items-center
+    gap-2
+    rounded-full
+    border
+    px-3
+    py-1
+    text-xs
+    font-bold
+    shadow-sm
+    whitespace-nowrap
+  "
+  [ngClass]="badgeClass"
+>
+  <span
+    class="h-2 w-2 rounded-full"
+    [class.animate-pulse]="shouldPulse"
+    [ngClass]="dotClass"
+  ></span>
+
+  {{ badgeLabel }}
+</span>

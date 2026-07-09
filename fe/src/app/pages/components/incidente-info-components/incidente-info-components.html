@@ -1,0 +1,290 @@
+<div class="h-full">
+@if (dataIncidente){
+  <div class="bg-gray-100 rounded-xl p-2">
+    <h1 class="text-xl font-bold text-gray-800 mb-4">
+      Reporte de Incidente
+    </h1>
+
+    <!-- Información de incidente -->
+    <section class="bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-gray-500 p-4 mb-3">
+      <h2 class="text-base font-semibold text-gray-800 mb-3">
+        Información de incidente
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+        <div>
+          <p class="text-xs text-gray-500">Incidente</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.incidente ?? ""}}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Colonia / barrio</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.colonia ?? ""}}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Punto de referencia</p>
+          <p class="text-sm font-medium text-gray-800">
+            {{dataIncidente.referencia ?? ""}}
+          </p>
+        </div>
+
+        <div class="md:col-span-2">
+          <p class="text-xs text-gray-500">Dirección</p>
+          <p class="text-sm font-medium text-gray-800">
+            {{dataIncidente.direccion ?? ""}}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Datos del denunciante -->
+    <section class="bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-gray-400 p-4 mb-3">
+      <h2 class="text-base font-semibold text-gray-800 mb-3">
+        Datos del denunciante
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+        <div>
+          <p class="text-xs text-gray-500">Denunciante</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.denuncianteNombre ?? ""}}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Teléfono</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.denuncianteTelefono ?? ""}}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Información de recepción -->
+    <section class="bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-gray-400 p-4 mb-3">
+      <h2 class="text-base font-semibold text-gray-800 mb-3">
+        Información de recepción
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+        <div>
+          <p class="text-xs text-gray-500">Operador</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.recepcionNombre}}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Hora y fecha</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.fecha ?? ""}}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Tipo de recepción</p>
+          <p class="text-sm font-medium text-gray-800">{{dataIncidente.recepcionTipo ?? ""}}</p>
+        </div>
+      </div>
+    </section>
+
+    @if(showRecurso){
+      <!-- Asignación de recursos -->
+      <section class="bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-gray-400 p-4">
+        <h2 class="text-base font-semibold text-gray-800 mb-3">
+          Asignación de recursos
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+          @if (dataIncidente.recursos?.[0]; as recurso) {
+          <div>
+            <p class="text-xs text-gray-500">Estación</p>
+            <p class="text-sm font-medium text-gray-800">{{recurso.estacion ?? " - "}}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500">Unidad</p>
+            <p class="text-sm font-medium text-gray-800">{{recurso.unidad ?? " - "}}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500">Operador</p>
+            <p class="text-sm font-medium text-gray-800">{{ recurso.oficialEncargado ?? ' - ' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500">Encargado</p>
+            @if (dataIncidente; as inc) {
+              <p class="text-sm font-medium text-gray-800">{{ inc.recepcionNombre ?? ' - ' }}</p>
+            }
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500">Personal asignado</p>
+            <p class="text-sm font-medium text-gray-800">{{ recurso.numPersonal ?? ' - ' }}</p>
+          </div>
+          }
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-x-4 gap-y-3">
+          <div>
+            <p class="text-xs text-gray-500">observacion</p>
+            <p class="text-sm font-medium text-gray-800">{{ dataIncidente.observacionGeneral ?? ' - ' }}</p>
+          </div>
+        </div>
+      </section>
+    }
+
+  </div>
+  @if(showTimer){
+    @if ((dataIncidente.tiempos?.length ?? 0) > 0) {
+      <section class="bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-red-500 p-4 mt-4 mb-3">
+        <h2 class="text-base font-semibold text-gray-800 mb-3">
+          Tiempo total de misión
+        </h2>
+
+        <div>
+          <p class="text-xs text-gray-500">Duración desde reporte hasta finalización</p>
+          <p class="text-2xl font-bold text-gray-900">
+            {{ tiempoMision }}
+          </p>
+        </div>
+      </section>
+
+      <section class="bg-gray-100 rounded-xl p-4 mt-4">
+
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-gray-800">
+              Tiempos del incidente
+            </h2>
+            <p class="text-xs text-gray-500">
+              Registro de horas por cada etapa del incidente
+            </p>
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+          @for (tiempo of dataIncidente.tiempos; track tiempo.id ?? $index) {
+
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-bold text-gray-800">
+
+                </p>
+
+                <span class="text-[11px] font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  {{ tiempo.tipoTiempo }}
+                </span>
+              </div>
+
+              <div class="mt-3">
+                <p class="text-xs text-gray-500">
+                  Hora registrada
+                </p>
+
+                <p class="text-xl font-bold text-gray-900">
+                  {{ formatearHora(tiempo.horaCreacion) }}
+                </p>
+              </div>
+
+              <div class="mt-3 pt-3 border-t border-gray-100">
+                <p class="text-xs text-gray-500">
+                  Fecha
+                </p>
+
+                <p class="text-sm font-medium text-gray-700">
+                  {{ formatearFechaHora(tiempo.horaCreacion) }}
+                </p>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+  }
+  @if(showImage){
+    <!-- Evidencias / Imágenes -->
+    <section class="h-full max-h-125 overflow-y-auto bg-gray-100 rounded-xl p-4 mt-4">
+
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-800">
+            Evidencias del incidente
+          </h2>
+          <p class="text-xs text-gray-500">
+            Imágenes registradas como evidencia
+          </p>
+        </div>
+
+        <span class="text-xs font-semibold bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
+          {{ dataIncidente.images?.length ?? 0 }} archivo(s)
+        </span>
+      </div>
+
+      @if ((dataIncidente.images?.length ?? 0) > 0) {
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          @for (image of dataIncidente.images; track image.id ?? $index) {
+
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+              <div class="w-full h-48 bg-gray-200">
+                <img
+                  [src]="image.urlVisualizacion"
+                  [alt]="image.nombreOriginal"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+
+              <div class="p-3">
+                <p class="text-sm font-semibold text-gray-800 truncate">
+                  {{ image.nombreOriginal }}
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ image.tipoArchivo }}
+                </p>
+
+                <div class="flex gap-2 mt-3">
+                  <a
+                    [href]="image.urlVisualizacion"
+                    target="_blank"
+                    class="flex-1 text-center text-xs font-semibold bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition"
+                  >
+                    Ver
+                  </a>
+
+                  <a
+                    [href]="image.urlDescarga"
+                    class="flex-1 text-center text-xs font-semibold bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition"
+                  >
+                    Descargar
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="bg-white border border-dashed border-gray-300 rounded-xl p-8 text-center">
+          <p class="text-sm font-medium text-gray-600">
+            No hay evidencias registradas.
+          </p>
+          <p class="text-xs text-gray-400 mt-1">
+            Cuando se suban imágenes, aparecerán aquí.
+          </p>
+        </div>
+
+      }
+
+    </section>
+  }
+}
+</div>
