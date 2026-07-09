@@ -1,14 +1,14 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar style="--background:#0a0a0c; --color:#f5f5f5; --border-color:#262626;">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/incidentes"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/incidentes" style="color:#f5f5f5;"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Detalle del incidente</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" style="--background:#0a0a0c; --color:#f5f5f5;">
 
   <ion-refresher slot="fixed" (ionRefresh)="recargarList($event)">
     <ion-refresher-content
@@ -20,147 +20,215 @@
   @if (incidente(); as i) {
 
     <!-- RESUMEN PRINCIPAL -->
-    <ion-card>
-      <ion-card-header>
-        <div class="flex justify-between items-start gap-2">
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="p-4 border-b border-neutral-800">
+        <div class="flex justify-between items-start gap-3">
           <div>
-            <ion-card-title>
+            <h2 class="text-white font-semibold text-lg leading-tight">
               {{ formatearTexto(i.incidente) }}
-            </ion-card-title>
-
-            <ion-card-subtitle>
+            </h2>
+            <p class="text-neutral-500 text-sm mt-1">
               {{ i.colonia ?? 'Sin colonia' }}
-            </ion-card-subtitle>
+            </p>
           </div>
 
-          <ion-badge [color]="colorEstado(i.estado)">
+          <!-- <span
+            class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap"
+            [ngClass]="{
+              'bg-amber-500/10 border-amber-500/30 text-amber-400':   i.estado === 'Pendiente',
+              'bg-orange-500/10 border-orange-500/30 text-orange-400': i.estado === 'En ejecución' || i.estado === 'Activo',
+              'bg-emerald-500/10 border-emerald-500/30 text-emerald-400': i.estado === 'Finalizado' || i.estado === 'Resuelto' || i.estado === 'Cerrado',
+              'bg-rose-500/10 border-rose-500/30 text-rose-400': i.estado === 'Cancelado',
+              'bg-neutral-500/10 border-neutral-500/30 text-neutral-400': !['Pendiente','En ejecución','Activo','Finalizado','Resuelto','Cerrado','Cancelado'].includes(i.estado)
+            }"
+          >
+            <span
+              class="w-1.5 h-1.5 rounded-full"
+              [ngClass]="{
+                'bg-amber-400':   i.estado === 'Pendiente',
+                'bg-orange-400':  i.estado === 'En ejecución' || i.estado === 'Activo',
+                'bg-emerald-400': i.estado === 'Finalizado' || i.estado === 'Resuelto' || i.estado === 'Cerrado',
+                'bg-rose-400':    i.estado === 'Cancelado',
+                'bg-neutral-400': !['Pendiente','En ejecución','Activo','Finalizado','Resuelto','Cerrado','Cancelado'].includes(i.estado)
+              }"
+            ></span>
             {{ i.estado }}
-          </ion-badge>
+          </span> -->
         </div>
-      </ion-card-header>
+      </div>
 
-      <ion-card-content>
-        <p><strong>ID:</strong> {{ i.id }}</p>
-        <p><strong>Fecha:</strong> {{ i.fecha }}</p>
-        <p><strong>Departamento:</strong> {{ i.departamento }}</p>
-      </ion-card-content>
+      <div class="p-4 grid grid-cols-3 gap-3">
+        <div>
+          <p class="text-neutral-500 text-[11px] uppercase tracking-wide">ID</p>
+          <p class="text-white text-sm font-medium mt-0.5">{{ i.id }}</p>
+        </div>
+        <div>
+          <p class="text-neutral-500 text-[11px] uppercase tracking-wide">Fecha</p>
+          <p class="text-white text-sm font-medium mt-0.5">{{ i.fecha }}</p>
+        </div>
+        <div>
+          <p class="text-neutral-500 text-[11px] uppercase tracking-wide">Departamento</p>
+          <p class="text-white text-sm font-medium mt-0.5">{{ i.departamento }}</p>
+        </div>
+      </div>
     </ion-card>
 
     <!-- UBICACIÓN -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Ubicación</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p><strong>Dirección:</strong> {{ i.direccion ?? 'No registrada' }}</p>
-        <p><strong>Referencia:</strong> {{ i.referencia ?? 'No registrada' }}</p>
-        <p><strong>Colonia:</strong> {{ i.colonia ?? 'No registrada' }}</p>
-      </ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Ubicación</h3>
+      </div>
+      <div class="px-4 pb-4">
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-800/70 text-sm">
+          <span class="text-neutral-500">Dirección</span>
+          <span class="text-neutral-200 text-right">{{ i.direccion ?? 'No registrada' }}</span>
+        </div>
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-800/70 text-sm">
+          <span class="text-neutral-500">Referencia</span>
+          <span class="text-neutral-200 text-right">{{ i.referencia ?? 'No registrada' }}</span>
+        </div>
+        <div class="flex justify-between gap-3 py-2 text-sm">
+          <span class="text-neutral-500">Colonia</span>
+          <span class="text-neutral-200 text-right">{{ i.colonia ?? 'No registrada' }}</span>
+        </div>
+      </div>
     </ion-card>
 
     <!-- DENUNCIANTE -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Denunciante</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p><strong>Nombre:</strong> {{ !i.isAnonimo ? (i.denuncianteNombre) : 'Anónimo' }}</p>
-        <p><strong>Teléfono:</strong> {{ i.denuncianteTelefono ?? 'No registrado' }}</p>
-      </ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Denunciante</h3>
+      </div>
+      <div class="px-4 pb-4">
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-800/70 text-sm">
+          <span class="text-neutral-500">Nombre</span>
+          <span class="text-neutral-200 text-right">{{ !i.isAnonimo ? (i.denuncianteNombre) : 'Anónimo' }}</span>
+        </div>
+        <div class="flex justify-between gap-3 py-2 text-sm">
+          <span class="text-neutral-500">Teléfono</span>
+          <span class="text-neutral-200 text-right">{{ i.denuncianteTelefono ?? 'No registrado' }}</span>
+        </div>
+      </div>
     </ion-card>
 
     <!-- RECEPCIÓN -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Recepción</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p><strong>Operador:</strong> {{ i.recepcionNombre ?? 'No registrado' }}</p>
-        <p><strong>Tipo:</strong> {{ formatearTexto(i.recepcionTipo) }}</p>
-        <p><strong>Fecha de creación:</strong> {{ i.fechaCreacion }}</p>
-      </ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Recepción</h3>
+      </div>
+      <div class="px-4 pb-4">
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-800/70 text-sm">
+          <span class="text-neutral-500">Operador</span>
+          <span class="text-neutral-200 text-right">{{ i.recepcionNombre ?? 'No registrado' }}</span>
+        </div>
+        <div class="flex justify-between gap-3 py-2 border-b border-neutral-800/70 text-sm">
+          <span class="text-neutral-500">Tipo</span>
+          <span class="text-neutral-200 text-right">{{ formatearTexto(i.recepcionTipo) }}</span>
+        </div>
+        <div class="flex justify-between gap-3 py-2 text-sm">
+          <span class="text-neutral-500">Fecha de creación</span>
+          <span class="text-neutral-200 text-right">{{ i.fechaCreacion }}</span>
+        </div>
+      </div>
     </ion-card>
 
     <!-- RECURSOS -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Recursos asignados</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Recursos asignados</h3>
+      </div>
+      <div class="px-4 pb-4">
 
         @if (i.recursos && i.recursos.length > 0) {
 
           @for (r of i.recursos; track r.id) {
-            <div class="mb-4 pb-4 border-b border-gray-700 last:border-b-0">
-              <p><strong>Estación:</strong> {{ r.estacion }}</p>
-              <p><strong>Unidad:</strong> {{ r.unidad }}</p>
-              <p><strong>Oficial encargado:</strong> {{ r.oficialEncargado }}</p>
-              <p><strong>Número de personal:</strong> {{ r.numPersonal }}</p>
-              <p><strong>Galones de agua:</strong> {{ r.galonAgua ?? 'No registrado' }}</p>
-              <p><strong>Observación:</strong> {{ r.observacion ?? 'Sin observación' }}</p>
+            <div class="rounded-xl bg-neutral-950/60 border border-neutral-800 p-3 mb-3 last:mb-0">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-white font-semibold text-sm">{{ r.unidad }}</span>
+                <span class="text-neutral-500 text-xs">{{ r.estacion }}</span>
+              </div>
+
+              <div class="flex justify-between gap-3 py-1.5 border-b border-neutral-800/70 text-sm">
+                <span class="text-neutral-500">Oficial encargado</span>
+                <span class="text-neutral-200 text-right">{{ r.oficialEncargado }}</span>
+              </div>
+
+              <div class="flex gap-4 mt-2 text-xs text-neutral-400">
+                <span><strong class="text-white">{{ r.numPersonal }}</strong> personal</span>
+                <span><strong class="text-white">{{ r.galonAgua ?? '—' }}</strong> galones de agua</span>
+              </div>
+
+              @if (r.observacion) {
+                <p class="text-neutral-500 text-xs italic mt-2 pt-2 border-t border-neutral-800/70">{{ r.observacion }}</p>
+              }
             </div>
           }
 
         } @else {
-          <p>No hay recursos asignados.</p>
+          <p class="text-neutral-500 text-sm text-center py-2">No hay recursos asignados.</p>
         }
 
-      </ion-card-content>
+      </div>
     </ion-card>
 
     <!-- TIEMPOS -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Tiempos del incidente</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Tiempos del incidente</h3>
+      </div>
+      <div class="px-4 pb-4">
 
         @if (i.tiempos && i.tiempos.length > 0) {
 
-          @for (t of i.tiempos; track t.id) {
-            <div class="mb-3 pb-3 border-b border-gray-700 last:border-b-0">
-              <p><strong>Tipo:</strong> {{ formatearTexto(t.tipoTiempo) }}</p>
-              <p><strong>Hora:</strong> {{ obtenerHora(t.horaCreacion) }}</p>
-              <p><strong>Fecha:</strong> {{ t.fechaCreacion }}</p>
-              <p><strong>Observación:</strong> {{ t.observacion ?? 'Sin observación' }}</p>
-            </div>
-          }
+          <div class="relative pl-5">
+            <div class="absolute left-[7px] top-1 bottom-1 w-px bg-neutral-800"></div>
+
+            @for (t of i.tiempos; track t.id) {
+              <div class="relative pb-4 last:pb-0">
+                <span class="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-neutral-900"></span>
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="text-white text-sm font-medium">{{ obtenerHora(t.horaCreacion) }}</span>
+                  <span class="text-blue-400 text-xs font-semibold uppercase tracking-wide">{{ formatearTexto(t.tipoTiempo) }}</span>
+                </div>
+                <p class="text-neutral-600 text-xs mt-0.5">{{ t.fechaCreacion }}</p>
+                @if (t.observacion) {
+                  <p class="text-neutral-500 text-xs italic mt-1">{{ t.observacion }}</p>
+                }
+              </div>
+            }
+          </div>
 
         } @else {
-          <p>No hay tiempos registrados.</p>
+          <p class="text-neutral-500 text-sm text-center py-2">No hay tiempos registrados.</p>
         }
 
-      </ion-card-content>
+      </div>
     </ion-card>
 
     <!-- EVIDENCIAS -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Evidencias</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Evidencias</h3>
+      </div>
+      <div class="px-4 pb-4">
 
         @if (i.images && i.images.length > 0) {
 
-          <div class="space-y-4">
+          <div class="space-y-3">
             @for (img of i.images; track img.id) {
-              <div class="rounded-xl overflow-hidden border border-gray-700">
+              <div class="rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950/60">
                 <ion-img [src]="img.urlVisualizacion"></ion-img>
 
-                <div class="p-3">
-                  <p class="text-sm">
-                    <strong>Archivo:</strong> {{ img.nombreOriginal }}
+                <div class="flex items-center justify-between gap-3 p-3">
+                  <p class="text-neutral-500 text-xs truncate">
+                    {{ img.nombreOriginal }}
                   </p>
 
                   <ion-button
                     size="small"
-                    fill="outline"
+                    fill="solid"
+                    style="--background:#2563eb; --background-hover:#1d4ed8; --border-radius:8px; --box-shadow:none;"
+                    class="!m-0 flex-shrink-0"
                     [href]="img.urlVisualizacion"
                     target="_blank"
                   >
@@ -172,30 +240,28 @@
           </div>
 
         } @else {
-          <p>No hay evidencias registradas.</p>
+          <p class="text-neutral-500 text-sm text-center py-2">No hay evidencias registradas.</p>
         }
 
-      </ion-card-content>
+      </div>
     </ion-card>
 
     <!-- OBSERVACIÓN GENERAL -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Observación general</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p>{{ i.observacionGeneral ?? 'Sin observación general.' }}</p>
-      </ion-card-content>
+    <ion-card ion-no-padding class="!m-0 !mb-2 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="text-white font-semibold text-sm">Observación general</h3>
+      </div>
+      <div class="px-4 pb-4">
+        <p class="text-neutral-400 text-sm italic border-l-2 border-neutral-700 pl-3">{{ i.observacionGeneral ?? 'Sin observación general.' }}</p>
+      </div>
     </ion-card>
 
   } @else {
 
-    <ion-card>
-      <ion-card-content>
-        Cargando incidente...
-      </ion-card-content>
-    </ion-card>
+    <div class="flex flex-col items-center justify-center gap-3 py-16 text-neutral-500 text-sm">
+      <ion-spinner name="crescent"></ion-spinner>
+      Cargando incidente...
+    </div>
 
   }
 
