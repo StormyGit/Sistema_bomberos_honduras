@@ -1,5 +1,4 @@
 {
-  
   "version": "2.0.0",
   "tasks": [
     {
@@ -36,6 +35,28 @@
       },
       "runOptions": {
         "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Generar APK App Movil",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npm run build && npx cap sync android && cd android && gradlew.bat assembleDebug"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apk"
       }
     }
   ]

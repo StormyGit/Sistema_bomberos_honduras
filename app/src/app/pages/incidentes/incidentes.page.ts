@@ -9,7 +9,7 @@ import { IonRefresherCustomEvent, RefresherCustomEvent } from '@ionic/core';
   templateUrl: './incidentes.page.html',
   styleUrls: ['./incidentes.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonRefresher, IonRefresherContent, IonRippleEffect]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonRefresher, IonRefresherContent]
 })
 export class IncidentesPage implements OnInit {
   constructor() { }
