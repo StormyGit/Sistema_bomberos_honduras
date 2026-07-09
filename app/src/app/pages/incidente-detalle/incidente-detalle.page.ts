@@ -22,17 +22,11 @@ import { incidente } from 'src/app/types/cce/incidente.interface';
     IonButtons,
     IonBackButton,
     IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardContent,
-    IonBadge,
     IonRefresher,
     IonRefresherContent,
     IonImg,
     IonButton,
-    IonSpinner,
-    IonIcon
+    IonSpinner
 ]
 })
 export class IncidenteDetallePage implements OnInit {

@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './incidentes.page.html',
   styleUrls: ['./incidentes.page.scss'],
   standalone: true,
-  imports: [RouterLink, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonRefresher, IonRefresherContent]
+  imports: [RouterLink, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonButton, IonRefresher, IonRefresherContent]
 })
 export class IncidentesPage implements OnInit {
 
