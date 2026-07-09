@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface IIncidenteService {
     public List<IncidenteDTO> getAll();
+    public IncidenteDTO getById(UUID id);
     public IncidenteDTO create(IncidenteDTO dto);
     public IncidenteDTO update(UUID id, IncidenteDTO dto);
 

@@ -30,7 +30,9 @@ export class IncidenteService {
   getAll(): Observable<incidente[]> {
     return this.http.get<incidente[]>(this.apiUrl);
   }
-
+  getById(id: string): Observable<incidente> {
+    return this.http.get<incidente>(`${this.apiUrl}/${id}`);
+  }
   create(incidente: incidente): Observable<incidente> {
     return this.http.post<incidente>(this.apiUrl, incidente);
   }

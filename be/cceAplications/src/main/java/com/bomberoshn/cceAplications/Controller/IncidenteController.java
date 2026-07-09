@@ -32,6 +32,11 @@ public class IncidenteController {
         logger.info("CONTROLLER: Obtener todos los datos");
         return incidenteSrv.getAll();
     }
+    @GetMapping("/{id}")
+    public IncidenteDTO getById(@PathVariable UUID id) {
+        logger.info("CONTROLLER: Obtener un dato");
+        return incidenteSrv.getById(id);
+    }
     @PostMapping
     public IncidenteDTO create(@RequestBody IncidenteDTO dto){
         logger.info("CONTROLLER: crear un dato");

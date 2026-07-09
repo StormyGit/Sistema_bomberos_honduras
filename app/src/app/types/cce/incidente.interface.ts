@@ -16,6 +16,7 @@ export interface incidente {
   recepcionNombre?: string;
   recepcionTipo?: "cce" | "911";
 
+  isAnonimo?: boolean;
   tiempos?: Tiempo[];
   recursos?: Recurso[];
   estado?: IncidenteEstado;

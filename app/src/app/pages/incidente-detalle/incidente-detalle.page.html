@@ -1,0 +1,202 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/incidentes"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Detalle del incidente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-refresher slot="fixed" (ionRefresh)="recargarList($event)">
+    <ion-refresher-content
+      pullingText="Desliza para actualizar"
+      refreshingText="Actualizando..."
+    ></ion-refresher-content>
+  </ion-refresher>
+
+  @if (incidente(); as i) {
+
+    <!-- RESUMEN PRINCIPAL -->
+    <ion-card>
+      <ion-card-header>
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <ion-card-title>
+              {{ formatearTexto(i.incidente) }}
+            </ion-card-title>
+
+            <ion-card-subtitle>
+              {{ i.colonia ?? 'Sin colonia' }}
+            </ion-card-subtitle>
+          </div>
+
+          <ion-badge [color]="colorEstado(i.estado)">
+            {{ i.estado }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>ID:</strong> {{ i.id }}</p>
+        <p><strong>Fecha:</strong> {{ i.fecha }}</p>
+        <p><strong>Departamento:</strong> {{ i.departamento }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- UBICACIÓN -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Ubicación</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>Dirección:</strong> {{ i.direccion ?? 'No registrada' }}</p>
+        <p><strong>Referencia:</strong> {{ i.referencia ?? 'No registrada' }}</p>
+        <p><strong>Colonia:</strong> {{ i.colonia ?? 'No registrada' }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- DENUNCIANTE -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Denunciante</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>Nombre:</strong> {{ !i.isAnonimo ? (i.denuncianteNombre) : 'Anónimo' }}</p>
+        <p><strong>Teléfono:</strong> {{ i.denuncianteTelefono ?? 'No registrado' }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- RECEPCIÓN -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Recepción</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>Operador:</strong> {{ i.recepcionNombre ?? 'No registrado' }}</p>
+        <p><strong>Tipo:</strong> {{ formatearTexto(i.recepcionTipo) }}</p>
+        <p><strong>Fecha de creación:</strong> {{ i.fechaCreacion }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- RECURSOS -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Recursos asignados</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        @if (i.recursos && i.recursos.length > 0) {
+
+          @for (r of i.recursos; track r.id) {
+            <div class="mb-4 pb-4 border-b border-gray-700 last:border-b-0">
+              <p><strong>Estación:</strong> {{ r.estacion }}</p>
+              <p><strong>Unidad:</strong> {{ r.unidad }}</p>
+              <p><strong>Oficial encargado:</strong> {{ r.oficialEncargado }}</p>
+              <p><strong>Número de personal:</strong> {{ r.numPersonal }}</p>
+              <p><strong>Galones de agua:</strong> {{ r.galonAgua ?? 'No registrado' }}</p>
+              <p><strong>Observación:</strong> {{ r.observacion ?? 'Sin observación' }}</p>
+            </div>
+          }
+
+        } @else {
+          <p>No hay recursos asignados.</p>
+        }
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- TIEMPOS -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Tiempos del incidente</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        @if (i.tiempos && i.tiempos.length > 0) {
+
+          @for (t of i.tiempos; track t.id) {
+            <div class="mb-3 pb-3 border-b border-gray-700 last:border-b-0">
+              <p><strong>Tipo:</strong> {{ formatearTexto(t.tipoTiempo) }}</p>
+              <p><strong>Hora:</strong> {{ obtenerHora(t.horaCreacion) }}</p>
+              <p><strong>Fecha:</strong> {{ t.fechaCreacion }}</p>
+              <p><strong>Observación:</strong> {{ t.observacion ?? 'Sin observación' }}</p>
+            </div>
+          }
+
+        } @else {
+          <p>No hay tiempos registrados.</p>
+        }
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- EVIDENCIAS -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Evidencias</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        @if (i.images && i.images.length > 0) {
+
+          <div class="space-y-4">
+            @for (img of i.images; track img.id) {
+              <div class="rounded-xl overflow-hidden border border-gray-700">
+                <ion-img [src]="img.urlVisualizacion"></ion-img>
+
+                <div class="p-3">
+                  <p class="text-sm">
+                    <strong>Archivo:</strong> {{ img.nombreOriginal }}
+                  </p>
+
+                  <ion-button
+                    size="small"
+                    fill="outline"
+                    [href]="img.urlVisualizacion"
+                    target="_blank"
+                  >
+                    Ver imagen
+                  </ion-button>
+                </div>
+              </div>
+            }
+          </div>
+
+        } @else {
+          <p>No hay evidencias registradas.</p>
+        }
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- OBSERVACIÓN GENERAL -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Observación general</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p>{{ i.observacionGeneral ?? 'Sin observación general.' }}</p>
+      </ion-card-content>
+    </ion-card>
+
+  } @else {
+
+    <ion-card>
+      <ion-card-content>
+        Cargando incidente...
+      </ion-card-content>
+    </ion-card>
+
+  }
+
+</ion-content>

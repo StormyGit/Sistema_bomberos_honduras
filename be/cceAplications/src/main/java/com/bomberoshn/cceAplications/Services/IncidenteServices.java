@@ -75,6 +75,19 @@ public class IncidenteServices implements IIncidenteService {
 
         return o;*/
     }
+    public IncidenteDTO getById(UUID id) {
+
+        if (id == null) {
+            throw new RuntimeException("El ID del incidente es obligatorio.");
+        }
+
+        IncidenteEntity entity = incidenteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("El incidente no existe."));
+
+        return toDTO(entity);
+    }
+
+
 
     public IncidenteDTO create(IncidenteDTO dto) {
         dto.setId(null);

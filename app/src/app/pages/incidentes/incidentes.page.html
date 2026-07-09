@@ -10,15 +10,20 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>HRB-00-T0-000</ion-card-title>
-      <ion-card-subtitle>Colonia Kennedy</ion-card-subtitle>
-    </ion-card-header>
+  @for (i of listIncidente(); track $index) {
 
-    <ion-card-content>
-          <ion-button>ver Detalles</ion-button>
-    </ion-card-content>
-  </ion-card>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>HRB-00-T0-000</ion-card-title>
+        <ion-card-subtitle>{{i.colonia}}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-button [routerLink]="['/incidentes', i.id]">
+          Ver Detalles
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
 
 </ion-content>
