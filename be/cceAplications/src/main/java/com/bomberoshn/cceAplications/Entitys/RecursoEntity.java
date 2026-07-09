@@ -23,8 +23,8 @@ public class RecursoEntity {
     @Column(name = "id_incidente", nullable = false)
     private UUID idIncidente;
 
-    @Column(name = "estacion")
-    private String estacion;
+    @Column(name = "id_estacion")
+    private UUID idEstacion;
 
     @Column(name = "unidad")
     private String unidad;

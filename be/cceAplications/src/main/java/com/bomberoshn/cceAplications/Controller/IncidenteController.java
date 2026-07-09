@@ -99,4 +99,18 @@ public class IncidenteController {
         incidenteSrv.update(evi.getIdIncidente(), dto);
     }
 
+    @PostMapping("/buscar")
+    public SearchResumenDTO buscarIncidentes(
+            @RequestBody(required = false) SearchIncidenteDTO filtros
+    ) {
+        logger.info(filtros.toString());
+        SearchResumenDTO resumen = new SearchResumenDTO();
+        resumen.setIncidentes(incidenteSrv.buscarIncidentes(filtros));
+        resumen.setTipoResumen(incidenteSrv.resumenIncidentesPorTipo(filtros));
+        resumen.setTipoAndMunicipios(incidenteSrv.resumenIncidentesPorMunicipios(filtros));
+
+        return resumen;
+        //return ;
+    }
+
 }

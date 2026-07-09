@@ -1,22 +1,25 @@
 package com.bomberoshn.cceAplications.Services;
 
-import com.bomberoshn.cceAplications.DTO.ArchivoDTO;
-import com.bomberoshn.cceAplications.DTO.IncidenteDTO;
-import com.bomberoshn.cceAplications.DTO.RecursoDTO;
-import com.bomberoshn.cceAplications.DTO.TiempoDTO;
+import com.bomberoshn.cceAplications.DTO.*;
+import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.Entitys.*;
 import com.bomberoshn.cceAplications.Repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class IncidenteServices implements IIncidenteService {
@@ -26,18 +29,40 @@ public class IncidenteServices implements IIncidenteService {
     private final TiempoRepository tiempoRepository;
     private final EvidenciaRepository evidenciaRepository;
     private final ArchivoService archivoService;
+    private final CatalogoServices catalogoServices;
 
-    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService) {
+    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices) {
         this.incidenteRepository = incidenteRepository;
         this.recursoRepository = recursoRepository;
         this.tiempoRepository = tiempoRepository;
         this.evidenciaRepository = evidenciaRepository;
         this.archivoService = archivoService;
+        this.catalogoServices = catalogoServices;
     }
 
     public List<IncidenteDTO> getAll() {
         logger.info("Obtener todos los incidentes");
 
+        logger.info("Obtener incidentes del día de hoy");
+
+        LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
+        LocalDateTime finDia = LocalDate.now().plusDays(1).atStartOfDay();
+
+        List<IncidenteDTO> o = incidenteRepository
+                .findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanOrderByFechaCreacionDesc(
+                        inicioDia,
+                        finDia
+                )
+                .stream()
+                .map(this::toDTO)
+                .toList();
+
+        logger.info("Total de incidentes encontrados hoy: {}", o.size());
+
+        return o;
+
+
+        /*
         List<IncidenteDTO> o = incidenteRepository
                 .findAll( Sort.by(Sort.Direction.DESC, "fechaCreacion") )
                 .stream()
@@ -48,7 +73,7 @@ public class IncidenteServices implements IIncidenteService {
 
         logger.info("Total de incidentes encontrados: {}", o.size());
 
-        return o;
+        return o;*/
     }
 
     public IncidenteDTO create(IncidenteDTO dto) {
@@ -85,7 +110,7 @@ public class IncidenteServices implements IIncidenteService {
         incidente.setPoint(dto.getPoint());
         RecursoEntity recurso = new RecursoEntity();
         recurso.setIdIncidente(idIncidente);
-        recurso.setEstacion(dto.getEstacion());
+        recurso.setIdEstacion(dto.getIdEstacion());
         recurso.setUnidad(dto.getUnidad());
         recurso.setNumPersonal(dto.getNumPersonal());
         recurso.setOficialEncargado(dto.getOficialEncargado());
@@ -193,6 +218,159 @@ public class IncidenteServices implements IIncidenteService {
         evidencia.setIdArchivo(idArchivo);
 
         evidenciaRepository.save(evidencia);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<IncidenteDTO> buscarIncidentes(SearchIncidenteDTO filtros) {
+
+        if (filtros == null) {
+            filtros = new SearchIncidenteDTO();
+        }
+
+        String buscar = filtros.getBuscar();
+
+        if (buscar != null) {
+            buscar = buscar.trim();
+
+            if (buscar.isEmpty()) {
+                buscar = null;
+            }
+        }
+
+        LocalDateTime fechaInicio = filtros.getFecha_Inicio() != null
+                ? filtros.getFecha_Inicio().atStartOfDay()
+                : LocalDateTime.of(1900, 1, 1, 0, 0);
+
+        LocalDateTime fechaFinal = filtros.getFecha_Final() != null
+                ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
+                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+
+        return incidenteRepository.buscarIncidentes(
+                        buscar,
+                        fechaInicio,
+                        fechaFinal,
+                        filtros.getTipo(),
+                        filtros.getFinalizado(),
+                        IncidenteEstado.Finalizado
+                )
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(SearchIncidenteDTO filtros) {
+
+        if (filtros == null) {
+            filtros = new SearchIncidenteDTO();
+        }
+
+        String buscar = filtros.getBuscar();
+
+        if (buscar == null) {
+            buscar = "";
+        } else {
+            buscar = buscar.trim();
+        }
+
+        LocalDateTime fechaInicio = filtros.getFecha_Inicio() != null
+                ? filtros.getFecha_Inicio().atStartOfDay()
+                : LocalDateTime.of(1900, 1, 1, 0, 0);
+
+        LocalDateTime fechaFinal = filtros.getFecha_Final() != null
+                ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
+                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+
+        Boolean filtrarTipo = filtros.getTipo() != null;
+
+        IncidenteTipo tipo = filtrarTipo
+                ? filtros.getTipo()
+                : IncidenteTipo.OTRO;
+
+        List<IncidenteTipoResumenProjection> resultado = incidenteRepository.resumenPorTipo(
+                buscar,
+                filtrarTipo,
+                tipo,
+                fechaInicio,
+                fechaFinal,
+                filtros.getFinalizado(),
+                IncidenteEstado.Finalizado
+        );
+
+        Map<IncidenteTipo, Long> totalesPorTipo = resultado.stream()
+                .collect(Collectors.toMap(
+                        IncidenteTipoResumenProjection::getTipo,
+                        IncidenteTipoResumenProjection::getTotal
+                ));
+
+        return Arrays.stream(IncidenteTipo.values())
+                .map(tipoEnum -> new IncidenteTipoResumenDTO(
+                        tipoEnum,
+                        formatearNombreTipo(tipoEnum),
+                        totalesPorTipo.getOrDefault(tipoEnum, 0L)
+                ))
+                .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros) {
+
+        if (filtros == null) {
+            filtros = new SearchIncidenteDTO();
+        }
+
+        String buscar = filtros.getBuscar();
+
+        if (buscar == null) {
+            buscar = "";
+        } else {
+            buscar = buscar.trim();
+        }
+
+        LocalDateTime fechaInicio = filtros.getFecha_Inicio() != null
+                ? filtros.getFecha_Inicio().atStartOfDay()
+                : LocalDateTime.of(1900, 1, 1, 0, 0);
+
+        LocalDateTime fechaFinal = filtros.getFecha_Final() != null
+                ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
+                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+
+        String tipo = filtros.getTipo() != null
+                ? filtros.getTipo().name()
+                : null;
+
+        List<IncidentesPorMunicipioTipoProjection> resultado =
+                recursoRepository.contarIncidentesPorMunicipioYTipo(
+                        fechaInicio,
+                        fechaFinal,
+                        tipo,
+                        buscar
+                );
+
+        return resultado.stream()
+                .map(item -> {
+                    IncidenteTipo incidenteTipo = IncidenteTipo.valueOf(item.getIncidente());
+
+                    return new IncidenteMunicipioTipoResumenDTO(
+                            item.getMunicipioId(),
+                            item.getMunicipio(),
+                            incidenteTipo,
+                            formatearNombreTipo(incidenteTipo),
+                            item.getTotal()
+                    );
+                })
+                .toList();
+    }
+
+
+    private String formatearNombreTipo(IncidenteTipo tipo) {
+        if (tipo == null) {
+            return "";
+        }
+
+        return tipo.name().replace("_", " ");
     }
 
     private IncidenteDTO toDTO(IncidenteEntity entity) {
@@ -335,11 +513,12 @@ public class IncidenteServices implements IIncidenteService {
 
     private RecursoDTO toDTO_Recurso(RecursoEntity entity) {
         if (entity == null) return null;
-
+        EstacionResponseDTO estacion = catalogoServices.obtenerEstacionPorId(entity.getIdEstacion());
         return RecursoDTO.builder()
                 .id(entity.getId())
                 .idIncidente(entity.getIdIncidente())
-                .estacion(entity.getEstacion())
+                .estacion(estacion.nombre())
+                .idEstacion(estacion.id())
                 .unidad(entity.getUnidad())
                 .oficialEncargado(entity.getOficialEncargado())
                 .numPersonal(entity.getNumPersonal())

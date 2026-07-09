@@ -1,8 +1,6 @@
 package com.bomberoshn.cceAplications.Services;
 
-import com.bomberoshn.cceAplications.DTO.IncidenteDTO;
-import com.bomberoshn.cceAplications.DTO.RecursoDTO;
-import com.bomberoshn.cceAplications.DTO.TiempoDTO;
+import com.bomberoshn.cceAplications.DTO.*;
 import com.bomberoshn.cceAplications.Entitys.TiempoTipo;
 
 import java.util.List;
@@ -17,4 +15,7 @@ public interface IIncidenteService {
     public TiempoDTO addTimer(UUID idIncidente, TiempoTipo tipoTiempo);
     public TiempoDTO getTimer(UUID idIncidente, TiempoTipo tipoTiempo);
     public void addEvidencia(UUID idIncidente, UUID idArchivo);
+    public List<IncidenteDTO> buscarIncidentes(SearchIncidenteDTO filtros);
+    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(SearchIncidenteDTO filtros);
+    public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros);
 }
