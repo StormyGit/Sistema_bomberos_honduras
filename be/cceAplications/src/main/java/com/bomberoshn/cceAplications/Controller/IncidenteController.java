@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -81,27 +82,53 @@ public class IncidenteController {
     }
 
 
+    private void logFile(String nombre, MultipartFile file) {
+        if (file == null) {
+            logger.info("{} = null", nombre);
+            return;
+        }
+
+        logger.info("{} -> name: {}, size: {}, type: {}, empty: {}",
+                nombre,
+                file.getOriginalFilename(),
+                file.getSize(),
+                file.getContentType(),
+                file.isEmpty());
+    }
+
     @PostMapping(value = "evidencia", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void addEvidencia(@ModelAttribute EvidenciaDTO evi) {
+        long inicioTotal = System.currentTimeMillis();
+        logger.info("EVIDENCIAS - inicio");
 
         if (evi.getImage1() != null && !evi.getImage1().isEmpty()) {
+            long t1 = System.currentTimeMillis();
             ArchivoDTO archivo1 = archivoService.subirArchivo(evi.getImage1());
             incidenteSrv.addEvidencia(evi.getIdIncidente(), archivo1.getId());
+            logger.info("EVIDENCIAS: 1 tardó {}ms", System.currentTimeMillis() - t1);
         }
 
         if (evi.getImage2() != null && !evi.getImage2().isEmpty()) {
+            long t2 = System.currentTimeMillis();
             ArchivoDTO archivo2 = archivoService.subirArchivo(evi.getImage2());
             incidenteSrv.addEvidencia(evi.getIdIncidente(), archivo2.getId());
+            logger.info("EVIDENCIAS: 2 tardó {}ms", System.currentTimeMillis() - t2);
         }
 
         if (evi.getImage3() != null && !evi.getImage3().isEmpty()) {
+            long t3 = System.currentTimeMillis();
             ArchivoDTO archivo3 = archivoService.subirArchivo(evi.getImage3());
             incidenteSrv.addEvidencia(evi.getIdIncidente(), archivo3.getId());
+            logger.info("EVIDENCIAS: 3 tardó {}ms", System.currentTimeMillis() - t3);
         }
+
+        long t4 = System.currentTimeMillis();
         IncidenteDTO dto = new IncidenteDTO();
         dto.setObservacionGeneral(evi.getObservacionGeneral());
-
         incidenteSrv.update(evi.getIdIncidente(), dto);
+        logger.info("EVIDENCIAS: update tardó {}ms", System.currentTimeMillis() - t4);
+
+        logger.info("EVIDENCIAS: TOTAL {}ms", System.currentTimeMillis() - inicioTotal);
     }
 
     @PostMapping("/buscar")

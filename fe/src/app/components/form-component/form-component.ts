@@ -23,6 +23,7 @@ export class FormComponent {
 
   @Input() Formulary: iFormGroup | null = null;
   @Input() labelSudmit: string | null = null;
+  @Input() labelCancel: string | null = null;
   @Input() ShowButtonCancel: boolean = false;
   @Output() getSubmit = new EventEmitter<iFormEmit>();
   @Output() getCancel = new EventEmitter();
@@ -301,6 +302,27 @@ getFilteredOptions(field: iFormField): iFormOption[] {
   const options = this.getFieldOptions(field);
   if (!search) return options;
   return options.filter(op => (op.label ?? '').toLowerCase().includes(search));
+}
+
+resetForm(clearDynamicOptions: boolean = false) {
+  console.log("reiniciar formulario");
+  // libera las urls de preview de imágenes para no dejar memory leaks
+  Object.values(this._filesPreview).forEach(previews =>
+    previews.forEach(p => { if (p.url) URL.revokeObjectURL(p.url); })
+  );
+  this._filesPreview = {};
+
+  // cierra cualquier select abierto y limpia el texto buscado
+  this._OpenSelectInput = '';
+  this._searchText = {};
+
+  // opcional: si también quieres borrar las opciones dinámicas (ej. municipios cargados por el padre)
+  if (clearDynamicOptions) {
+    this._dynamicOptions = {};
+  }
+
+  // reconstruye el formGroup con los valores default de la config original
+  this.buildForm();
 }
 
 }

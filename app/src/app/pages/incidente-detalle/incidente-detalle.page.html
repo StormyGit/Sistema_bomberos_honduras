@@ -17,8 +17,22 @@
     ></ion-refresher-content>
   </ion-refresher>
 
-  @if (incidente(); as i) {
+  <ion-segment
+    [value]="activeTab()"
+    (ionChange)="cambiarTab($any($event.detail.value))"
+    style="--background:#0a0a0c;"
+    class="mb-4"
+  >
+    <ion-segment-button value="detalle" style="--color:#a3a3a3; --color-checked:#f5f5f5; --indicator-color:#2563eb;">
+      <ion-label>Detalles</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="agregar" style="--color:#a3a3a3; --color-checked:#f5f5f5; --indicator-color:#2563eb;">
+      <ion-label>Agregar</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 
+  @if (incidente(); as i) {
+    @if (activeTab() === 'detalle') {
     <!-- RESUMEN PRINCIPAL -->
     <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
       <div class="p-4 border-b border-neutral-800">
@@ -31,29 +45,6 @@
               {{ i.colonia ?? 'Sin colonia' }}
             </p>
           </div>
-
-          <!-- <span
-            class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap"
-            [ngClass]="{
-              'bg-amber-500/10 border-amber-500/30 text-amber-400':   i.estado === 'Pendiente',
-              'bg-orange-500/10 border-orange-500/30 text-orange-400': i.estado === 'En ejecución' || i.estado === 'Activo',
-              'bg-emerald-500/10 border-emerald-500/30 text-emerald-400': i.estado === 'Finalizado' || i.estado === 'Resuelto' || i.estado === 'Cerrado',
-              'bg-rose-500/10 border-rose-500/30 text-rose-400': i.estado === 'Cancelado',
-              'bg-neutral-500/10 border-neutral-500/30 text-neutral-400': !['Pendiente','En ejecución','Activo','Finalizado','Resuelto','Cerrado','Cancelado'].includes(i.estado)
-            }"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full"
-              [ngClass]="{
-                'bg-amber-400':   i.estado === 'Pendiente',
-                'bg-orange-400':  i.estado === 'En ejecución' || i.estado === 'Activo',
-                'bg-emerald-400': i.estado === 'Finalizado' || i.estado === 'Resuelto' || i.estado === 'Cerrado',
-                'bg-rose-400':    i.estado === 'Cancelado',
-                'bg-neutral-400': !['Pendiente','En ejecución','Activo','Finalizado','Resuelto','Cerrado','Cancelado'].includes(i.estado)
-              }"
-            ></span>
-            {{ i.estado }}
-          </span> -->
         </div>
       </div>
 
@@ -255,7 +246,143 @@
         <p class="text-neutral-400 text-sm italic border-l-2 border-neutral-700 pl-3">{{ i.observacionGeneral ?? 'Sin observación general.' }}</p>
       </div>
     </ion-card>
+    }
+    @if (activeTab() === 'agregar') {
+      <!-- TIEMPOS -->
+      <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+        <div class="px-4 pt-4 pb-2">
+          <h3 class="text-white font-semibold text-sm">Registrar tiempos</h3>
+          <p class="text-neutral-500 text-xs mt-0.5">Marca cada paso en el orden que ocurre</p>
+        </div>
 
+        <div class="px-4 pb-4">
+          @for (step of tiempoSteps; track step.tipo; let idx = $index) {
+
+            @let registro = tiempoRegistrado(step.tipo);
+            @let estado = estadoPaso(idx);
+
+            <div class="flex items-center gap-3 py-3 border-b border-neutral-800/70 last:border-b-0">
+
+              <!-- indicador -->
+              <div
+                class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
+                [ngClass]="{
+                  'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30': estado === 'completado',
+                  'bg-blue-500/15 text-blue-400 border border-blue-500/30': estado === 'activo',
+                  'bg-neutral-800 text-neutral-600 border border-neutral-700': estado === 'pendiente'
+                }"
+              >
+                @if (estado === 'completado') { ✓ } @else { {{ idx + 1 }} }
+              </div>
+
+              <!-- texto -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium" [ngClass]="estado === 'pendiente' ? 'text-neutral-600' : 'text-white'">
+                  {{ step.label }}
+                </p>
+                @if (registro) {
+                  <p class="text-neutral-500 text-xs">{{ obtenerHora(registro.horaCreacion) }}</p>
+                } @else {
+                  <p class="text-neutral-600 text-xs">{{ step.descripcion }}</p>
+                }
+              </div>
+
+              <!-- accion -->
+              @if (estado === 'activo') {
+                <ion-button
+                  size="small"
+                  fill="solid"
+                  [disabled]="registrandoTiempo() === step.tipo"
+                  style="--background:#2563eb; --background-hover:#1d4ed8; --border-radius:8px; --box-shadow:none;"
+                  (click)="registrarTiempo(step.tipo)"
+                >
+                  @if (registrandoTiempo() === step.tipo) {
+                    <ion-spinner name="crescent" style="width:16px;height:16px;"></ion-spinner>
+                  } @else {
+                    Marcar ahora
+                  }
+                </ion-button>
+              }
+
+            </div>
+          }
+        </div>
+      </ion-card>
+
+      <!-- EVIDENCIAS -->
+      <ion-card ion-no-padding class="!m-0 !mb-4 !bg-neutral-900 !border !border-neutral-800 !rounded-2xl !shadow-none">
+        <div class="px-4 pt-4 pb-2">
+          <h3 class="text-white font-semibold text-sm">Agregar evidencias</h3>
+          <p class="text-neutral-500 text-xs mt-0.5">Hasta 3 imágenes</p>
+        </div>
+
+        <div class="px-4 pb-4">
+
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            @for (img of imagenesSeleccionadas; track img.url; let i = $index) {
+              <div class="relative rounded-xl overflow-hidden border border-neutral-800 aspect-square">
+                <ion-img [src]="img.url" class="w-full h-full object-cover"></ion-img>
+                <button
+                  type="button"
+                  class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center"
+                  (click)="quitarImagen(i)"
+                >✕</button>
+              </div>
+            }
+
+            @if (imagenesSeleccionadas.length < 3) {
+              <label class="flex flex-col items-center justify-center gap-1 aspect-square rounded-xl border border-dashed border-neutral-700 text-neutral-500 text-xs cursor-pointer">
+                @if (procesandoImagenes()) {
+                  <ion-spinner name="crescent" style="width:20px;height:20px; --color:#2563eb;"></ion-spinner>
+                } @else {
+                  + Agregar
+                }
+                <input type="file" accept="image/*" class="hidden" multiple [disabled]="procesandoImagenes()" (change)="onSeleccionarImagen($event)">
+              </label>
+            }
+          </div>
+
+          <ion-textarea
+            [(ngModel)]="observacionForm"
+            placeholder="Observación general..."
+            [autoGrow]="true"
+            fill="outline"
+            style="--background:#0a0a0c; --color:#f5f5f5; --border-color:#262626;"
+            class="mb-3"
+          ></ion-textarea>
+
+          <ion-button
+            expand="block"
+            [disabled]="enviandoEvidencia() || procesandoImagenes() || (imagenesSeleccionadas.length === 0 && !observacionForm)"
+            style="--background:#2563eb; --background-hover:#1d4ed8; --border-radius:12px; --box-shadow:none;"
+            (click)="guardarEvidencia()"
+          >
+            @if (enviandoEvidencia()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Guardar evidencia
+            }
+          </ion-button>
+          @if (enviandoEvidencia()) {
+            <div class="mt-2 w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+              <div class="bg-blue-500 h-2 transition-all duration-200" [style.width.%]="progresoEvidencia()"></div>
+            </div>
+            <p class="text-neutral-500 text-xs mt-1 text-center">{{ progresoEvidencia() }}% subido</p>
+          }
+          @if (errorEvidencia()) {
+            <div class="mt-3 rounded-xl bg-rose-500/10 border border-rose-500/30 p-3">
+              <p class="text-rose-400 text-xs font-semibold uppercase tracking-wide mb-1">
+                Error al enviar
+              </p>
+              <p class="text-rose-300 text-xs break-words">
+                {{ errorEvidencia() }}
+              </p>
+            </div>
+          }
+        </div>
+      </ion-card>
+
+    }
   } @else {
 
     <div class="flex flex-col items-center justify-center gap-3 py-16 text-neutral-500 text-sm">
@@ -263,6 +390,32 @@
       Cargando incidente...
     </div>
 
+  }
+
+  <!-- OVERLAY DE PANTALLA COMPLETA: compresión y envío de evidencias -->
+  @if (procesandoImagenes() || enviandoEvidencia()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center"
+      style="background: rgba(10,10,12,0.85); backdrop-filter: blur(2px);"
+    >
+      <div class="flex flex-col items-center gap-4 px-8 py-8 rounded-2xl border border-neutral-800 bg-neutral-900 w-[85%] max-w-xs">
+
+        <ion-spinner name="crescent" style="width:36px;height:36px; --color:#2563eb;"></ion-spinner>
+
+        @if (procesandoImagenes()) {
+          <p class="text-white text-sm font-semibold text-center">Comprimiendo imágenes...</p>
+          <p class="text-neutral-500 text-xs text-center">Esto puede tardar unos segundos</p>
+        } @else if (enviandoEvidencia()) {
+          <p class="text-white text-sm font-semibold text-center">Enviando evidencia...</p>
+
+          <div class="w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+            <div class="bg-blue-500 h-2 transition-all duration-200" [style.width.%]="progresoEvidencia()"></div>
+          </div>
+          <p class="text-neutral-500 text-xs text-center">{{ progresoEvidencia() }}% subido</p>
+        }
+
+      </div>
+    </div>
   }
 
 </ion-content>

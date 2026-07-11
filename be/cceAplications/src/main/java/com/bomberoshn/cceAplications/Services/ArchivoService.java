@@ -32,27 +32,34 @@ import java.util.stream.Collectors;
 public class ArchivoService {
 
     private final ArchivoRepository archivoRepository;
-    private final IncidenteRepository incidenteRepository;
     private final EvidenciaRepository evidenciaRepository;
     private final Path rootPath;
 
     public ArchivoService(
-            ArchivoRepository archivoRepository, IncidenteRepository incidenteRepository, EvidenciaRepository evidenciaRepository,
-            @Value("${app.upload.dir}") String uploadDir
+            ArchivoRepository archivoRepository,
+            IncidenteRepository incidenteRepository,
+            EvidenciaRepository evidenciaRepository
     ) {
         this.archivoRepository = archivoRepository;
-        this.incidenteRepository = incidenteRepository;
         this.evidenciaRepository = evidenciaRepository;
-        this.rootPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+
+        this.rootPath = Paths.get("C:", "bomberos-uploads")
+                .toAbsolutePath()
+                .normalize();
 
         try {
             Files.createDirectories(this.rootPath);
         } catch (Exception e) {
-            throw new RuntimeException("No se pudo crear la carpeta de archivos.", e);
+            throw new RuntimeException(
+                    "No se pudo crear la carpeta de archivos en: " + this.rootPath,
+                    e
+            );
         }
     }
 
     public ArchivoDTO subirArchivo(MultipartFile file) {
+
+        long inicio = System.currentTimeMillis();
 
         if (file == null || file.isEmpty()) {
             throw new RuntimeException("El archivo es obligatorio.");
@@ -74,7 +81,10 @@ public class ArchivoService {
                 throw new RuntimeException("Ruta de archivo no permitida.");
             }
 
+            long antesCopy = System.currentTimeMillis();
             Files.copy(file.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+            long despuesCopy = System.currentTimeMillis();
+            System.out.println("⏱ Files.copy tardó: " + (despuesCopy - antesCopy) + "ms");
 
             ArchivoEntity entity = new ArchivoEntity();
             entity.setNombreOriginal(nombreOriginal);
@@ -83,7 +93,12 @@ public class ArchivoService {
             entity.setPeso(file.getSize());
             entity.setRuta(destino.toString());
 
+            long antesSave = System.currentTimeMillis();
             ArchivoEntity guardado = archivoRepository.save(entity);
+            long despuesSave = System.currentTimeMillis();
+            System.out.println("⏱ archivoRepository.save tardó: " + (despuesSave - antesSave) + "ms");
+
+            System.out.println("⏱ subirArchivo TOTAL: " + (despuesSave - inicio) + "ms");
 
             return toDTO(guardado);
 

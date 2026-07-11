@@ -41,8 +41,8 @@ public class IncidenteServices implements IIncidenteService {
     }
 
     public List<IncidenteDTO> getAll() {
-        logger.info("Obtener todos los incidentes");
-
+        //logger.info("Obtener todos los incidentes");
+/*
         logger.info("Obtener incidentes del día de hoy");
 
         LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
@@ -60,20 +60,20 @@ public class IncidenteServices implements IIncidenteService {
         logger.info("Total de incidentes encontrados hoy: {}", o.size());
 
         return o;
+*/
 
 
-        /*
         List<IncidenteDTO> o = incidenteRepository
-                .findAll( Sort.by(Sort.Direction.DESC, "fechaCreacion") )
+                .findAll(Sort.by(Sort.Direction.DESC, "fechaCreacion"))
                 .stream()
                 .map(this::toDTO)
                 .toList();
 
 
-
         logger.info("Total de incidentes encontrados: {}", o.size());
 
-        return o;*/
+        return o;
+
     }
     public IncidenteDTO getById(UUID id) {
 

@@ -59,13 +59,14 @@ export class IncidenteCreateComponent implements OnInit {
   incidente_create    : incidente | null  = null;
   timer_index = signal<number>(-1);
 
-  incidente_reset(): void {
-    this.incidente_create = null;
-    this.timer_index.set(-1);
-    this.mostrarTimers = false;
-    this.tiemposPorTipo = {};
-    this.cambiarPasoWizard(0);
-  }
+incidente_reset(): void {
+  this.incidente_create = null;
+  this.timer_index.set(-1);
+  this.mostrarTimers = false;
+  this.tiemposPorTipo = {};
+  this.formCreate?.resetForm();   // <-- nuevo
+  this.cambiarPasoWizard(0);
+}
 
   abrirModal_creacion() {
     this.showModal.set(true);
@@ -288,14 +289,6 @@ actions = [
   }
     */
 ];
-onTableAction(event: any): void {
-  console.log(event.action);
-  console.log(event.row);
-
-  if (event.action === 'view') {
-    this.abrirModal_detalles(event.row);
-  }
-}
 
 listTimer = [
   {
@@ -455,4 +448,52 @@ cerrarModal_detalles() {
 
     return cleanObject;
   }
+
+
+onTableAction(event: any): void {
+  console.log(event.action);
+  console.log(event.row);
+
+  if (event.action === 'view') {
+    this.verIncidente(event.row);
+  }
+}
+
+// Decide qué modal abrir según el estado del incidente
+verIncidente(row: any): void {
+  if (row.estado === 'Finalizado') {
+    this.abrirModal_detalles(row);
+    return;
+  }
+
+  // Pendiente o Ejecucion -> reabrir el wizard directo en tiempos/evidencia
+  this.abrirModal_seguimiento(row);
+}
+
+abrirModal_seguimiento(row: any): void {
+  this.incidente_create = { ...row };
+  this.tiemposPorTipo = {};
+
+  // Si el incidente ya trae tiempos guardados (ajusta "row.tiempos" al
+  // nombre real del campo que te devuelve el backend), los restauramos
+  // para saber en qué paso de la bitácora se quedó
+  if (row.tiempos && Array.isArray(row.tiempos)) {
+    row.tiempos.forEach((t: Tiempo) => {
+      if (t.tipoTiempo) {
+        this.tiemposPorTipo[t.tipoTiempo as TiempoTipo] = t;
+      }
+    });
+  }
+
+  this.tiempoTotalEjecucionTexto = this.calcularTiempoTotalEjecucionTexto();
+
+  // Habilita el siguiente timer pendiente (o el primero si no hay ninguno)
+  const completados = this.listTimer.filter(t => !!this.tiemposPorTipo[t.key]).length;
+  this.timer_index.set(completados);
+  this.mostrarTimers = true;
+
+  this.showModal.set(true);
+  this.cambiarPasoWizard(2); // índice 2 = "Bitacora y seguimiento"
+}
+
 }

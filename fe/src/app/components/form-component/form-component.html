@@ -277,7 +277,7 @@
                                         }
                                     </div>
                                 }
-                                
+
                                 @if(field.type === 'image' || field.type === 'file'){
                                     <div>
                                         <label
@@ -399,7 +399,7 @@
               "
               (click)="Cancelar()"
             >
-              Cancelar
+              {{ labelCancel ? labelCancel : 'Cancelar' }}
             </button>
           }
 

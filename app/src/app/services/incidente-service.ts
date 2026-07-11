@@ -58,7 +58,10 @@ export class IncidenteService {
 
   addEvidencia(formData: any): Observable<any>{
     return this.http.post<any>(
-      `${this.apiUrl}/evidencia`, formData
+      `${this.apiUrl}/evidencia`, formData,{
+        observe: 'events' as const,
+        reportProgress: true
+      }
     );
   }
 
