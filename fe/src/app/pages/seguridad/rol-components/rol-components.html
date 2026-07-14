@@ -1,0 +1,363 @@
+<div class="w-full flex flex-col gap-5 p-4">
+
+  <!-- ENCABEZADO -->
+  <div
+    class="
+      flex flex-col
+      md:flex-row
+      md:items-center
+      justify-between
+      gap-4
+    "
+  >
+    <div>
+      <h1 class="text-2xl font-black text-gray-100">
+        Administración de roles
+      </h1>
+    </div>
+
+    <button
+      type="button"
+      class="
+        bg-red-600
+        hover:bg-red-700
+        active:bg-red-800
+        text-white
+        font-bold
+        rounded-xl
+        px-5
+        py-2.5
+        shadow-md
+        transition-colors
+      "
+      (click)="abrirModalCreacion()"
+    >
+      + Nuevo rol
+    </button>
+  </div>
+
+  <!-- MENSAJES -->
+  @if (mensaje()) {
+    <div
+      class="
+        bg-emerald-500/10
+        border
+        border-emerald-400/30
+        text-emerald-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (mensajeError()) {
+    <div
+      class="
+        bg-red-500/10
+        border
+        border-red-400/30
+        text-red-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ mensajeError() }}
+    </div>
+  }
+
+  <!-- RESUMEN -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p class="text-xs text-gray-400 uppercase font-semibold">
+        Total de roles
+      </p>
+
+      <p class="text-3xl font-black text-gray-100 mt-2">
+        {{ roles().length }}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- TABLA -->
+  <div
+    class="
+      bg-[#14181D]
+      border
+      border-gray-200/20
+      rounded-2xl
+      p-4
+    "
+  >
+    @if (loading()) {
+      <div
+        class="
+          min-h-[200px]
+          flex
+          items-center
+          justify-center
+          text-gray-400
+        "
+      >
+        Cargando roles...
+      </div>
+    } @else {
+
+      @if (roles().length === 0) {
+        <div
+          class="
+            min-h-[200px]
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+          "
+        >
+          <p class="text-lg font-bold text-gray-200">
+            No existen roles registrados
+          </p>
+
+          <p class="text-sm text-gray-400 mt-1">
+            Presione “Nuevo rol” para registrar el primero.
+          </p>
+        </div>
+      } @else {
+        <app-table-custom
+          [columns]="columnasRoles"
+          [data]="roles()"
+          [actions]="actions"
+          (actionClick)="onTableAction($event)"
+        />
+      }
+
+    }
+  </div>
+
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<app-modal-component
+  [show]="showModal()"
+  [titulo]="tituloModal"
+  [width]="'600px'"
+  [height]="'auto'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="true"
+  (closed)="cerrarModal()"
+>
+  <form
+    class="flex flex-col gap-5 p-2"
+    [formGroup]="rolForm"
+    (ngSubmit)="guardarRol()"
+  >
+
+    <!-- Código -->
+    <div>
+      <label
+        for="codigo"
+        class="block text-sm font-bold text-gray-200 mb-2"
+      >
+        Código
+      </label>
+
+      <input
+        id="codigo"
+        type="text"
+        formControlName="codigo"
+        placeholder="Ejemplo: ADMIN"
+        maxlength="100"
+        class="
+          w-full
+          bg-[#14181D]
+          border
+          border-gray-500/40
+          text-gray-100
+          placeholder:text-gray-500
+          rounded-xl
+          px-4
+          py-3
+          outline-none
+          focus:border-red-500
+          focus:ring-2
+          focus:ring-red-500/20
+        "
+      >
+
+      @if (
+        rolForm.controls.codigo.touched &&
+        rolForm.controls.codigo.hasError('required')
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El código es obligatorio.
+        </p>
+      }
+
+      @if (
+        rolForm.controls.codigo.touched &&
+        rolForm.controls.codigo.hasError('maxlength')
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El código no puede superar los 100 caracteres.
+        </p>
+      }
+    </div>
+
+    <!-- Nombre -->
+    <div>
+      <label
+        for="nombre"
+        class="block text-sm font-bold text-gray-200 mb-2"
+      >
+        Nombre
+      </label>
+
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        placeholder="Ejemplo: Administrador"
+        class="
+          w-full
+          bg-[#14181D]
+          border
+          border-gray-500/40
+          text-gray-100
+          placeholder:text-gray-500
+          rounded-xl
+          px-4
+          py-3
+          outline-none
+          focus:border-red-500
+          focus:ring-2
+          focus:ring-red-500/20
+        "
+      >
+
+      @if (
+        rolForm.controls.nombre.touched &&
+        rolForm.controls.nombre.hasError('required')
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El nombre es obligatorio.
+        </p>
+      }
+    </div>
+
+    <!-- Descripción -->
+    <div>
+      <label
+        for="descripcion"
+        class="block text-sm font-bold text-gray-200 mb-2"
+      >
+        Descripción
+      </label>
+
+      <textarea
+        id="descripcion"
+        formControlName="descripcion"
+        rows="4"
+        placeholder="Describa las funciones principales del rol"
+        class="
+          w-full
+          resize-none
+          bg-[#14181D]
+          border
+          border-gray-500/40
+          text-gray-100
+          placeholder:text-gray-500
+          rounded-xl
+          px-4
+          py-3
+          outline-none
+          focus:border-red-500
+          focus:ring-2
+          focus:ring-red-500/20
+        "
+      ></textarea>
+    </div>
+
+    @if (mensajeError()) {
+      <div
+        class="
+          bg-red-500/10
+          border
+          border-red-400/30
+          text-red-200
+          rounded-xl
+          px-4
+          py-3
+          text-sm
+        "
+      >
+        {{ mensajeError() }}
+      </div>
+    }
+
+    <!-- BOTONES -->
+    <div
+      class="
+        flex
+        justify-end
+        gap-3
+        pt-5
+        border-t
+        border-gray-500/20
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          text-gray-100
+          rounded-xl
+          px-5
+          py-2.5
+          font-semibold
+          transition-colors
+        "
+        [disabled]="guardando()"
+        (click)="cerrarModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          disabled:bg-red-900
+          disabled:text-gray-400
+          disabled:cursor-not-allowed
+          text-white
+          rounded-xl
+          px-5
+          py-2.5
+          font-bold
+          transition-colors
+        "
+        [disabled]="guardando()"
+      >
+        {{ textoBotonGuardar }}
+      </button>
+    </div>
+
+  </form>
+</app-modal-component>

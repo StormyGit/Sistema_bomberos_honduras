@@ -1,4 +1,34 @@
 package com.bomberoshn.usersAplications.DTO;
 
-public class UsuarioResponseDTO {
+import com.bomberoshn.usersAplications.Entitys.UsuarioTipo;
+
+import java.util.UUID;
+
+public record UsuarioResponseDTO(
+
+        UUID id,
+
+        String nombre,
+
+        String apellido,
+
+        String correoOrCodigo,
+
+        UsuarioTipo tipo,
+
+        UUID departamentoId,
+
+        String departamentoNombre,
+
+        UUID estacionId,
+
+        String estacionNombre,
+
+        UUID rolId,
+
+        String rolCodigo,
+
+        String rolNombre
+
+) {
 }

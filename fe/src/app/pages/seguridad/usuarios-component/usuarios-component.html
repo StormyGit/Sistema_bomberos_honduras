@@ -1,0 +1,724 @@
+<div class="w-full flex flex-col gap-5 p-4">
+
+  <!-- ENCABEZADO -->
+  <div
+    class="
+      flex flex-col
+      md:flex-row
+      md:items-center
+      justify-between
+      gap-4
+    "
+  >
+    <div>
+      <h1 class="text-2xl font-black text-gray-100">
+        Administración de usuarios
+      </h1>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Registre y administre los usuarios del sistema.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="
+        bg-red-600
+        hover:bg-red-700
+        active:bg-red-800
+        text-white
+        font-bold
+        rounded-xl
+        px-5
+        py-2.5
+        shadow-md
+        transition-colors
+      "
+      (click)="abrirModalCreacion()"
+    >
+      + Nuevo usuario
+    </button>
+  </div>
+
+  <!-- MENSAJE CORRECTO -->
+  @if (mensaje()) {
+    <div
+      class="
+        bg-emerald-500/10
+        border
+        border-emerald-400/30
+        text-emerald-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ mensaje() }}
+    </div>
+  }
+
+  <!-- ERROR GENERAL -->
+  @if (errorPagina()) {
+    <div
+      class="
+        bg-red-500/10
+        border
+        border-red-400/30
+        text-red-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ errorPagina() }}
+    </div>
+  }
+
+  <!-- TARJETAS -->
+  <div
+    class="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      lg:grid-cols-3
+      gap-4
+    "
+  >
+
+    <!-- Total -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Total de usuarios
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ usuarios().length }}
+      </p>
+    </div>
+
+    <!-- Roles -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Roles disponibles
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ roles().length }}
+      </p>
+    </div>
+
+    <!-- Departamentos -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Departamentos
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ departamentos().length }}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- TABLA -->
+  <div
+    class="
+      bg-[#14181D]
+      border
+      border-gray-200/20
+      rounded-2xl
+      p-4
+    "
+  >
+
+    @if (cargandoUsuarios()) {
+      <div
+        class="
+          min-h-[220px]
+          flex
+          items-center
+          justify-center
+          text-gray-400
+        "
+      >
+        Cargando usuarios...
+      </div>
+    } @else {
+
+      @if (usuariosTabla().length === 0) {
+        <div
+          class="
+            min-h-[220px]
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+          "
+        >
+          <p class="text-lg font-bold text-gray-200">
+            No existen usuarios registrados
+          </p>
+
+          <p class="text-sm text-gray-400 mt-1">
+            Presione “Nuevo usuario” para registrar el primero.
+          </p>
+        </div>
+      } @else {
+        <app-table-custom
+          [columns]="columnasUsuarios"
+          [data]="usuariosTabla()"
+          [actions]="actions"
+          (actionClick)="onTableAction($event)"
+        />
+      }
+
+    }
+  </div>
+
+</div>
+
+<!-- MODAL CREAR Y EDITAR -->
+<app-modal-component
+  [show]="showModal()"
+  [titulo]="tituloModal"
+  [width]="'850px'"
+  [height]="'auto'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="true"
+  (closed)="cerrarModal()"
+>
+
+  <form
+    class="flex flex-col gap-5 p-3"
+    [formGroup]="usuarioForm"
+    (ngSubmit)="guardarUsuario()"
+  >
+
+    <!-- INFORMACIÓN PERSONAL -->
+    <div>
+      <h3 class="text-lg font-black text-gray-100">
+        Información del usuario
+      </h3>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Ingrese los datos personales y de acceso.
+      </p>
+    </div>
+
+    <div
+      class="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        gap-4
+      "
+    >
+
+      <!-- NOMBRE -->
+      <div>
+        <label
+          for="nombre"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Nombre
+        </label>
+
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          placeholder="Nombre del usuario"
+          class="
+            input-form
+            uppercase-none
+          "
+        >
+
+        @if (
+          usuarioForm.controls.nombre.touched &&
+          usuarioForm.controls.nombre.invalid
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            El nombre es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- APELLIDO -->
+      <div>
+        <label
+          for="apellido"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Apellido
+        </label>
+
+        <input
+          id="apellido"
+          type="text"
+          formControlName="apellido"
+          placeholder="Apellido del usuario"
+          class="input-form"
+        >
+
+        @if (
+          usuarioForm.controls.apellido.touched &&
+          usuarioForm.controls.apellido.invalid
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            El apellido es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- CORREO O CÓDIGO -->
+      <div>
+        <label
+          for="correoOrCodigo"
+          class="block text-sm font-bold text-gray-200 mb-2"
+        >
+          {{ etiquetaCorreoOCodigo }}
+        </label>
+
+        <input
+          id="correoOrCodigo"
+          type="text"
+          formControlName="correoOrCodigo"
+          [placeholder]="
+            esComponente
+              ? 'Código del componente'
+              : 'Correo del usuario'
+          "
+          class="input-form"
+        >
+
+        @if (
+          usuarioForm.controls.correoOrCodigo.touched &&
+          usuarioForm.controls.correoOrCodigo.hasError('required')
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            {{ esComponente ? 'El código es obligatorio.' : 'El correo es obligatorio.' }}
+          </p>
+        }
+
+        @if (
+          usuarioForm.controls.correoOrCodigo.touched &&
+          usuarioForm.controls.correoOrCodigo.hasError('email')
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            Ingrese un correo válido.
+          </p>
+        }
+      </div>
+
+      <!-- CONTRASEÑA -->
+      <div>
+        <label
+          for="password"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Contraseña
+
+          @if (editando) {
+            <span class="text-xs text-gray-500 font-normal">
+              — opcional
+            </span>
+          }
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [placeholder]="
+            editando
+              ? 'Dejar vacío para conservarla'
+              : 'Contraseña del usuario'
+          "
+          class="input-form"
+        >
+
+        @if (
+          usuarioForm.controls.password.touched &&
+          usuarioForm.controls.password.hasError('required')
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            La contraseña es obligatoria.
+          </p>
+        }
+
+        @if (
+          usuarioForm.controls.password.touched &&
+          usuarioForm.controls.password.hasError('minlength')
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            La contraseña debe contener al menos 6 caracteres.
+          </p>
+        }
+
+        @if (editando) {
+          <p class="text-xs text-gray-500 mt-1">
+            Déjela vacía para mantener la contraseña actual.
+          </p>
+        }
+      </div>
+
+    </div>
+
+    <!-- ASIGNACIÓN -->
+    <div
+      class="
+        border-t
+        border-gray-500/20
+        pt-5
+      "
+    >
+      <h3 class="text-lg font-black text-gray-100">
+        Asignación institucional
+      </h3>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Seleccione el departamento, estación, tipo y rol.
+      </p>
+    </div>
+
+    <div
+      class="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        gap-4
+      "
+    >
+
+      <!-- DEPARTAMENTO -->
+      <div>
+        <label
+          for="departamentoId"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Departamento
+        </label>
+
+        <select
+          id="departamentoId"
+          formControlName="departamentoId"
+          class="input-form"
+        >
+          <option value="">
+            Seleccione un departamento
+          </option>
+
+          @for (
+            departamento of departamentos();
+            track departamento.id
+          ) {
+            <option [value]="departamento.id">
+              {{ departamento.nombre }}
+            </option>
+          }
+        </select>
+
+        @if (
+          usuarioForm.controls.departamentoId.touched &&
+          usuarioForm.controls.departamentoId.invalid
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            El departamento es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- ESTACIÓN -->
+      <div>
+        <label
+          for="estacionId"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Estación
+          <span class="text-xs text-gray-500 font-normal">
+            — opcional
+          </span>
+        </label>
+
+        <select
+          id="estacionId"
+          formControlName="estacionId"
+          class="input-form"
+        >
+          <option value="">
+            @if (cargandoEstaciones()) {
+              Cargando estaciones...
+            } @else if (
+              !usuarioForm.controls.departamentoId.value
+            ) {
+              Primero seleccione un departamento
+            } @else {
+              Sin estación específica
+            }
+          </option>
+
+          @for (
+            estacion of estaciones();
+            track estacion.id
+          ) {
+            <option [value]="estacion.id">
+              {{ estacion.nombre }}
+              {{ estacion.central ? ' (Central)' : '' }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- ROL -->
+      <div>
+        <label
+          for="rolId"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Rol
+        </label>
+
+        <select
+          id="rolId"
+          formControlName="rolId"
+          class="input-form"
+        >
+          <option value="">
+            Seleccione un rol
+          </option>
+
+          @for (rol of roles(); track rol.id) {
+            <option [value]="rol.id">
+              {{ rol.nombre }} — {{ rol.codigo }}
+            </option>
+          }
+        </select>
+
+        @if (
+          usuarioForm.controls.rolId.touched &&
+          usuarioForm.controls.rolId.invalid
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            El rol es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- TIPO DE USUARIO -->
+      <div>
+        <label
+          for="tipo"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Tipo de usuario
+        </label>
+
+        <select
+          id="tipo"
+          formControlName="tipo"
+          class="input-form"
+        >
+          @for (tipo of tiposUsuario; track tipo) {
+            <option [value]="tipo">
+              {{ tipo }}
+            </option>
+          }
+        </select>
+
+        @if (
+          usuarioForm.controls.tipo.touched &&
+          usuarioForm.controls.tipo.invalid
+        ) {
+          <p class="text-xs text-red-400 mt-1">
+            El tipo de usuario es obligatorio.
+          </p>
+        }
+      </div>
+
+    </div>
+
+    <!-- ERROR DEL MODAL -->
+    @if (errorModal()) {
+      <div
+        class="
+          bg-red-500/10
+          border
+          border-red-400/30
+          text-red-200
+          rounded-xl
+          px-4
+          py-3
+          text-sm
+        "
+      >
+        {{ errorModal() }}
+      </div>
+    }
+
+    <!-- BOTONES -->
+    <div
+      class="
+        flex
+        justify-end
+        gap-3
+        pt-5
+        border-t
+        border-gray-500/20
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          disabled:opacity-50
+          disabled:cursor-not-allowed
+          text-gray-100
+          rounded-xl
+          px-5
+          py-2.5
+          font-semibold
+          transition-colors
+        "
+        [disabled]="guardando()"
+        (click)="cerrarModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          disabled:bg-red-900
+          disabled:text-gray-400
+          disabled:cursor-not-allowed
+          text-white
+          rounded-xl
+          px-5
+          py-2.5
+          font-bold
+          transition-colors
+        "
+        [disabled]="guardando()"
+      >
+        {{ textoBotonGuardar }}
+      </button>
+    </div>
+
+  </form>
+
+</app-modal-component>

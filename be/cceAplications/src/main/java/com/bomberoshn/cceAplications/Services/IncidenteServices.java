@@ -42,7 +42,7 @@ public class IncidenteServices implements IIncidenteService {
 
     public List<IncidenteDTO> getAll() {
         //logger.info("Obtener todos los incidentes");
-/*
+
         logger.info("Obtener incidentes del día de hoy");
 
         LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
@@ -60,9 +60,9 @@ public class IncidenteServices implements IIncidenteService {
         logger.info("Total de incidentes encontrados hoy: {}", o.size());
 
         return o;
-*/
 
 
+/*
         List<IncidenteDTO> o = incidenteRepository
                 .findAll(Sort.by(Sort.Direction.DESC, "fechaCreacion"))
                 .stream()
@@ -73,6 +73,7 @@ public class IncidenteServices implements IIncidenteService {
         logger.info("Total de incidentes encontrados: {}", o.size());
 
         return o;
+        */
 
     }
     public IncidenteDTO getById(UUID id) {
@@ -389,11 +390,18 @@ public class IncidenteServices implements IIncidenteService {
     private IncidenteDTO toDTO(IncidenteEntity entity) {
         if (entity == null) return null;
 
+        List<ArchivoDTO> images = archivoService.listarArchivosPorIncidente(entity.getId());
+
         return IncidenteDTO.builder()
                 .id(entity.getId())
                 .incidente(entity.getIncidente())
                 .idParent(entity.getIdParent())
-                .estado(entity.getEstado())
+                .estado(
+                        entity.getEstado() == IncidenteEstado.Finalizado
+                                && (images == null || images.isEmpty())
+                                ? IncidenteEstado.SinEvidencias
+                                : entity.getEstado()
+                )
                 .departamento(entity.getDepartamento())
                 .colonia(entity.getColonia())
                 .referencia(entity.getReferencia())
@@ -421,9 +429,7 @@ public class IncidenteServices implements IIncidenteService {
                                 .map(this::toDTO_Tiempo)
                                 .toList()
                 )
-                .images(
-                        archivoService.listarArchivosPorIncidente(entity.getId())
-                )
+                .images( images )
                 .build();
     }
     private IncidenteEntity toEntity(IncidenteDTO dto) {
@@ -525,13 +531,31 @@ public class IncidenteServices implements IIncidenteService {
     }
 
     private RecursoDTO toDTO_Recurso(RecursoEntity entity) {
-        if (entity == null) return null;
-        EstacionResponseDTO estacion = catalogoServices.obtenerEstacionPorId(entity.getIdEstacion());
+        if (entity == null) {
+            return null;
+        }
+
+        EstacionResponseDTO estacion = null;
+
+        if (entity.getIdEstacion() != null) {
+            estacion = catalogoServices.obtenerEstacionPorId(
+                    entity.getIdEstacion()
+            );
+        }
+
         return RecursoDTO.builder()
                 .id(entity.getId())
                 .idIncidente(entity.getIdIncidente())
-                .estacion(estacion.nombre())
-                .idEstacion(estacion.id())
+                .estacion(
+                        estacion != null
+                                ? estacion.nombre()
+                                : "No identificado"
+                )
+                .idEstacion(
+                        estacion != null
+                                ? estacion.id()
+                                : entity.getIdEstacion()
+                )
                 .unidad(entity.getUnidad())
                 .oficialEncargado(entity.getOficialEncargado())
                 .numPersonal(entity.getNumPersonal())
@@ -539,6 +563,7 @@ public class IncidenteServices implements IIncidenteService {
                 .observacion(entity.getObservacion())
                 .build();
     }
+
     private TiempoDTO toDTO_Tiempo(TiempoEntity entity) {
         if (entity == null) return null;
 

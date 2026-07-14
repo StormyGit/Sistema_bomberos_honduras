@@ -1,4 +1,7 @@
 package com.bomberoshn.usersAplications.DTO;
 
-public record LoginResponseDTO() {
+public record LoginResponseDTO(
+        String token,
+        UsuarioResponseDTO usuario
+) {
 }

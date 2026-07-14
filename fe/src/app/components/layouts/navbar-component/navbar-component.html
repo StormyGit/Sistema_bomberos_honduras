@@ -17,10 +17,10 @@
 
       <div class="text-white">
         <div class="font-black text-lg leading-tight">
-          Admin
+          {{User()?.nombre}}
         </div>
         <div class="text-xs text-white/50 font-semibold">
-          Estación ##
+          {{User()?.rol}}
         </div>
       </div>
     </div>
@@ -195,6 +195,7 @@
         <div class="border-t border-white/10"></div>
 
         <button
+          (click)="onLogout()"
           class="
             w-full
             px-4 py-3

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, output, QueryList, Signal, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, output, QueryList, Signal, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 interface iFilePreview {
@@ -249,7 +249,7 @@ onClickOutside(event: MouseEvent) {
 
 
 
-
+cdr = inject(ChangeDetectorRef);
 
 // Setea SOLO el valor de un campo (sirve para inputs normales también, no solo selects)
 setFieldValue(fieldName: string, value: any) {
@@ -262,6 +262,9 @@ setFieldOptions(fieldName: string, options: iFormOption[], resetValue: boolean =
   if (resetValue) {
     this._formGroup.get(fieldName)?.setValue(null);
   }
+  console.log("fieldName: ", fieldName);
+  console.log("data del select: ", this._formGroup.get(fieldName));
+  this.cdr.markForCheck();
 }
 
 // Setea varios campos a la vez (ideal para "precargar" un form completo)

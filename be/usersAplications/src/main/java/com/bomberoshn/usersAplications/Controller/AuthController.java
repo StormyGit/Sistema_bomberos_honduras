@@ -1,6 +1,7 @@
 package com.bomberoshn.usersAplications.Controller;
 
 import com.bomberoshn.usersAplications.DTO.LoginDTO;
+import com.bomberoshn.usersAplications.DTO.LoginResponseDTO;
 import com.bomberoshn.usersAplications.Services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    public LoginResponseDTO loginAdminApp(
+            @RequestBody LoginDTO loginDTO
+    ) {
+        return authService.loginAdminApp(loginDTO);
+    }
+
+    /*
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
 
-        String Token = authService.Login(loginDTO);
+        String Token = authService.loginAdminApp(loginDTO);
 
         if (Token.equals(null)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -37,4 +45,5 @@ public class AuthController {
                 "tipo", "Bearer"
         ));
     }
+     */
 }

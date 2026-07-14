@@ -118,7 +118,7 @@ export class IncidenteComponent implements OnInit {
   svrIncidente    = inject(IncidenteService);
   svCatalogo    = inject(CatalogoLugaresServices);
   scrAuth         = inject(AuthServiceService);
-  User            = signal<User>(this.scrAuth.getUser);
+  User            = signal<User | null>(this.scrAuth.getUser);
   @ViewChild('formRef') formRef!: FormComponent;
 
   tipoResumenList = signal<TipoResumen[]>([]);

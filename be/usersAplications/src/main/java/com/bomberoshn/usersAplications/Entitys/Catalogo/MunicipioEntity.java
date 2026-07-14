@@ -1,8 +1,7 @@
-package com.bomberoshn.cceAplications.Entitys.Catalogo;
+package com.bomberoshn.usersAplications.Entitys.Catalogo;
 
+import com.bomberoshn.usersAplications.Entitys.Catalogo.DepartamentoEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.util.UUID;

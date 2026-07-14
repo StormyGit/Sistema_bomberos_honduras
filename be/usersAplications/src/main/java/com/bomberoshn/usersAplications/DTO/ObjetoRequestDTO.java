@@ -1,4 +1,12 @@
 package com.bomberoshn.usersAplications.DTO;
 
-public record ObjetoRequestDTO() {
+import com.bomberoshn.usersAplications.Entitys.ObjetoTipo;
+
+public record ObjetoRequestDTO(
+
+        String nombre,
+
+        ObjetoTipo tipo
+
+) {
 }

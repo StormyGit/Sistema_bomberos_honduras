@@ -1,0 +1,461 @@
+<div class="w-full flex flex-col gap-5 p-4">
+
+  <!-- ENCABEZADO -->
+  <div
+    class="
+      flex flex-col
+      md:flex-row
+      md:items-center
+      justify-between
+      gap-4
+    "
+  >
+    <div>
+      <h1 class="text-2xl font-black text-gray-100">
+        Administración de objetos
+      </h1>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Registre las páginas y botones que serán utilizados
+        para controlar los permisos del sistema.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="
+        bg-red-600
+        hover:bg-red-700
+        active:bg-red-800
+        text-white
+        font-bold
+        rounded-xl
+        px-5
+        py-2.5
+        shadow-md
+        transition-colors
+      "
+      (click)="abrirModalCreacion()"
+    >
+      + Nuevo objeto
+    </button>
+  </div>
+
+  <!-- MENSAJE CORRECTO -->
+  @if (mensaje()) {
+    <div
+      class="
+        bg-emerald-500/10
+        border
+        border-emerald-400/30
+        text-emerald-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ mensaje() }}
+    </div>
+  }
+
+  <!-- ERROR -->
+  @if (errorPagina()) {
+    <div
+      class="
+        bg-red-500/10
+        border
+        border-red-400/30
+        text-red-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ errorPagina() }}
+    </div>
+  }
+
+  <!-- RESUMEN -->
+  <div
+    class="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      lg:grid-cols-3
+      gap-4
+    "
+  >
+
+    <!-- TOTAL -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Total de objetos
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ objetos().length }}
+      </p>
+    </div>
+
+    <!-- PÁGINAS -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-blue-400/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-blue-300
+          uppercase
+          font-semibold
+        "
+      >
+        Páginas
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-blue-100
+          mt-2
+        "
+      >
+        {{ totalPaginas() }}
+      </p>
+    </div>
+
+    <!-- BOTONES -->
+    <div
+      class="
+        bg-[#14181D]
+        border
+        border-amber-400/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-amber-300
+          uppercase
+          font-semibold
+        "
+      >
+        Botones
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-amber-100
+          mt-2
+        "
+      >
+        {{ totalBotones() }}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- TABLA -->
+  <div
+    class="
+      bg-[#14181D]
+      border
+      border-gray-200/20
+      rounded-2xl
+      p-4
+    "
+  >
+
+    @if (cargando()) {
+      <div
+        class="
+          min-h-[220px]
+          flex
+          items-center
+          justify-center
+          text-gray-400
+        "
+      >
+        Cargando objetos...
+      </div>
+    } @else {
+
+      @if (objetosTabla().length === 0) {
+        <div
+          class="
+            min-h-[220px]
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+          "
+        >
+          <p class="text-lg font-bold text-gray-200">
+            No existen objetos registrados
+          </p>
+
+          <p class="text-sm text-gray-400 mt-1">
+            Presione “Nuevo objeto” para registrar el primero.
+          </p>
+        </div>
+      } @else {
+        <app-table-custom
+          [columns]="columnasObjetos"
+          [data]="objetosTabla()"
+          [actions]="actions"
+          (actionClick)="onTableAction($event)"
+        />
+      }
+
+    }
+  </div>
+
+</div>
+
+<!-- MODAL PARA CREAR Y EDITAR -->
+<app-modal-component
+  [show]="showModal()"
+  [titulo]="tituloModal"
+  [width]="'600px'"
+  [height]="'auto'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="true"
+  (closed)="cerrarModal()"
+>
+
+  <form
+    class="flex flex-col gap-5 p-3"
+    [formGroup]="objetoForm"
+    (ngSubmit)="guardarObjeto()"
+  >
+
+    <div>
+      <h3 class="text-lg font-black text-gray-100">
+        Información del objeto
+      </h3>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Defina el nombre y el tipo del elemento que podrá
+        ser utilizado en los permisos.
+      </p>
+    </div>
+
+    <!-- NOMBRE -->
+    <div>
+      <label
+        for="nombre"
+        class="
+          block
+          text-sm
+          font-bold
+          text-gray-200
+          mb-2
+        "
+      >
+        Nombre
+      </label>
+
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        maxlength="100"
+        placeholder="Ejemplo: Administración de usuarios"
+        class="input-form"
+      >
+
+      @if (
+        objetoForm.controls.nombre.touched &&
+        objetoForm.controls.nombre.hasError('required')
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El nombre es obligatorio.
+        </p>
+      }
+
+      @if (
+        objetoForm.controls.nombre.touched &&
+        objetoForm.controls.nombre.hasError('maxlength')
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El nombre no puede superar los 100 caracteres.
+        </p>
+      }
+    </div>
+
+    <!-- TIPO -->
+    <div>
+      <label
+        for="tipo"
+        class="
+          block
+          text-sm
+          font-bold
+          text-gray-200
+          mb-2
+        "
+      >
+        Tipo de objeto
+      </label>
+
+      <select
+        id="tipo"
+        formControlName="tipo"
+        class="input-form"
+      >
+        @for (tipo of tiposObjeto; track tipo) {
+          <option [value]="tipo">
+            {{ tipo }}
+          </option>
+        }
+      </select>
+
+      @if (
+        objetoForm.controls.tipo.touched &&
+        objetoForm.controls.tipo.invalid
+      ) {
+        <p class="text-xs text-red-400 mt-1">
+          El tipo de objeto es obligatorio.
+        </p>
+      }
+    </div>
+
+    <!-- EXPLICACIÓN -->
+    <div
+      class="
+        bg-blue-500/10
+        border
+        border-blue-400/20
+        rounded-xl
+        px-4
+        py-3
+      "
+    >
+      @if (objetoForm.controls.tipo.value === 'Pagina') {
+        <p class="text-sm text-blue-200">
+          Una página representa una pantalla o sección específica del sistema,
+          por ejemplo: Usuarios, Roles, Objetos o Incidentes.
+        </p>
+      } @else if (objetoForm.controls.tipo.value === 'Boton') {
+        <p class="text-sm text-amber-200">
+          Un botón representa una acción especial disponible dentro de una página,
+          distinta de las operaciones básicas de crear, consultar, actualizar o
+          eliminar.
+        </p>
+      } @else if (objetoForm.controls.tipo.value === 'Modulo') {
+        <p class="text-sm text-purple-200">
+          Un módulo representa un área funcional completa del sistema que agrupa
+          varias páginas relacionadas, por ejemplo: Seguridad, Administración o
+          Gestión de Incidentes.
+        </p>
+      }
+    </div>
+
+    <!-- ERROR DEL MODAL -->
+    @if (errorModal()) {
+      <div
+        class="
+          bg-red-500/10
+          border
+          border-red-400/30
+          text-red-200
+          rounded-xl
+          px-4
+          py-3
+          text-sm
+        "
+      >
+        {{ errorModal() }}
+      </div>
+    }
+
+    <!-- BOTONES -->
+    <div
+      class="
+        flex
+        justify-end
+        gap-3
+        pt-5
+        border-t
+        border-gray-500/20
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          disabled:opacity-50
+          disabled:cursor-not-allowed
+          text-gray-100
+          rounded-xl
+          px-5
+          py-2.5
+          font-semibold
+          transition-colors
+        "
+        [disabled]="guardando()"
+        (click)="cerrarModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          disabled:bg-red-900
+          disabled:text-gray-400
+          disabled:cursor-not-allowed
+          text-white
+          rounded-xl
+          px-5
+          py-2.5
+          font-bold
+          transition-colors
+        "
+        [disabled]="guardando()"
+      >
+        {{ textoBotonGuardar }}
+      </button>
+    </div>
+
+  </form>
+
+</app-modal-component>

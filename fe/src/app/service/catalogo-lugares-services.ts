@@ -43,7 +43,7 @@ export class CatalogoLugaresServices {
   private municipiosPorDepartamentoCache = new Map<string, Observable<Municipio[]>>();
   private municipiosCache = new Map<string, Observable<Municipio[]>>();
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
 
   obtenerEstacionesPorDepartamento(
@@ -98,19 +98,19 @@ export class CatalogoLugaresServices {
   }
 
   obtenerMunicipios(departamentoId: string): Observable<Municipio[]> {
-    const cacheExistente = this.municipiosCache.get(this.user_current.idDepartamento);
+    const cacheExistente = this.municipiosCache.get(this.user_current?.idDepartamento ?? '-');
 
     if (cacheExistente) {
       return cacheExistente;
     }
 
     const request$ = this.http
-      .get<Municipio[]>(`${this.apiUrl}/departamentos/${this.user_current.idDepartamento}/municipios`)
+      .get<Municipio[]>(`${this.apiUrl}/departamentos/${this.user_current?.idDepartamento  ?? '-'}/municipios`)
       .pipe(
         shareReplay({ bufferSize: 1, refCount: false })
       );
 
-    this.municipiosCache.set(this.user_current.idDepartamento, request$);
+    this.municipiosCache.set(this.user_current?.idDepartamento ?? '-', request$);
 
     return request$;
   }

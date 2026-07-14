@@ -38,7 +38,7 @@
           <!-- Total -->
           <div class="bg-[#14181D] border border-gray-200/30 rounded-xl p-4">
             <p class="text-xs text-gray-400 uppercase font-semibold">
-              Total incidentes
+              Total incidentes del dia
             </p>
 
             <p class="text-3xl font-bold text-gray-50 mt-1">
@@ -258,7 +258,7 @@
   <app-wizard-component  class="block h-full"
     [showHeader]="true"
     [showButtons]="false"
-    [disableHeader]="true"
+    [disableHeader]="false"
     [finishText]="'Guardar'"
     (finished)="guardarWizard()"
   >
@@ -268,7 +268,7 @@
       titulo="Incidente"
       descripcion="Datos principales"
     >
-      <app-form-component #formCreate
+      <app-form-component
         [Formulary]="svFormData.incidente('info')"
         (getSubmit)="submitForm_info($event)"
         [labelSudmit]="'Siguiente'"
@@ -301,6 +301,7 @@
           [Formulary]="svFormData.incidente('recursos')"
           (getSubmit)="submitForm_despacho($event)"
           [labelSudmit]="'Siguiente'"
+
         />
       </div>
       <!-- <div class="space-y-4">

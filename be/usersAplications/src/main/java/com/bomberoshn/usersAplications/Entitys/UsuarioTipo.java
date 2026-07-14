@@ -1,4 +1,4 @@
-package com.bomberoshn.usersAplications.Entity;
+package com.bomberoshn.usersAplications.Entitys;
 
 public enum UsuarioTipo {
     Persona,

@@ -4,5 +4,6 @@ public enum IncidenteEstado {
     Pendiente,
     Ejecucion,
     Finalizado,
+    SinEvidencias,
     Cancelado
 }

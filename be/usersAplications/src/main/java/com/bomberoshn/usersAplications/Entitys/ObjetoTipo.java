@@ -1,4 +1,7 @@
 package com.bomberoshn.usersAplications.Entitys;
 
-public enum ObjetoTipoEntity {
+public enum ObjetoTipo {
+    Pagina,
+    Modulo,
+    Boton,
 }

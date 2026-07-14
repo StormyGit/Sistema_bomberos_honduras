@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.tarjeta-resumen {
+  background-color: #14181d;
+  border: 1px solid rgb(229 231 235 / 20%);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.titulo-resumen {
+  color: rgb(156 163 175);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.valor-resumen {
+  color: rgb(243 244 246);
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 900;
+  margin-top: 0.5rem;
+}
+
+.encabezado-tabla {
+  color: rgb(156 163 175);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 1rem;
+}
+
+.celda-tabla {
+  color: rgb(209 213 219);
+  padding: 1rem;
+}
+
+.checkbox-permiso {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: rgb(220 38 38);
+}
+
+.checkbox-permiso:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.loader {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgb(107 114 128 / 30%);
+  border-top-color: rgb(239 68 68);
+  border-radius: 9999px;
+  animation: girar 700ms linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

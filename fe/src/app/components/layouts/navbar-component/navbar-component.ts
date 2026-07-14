@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { User } from './../../../auth/auth.interface.ts';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Popover } from "../../../shared/popover/popover";
+import { AuthServiceService } from '../../../auth/authService.service';
 
 interface NavbarChild {
   path: string;
@@ -22,11 +24,23 @@ interface NavbarButton {
 export class NavbarComponent {
 
   route = inject(Router);
-
+  scrAuth         = inject(AuthServiceService);
+  User = signal(this.scrAuth.getUser);
   openIndex: number | null = null;
+    private router = inject(Router);
 
 listButtons: NavbarButton[] = [
   { path: '/cce', name: 'Dashboard' },
+  {
+    path: null,
+    name: 'Seguridad',
+    child: [
+      { path: '/seguridad/usuarios', name: 'Usuarios' },
+      { path: '/seguridad/roles', name: 'Rol' },
+      { path: '/seguridad/objeto', name: 'Objeto' },
+    ],
+  },
+
   {
     path: null,
     name: 'Incidentes',
@@ -35,7 +49,7 @@ listButtons: NavbarButton[] = [
       { path: '/cce/incidente/create', name: 'Informes' }
     ],
   },
-  // {path: 'inventario', name: 'Inventario'},
+
 ];
 
   clickButton(item: NavbarButton, index: number) {
@@ -60,5 +74,10 @@ listButtons: NavbarButton[] = [
   isActive(path: string | null): boolean {
     if (!path) return false;
     return this.route.url === path;
+  }
+
+  onLogout(){
+    this.scrAuth.logout();
+    this.router.navigate(['/login']);
   }
 }

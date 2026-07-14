@@ -13,10 +13,10 @@ import { AuthServiceService } from '../../auth/authService.service';
 })
 export class CceLayoutComponent implements OnInit, OnDestroy  {
   scrAuth         = inject(AuthServiceService);
-  User            = signal<User>(this.scrAuth.getUser);
+  User            = signal<User | null>(this.scrAuth.getUser);
 
   Departamento: string = 'Centro de Coordinacion de Emergencias';
-  Region: string = this.User().region;
+  Region: string = this.User()?.region ?? '-';
 
   fechaHoraActual: Date = new Date();
 
@@ -39,4 +39,5 @@ export class CceLayoutComponent implements OnInit, OnDestroy  {
   private actualizarFechaHora(): void {
     this.fechaHoraActual = new Date();
   }
+
 }

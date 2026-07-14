@@ -37,7 +37,7 @@ export class IncidenteCreateComponent implements OnInit {
   svrIncidente    = inject(IncidenteService);
   svFormData      = inject(DataFormService);
   scrAuth         = inject(AuthServiceService);
-  User            = signal<User>(this.scrAuth.getUser);
+  User            = signal<User | null>(this.scrAuth.getUser);
 
   //data Table
   tableList = signal<any[]>([]);
@@ -103,7 +103,7 @@ incidente_reset(): void {
       ...newData
     };
 
-    this.incidente_create.departamento = this.User().region;
+    this.incidente_create.departamento = this.User()?.region;
     this.incidente_create.estado = IncidenteEstado.Pendiente;
     console.log(":->",newData)
     console.log(":->",this.incidente_create);
@@ -143,6 +143,8 @@ incidente_reset(): void {
 
     this.incidente_create.estado = IncidenteEstado.Ejecucion;
 
+    console.log(newData);
+
     this.svrIncidente.addRecurso(this.incidente_create.id ?? '', newData).subscribe({
       next: (res) => {
 
@@ -160,6 +162,7 @@ incidente_reset(): void {
         console.error('Error al obtener incidentes', err);
       }
     });
+
   }
 
   submitForm_seguimineto(data: iFormEmit) {
@@ -210,6 +213,9 @@ incidente_reset(): void {
     });
   }
 
+
+
+
   ngOnInit(): void {
     this.recargarList();
   }
@@ -252,7 +258,7 @@ estaciones_cercanas(data: EstacionCercana[]) {
     'idEstacion',[
       ...listEstaciones.map(m => ({ label: m.nombre, value: m.id }))
     ],
-    false
+    true
   );
 
   console.log("solo estaciones: ", listEstaciones);
@@ -461,7 +467,7 @@ onTableAction(event: any): void {
 
 // Decide qué modal abrir según el estado del incidente
 verIncidente(row: any): void {
-  if (row.estado === 'Finalizado') {
+  if (row.estado === 'Finalizado' && row.images.length > 0) {
     this.abrirModal_detalles(row);
     return;
   }

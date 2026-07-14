@@ -75,10 +75,10 @@ public class CatalogoServices {
     @Transactional(readOnly = true)
     public EstacionResponseDTO obtenerEstacionPorId(UUID id) {
         EstacionEntity estacion = estacionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Estación no encontrada"
-                ));
+                .orElse(null);
+        if (estacion == null){
+            return null;
+        }
 
         return mapToEstacionResponseDto(estacion);
     }

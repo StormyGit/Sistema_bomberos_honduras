@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { incidentes_list } from '../types/cce/incidente.interface';
-import { BomberosMantenimiento } from '../service/bomberos-mantenimiento';
 import { User } from '../auth/auth.interface.ts';
 import { AuthServiceService } from '../auth/authService.service';
 import { CatalogoLugaresServices } from '../service/catalogo-lugares-services';
@@ -10,11 +9,11 @@ import { CatalogoLugaresServices } from '../service/catalogo-lugares-services';
 })
 export class DataFormService {
 
-  private svrBomberosMantenimiento = inject(BomberosMantenimiento);
+
   private svrCatalogo = inject(CatalogoLugaresServices);
 
   scrAuth = inject(AuthServiceService);
-  User = signal<User>(this.scrAuth.getUser);
+  User = signal<User | null>(this.scrAuth.getUser);
 
   private listEstaciones: { label: string; value: string }[] = [];
   private cargandoEstaciones = false;
@@ -115,7 +114,7 @@ export class DataFormService {
               showTitle: true,
               w: 2,
               field: [
-                { label: 'Operador', type: 'text', name: 'recepcionNombre', w: 1, required: true, value: this.User().nombre, readonly: true },
+                { label: 'Operador', type: 'text', name: 'recepcionNombre', w: 1, required: true, value: this.User()?.nombre, readonly: true },
                 { label: 'Hora y fecha', type: 'text', name: 'recepcion_fecha', w: 2, readonly: true, value: fechaActual + ' ' + horaActual },
                 { label: 'Tipo', type: 'select', name: 'recepcionTipo', w: 2, required: true, option: [{ label: 'CCE', value: 'OPERADOR_CCE' }, { label: '911', value: 'OPERADOR_911' }] },
               ]
@@ -132,7 +131,7 @@ export class DataFormService {
               w: 1,
               field: [
                 { label: 'Estación', type: 'select', name: 'idEstacion', w: 3, required: true, option: [{ label: 'Cuartel General', value: '07cc136b-2115-4fa2-8caa-dff35b2dcc1a' }] },
-                { label: 'Unidades', type: 'select', name: 'unidad', w: 3, required: true, option: [{ label: 'Opción 1', value: 'opcion 1' }] },
+                { label: 'Unidades', type: 'text', name: 'unidad', w: 3, required: true, option: [{ label: 'Opción 1', value: 'opcion 1' }] },
                 { label: 'Galones de agua', type: 'number', name: 'galonAgua', w: 3, required: true },
                 { label: 'Encargado', type: 'text', name: 'oficialEncargado', w: 2, required: true },
                 { label: 'Personal', type: 'number', name: 'numPersonal', w: 5, required: true },

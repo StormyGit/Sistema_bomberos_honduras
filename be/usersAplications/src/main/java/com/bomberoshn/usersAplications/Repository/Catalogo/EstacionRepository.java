@@ -1,6 +1,6 @@
-package com.bomberoshn.cceAplications.Repository.Catalogo;
+package com.bomberoshn.usersAplications.Repository.Catalogo;
 
-import com.bomberoshn.cceAplications.Entitys.Catalogo.EstacionEntity;
+import com.bomberoshn.usersAplications.Entitys.Catalogo.EstacionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

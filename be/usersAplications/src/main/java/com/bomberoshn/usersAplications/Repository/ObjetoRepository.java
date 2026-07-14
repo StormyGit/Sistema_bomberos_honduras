@@ -1,4 +1,23 @@
 package com.bomberoshn.usersAplications.Repository;
 
-public interface ObjetoRepository {
+import com.bomberoshn.usersAplications.Entitys.ObjetoEntity;
+import com.bomberoshn.usersAplications.Entitys.ObjetoTipo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface ObjetoRepository extends JpaRepository<ObjetoEntity, UUID> {
+
+    boolean existsByNombreIgnoreCaseAndTipo(
+            String nombre,
+            ObjetoTipo tipo
+    );
+
+    boolean existsByNombreIgnoreCaseAndTipoAndIdNot(
+            String nombre,
+            ObjetoTipo tipo,
+            UUID id
+    );
 }

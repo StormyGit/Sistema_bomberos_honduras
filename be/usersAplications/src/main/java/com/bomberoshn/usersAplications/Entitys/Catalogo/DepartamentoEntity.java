@@ -1,4 +1,4 @@
-package com.bomberoshn.cceAplications.Entitys.Catalogo;
+package com.bomberoshn.usersAplications.Entitys.Catalogo;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;

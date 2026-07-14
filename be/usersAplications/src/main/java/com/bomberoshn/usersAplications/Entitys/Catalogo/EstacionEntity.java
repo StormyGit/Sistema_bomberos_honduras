@@ -1,5 +1,7 @@
-package com.bomberoshn.cceAplications.Entitys.Catalogo;
+package com.bomberoshn.usersAplications.Entitys.Catalogo;
 
+import com.bomberoshn.usersAplications.Entitys.Catalogo.DepartamentoEntity;
+import com.bomberoshn.usersAplications.Entitys.Catalogo.RegionalEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
