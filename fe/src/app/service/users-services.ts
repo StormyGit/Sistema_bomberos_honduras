@@ -33,9 +33,11 @@ export class UsersServices {
           correo: response.usuario.correoOrCodigo,
           region: response.usuario.departamentoNombre,
           idDepartamento: response.usuario.departamentoId,
-          rol: response.usuario.rolNombre
+          rol: response.usuario.rolNombre,
+          rolId: response.usuario.rolId,
+          rolCodigo: response.usuario.rolCodigo
         };
-        console.log(response);
+        //console.log(response);
 /*
 {
     "token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3ODM5ODgzNTEsImV4cCI6MTc4NDA3NDc1MX0.E-Rhu2n75ZyqAemIVeTa34yfCt6zmUSIsitOEeYIZ5kigveh-SVOmUuKdzbGeE89",

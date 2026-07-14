@@ -1,6 +1,6 @@
 package com.bomberoshn.usersAplications.Repository;
 
-import com.bomberoshn.usersAplications.Entitys.RolEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.RolEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

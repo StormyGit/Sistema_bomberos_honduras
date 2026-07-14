@@ -1,0 +1,577 @@
+<div class="w-full flex flex-col gap-5 p-4">
+
+  <!-- ENCABEZADO -->
+  <div>
+    <h1 class="text-2xl font-black text-gray-100">
+      Administración de estaciones
+    </h1>
+
+    <p class="text-sm text-gray-400 mt-1">
+      Consulte las estaciones por departamento y municipio,
+      y modifique su información.
+    </p>
+  </div>
+
+  <!-- MENSAJE CORRECTO -->
+  @if (mensaje()) {
+    <div
+      class="
+        bg-emerald-500/10
+        border border-emerald-400/30
+        text-emerald-200
+        rounded-xl
+        px-4 py-3
+        text-sm
+      "
+    >
+      {{ mensaje() }}
+    </div>
+  }
+
+  <!-- ERROR -->
+  @if (errorPagina()) {
+    <div
+      class="
+        bg-red-500/10
+        border border-red-400/30
+        text-red-200
+        rounded-xl
+        px-4 py-3
+        text-sm
+      "
+    >
+      {{ errorPagina() }}
+    </div>
+  }
+
+  <!-- FILTROS -->
+  <div
+    class="
+      bg-[#14181D]
+      border border-gray-200/20
+      rounded-2xl
+      p-5
+    "
+  >
+    <div class="mb-4">
+      <h2 class="text-lg font-black text-gray-100">
+        Filtros
+      </h2>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Seleccione un departamento para habilitar sus municipios.
+      </p>
+    </div>
+
+    <form
+      [formGroup]="filtroForm"
+      class="
+        grid
+        grid-cols-1
+        md:grid-cols-3
+        gap-4
+        items-end
+      "
+    >
+
+      <!-- DEPARTAMENTO -->
+      <div>
+        <label
+          for="filtroDepartamento"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Departamento
+        </label>
+
+        <select
+          id="filtroDepartamento"
+          formControlName="departamentoId"
+          class="input-form"
+        >
+          <option value="">
+            Todos los departamentos
+          </option>
+
+          @for (
+            departamento of departamentos();
+            track departamento.id
+          ) {
+            <option [value]="departamento.id">
+              {{ departamento.nombre }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- MUNICIPIO -->
+      <div>
+        <label
+          for="filtroMunicipio"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Municipio
+        </label>
+
+        <select
+          id="filtroMunicipio"
+          formControlName="municipioId"
+          class="input-form"
+          [disabled]="
+            !filtroForm.controls.departamentoId.value ||
+            cargandoMunicipiosFiltro()
+          "
+        >
+          <option value="">
+            @if (cargandoMunicipiosFiltro()) {
+              Cargando municipios...
+            } @else if (
+              !filtroForm.controls.departamentoId.value
+            ) {
+              Seleccione un departamento
+            } @else {
+              Todos los municipios
+            }
+          </option>
+
+          @for (
+            municipio of municipiosFiltro();
+            track municipio.id
+          ) {
+            <option [value]="municipio.id">
+              {{ municipio.nombre }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- LIMPIAR -->
+      <div>
+        <button
+          type="button"
+          class="
+            w-full
+            bg-gray-700
+            hover:bg-gray-600
+            text-gray-100
+            rounded-xl
+            px-5 py-3
+            font-semibold
+            transition-colors
+          "
+          (click)="limpiarFiltros()"
+        >
+          Mostrar todas
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- RESUMEN -->
+  <div
+    class="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      gap-4
+    "
+  >
+    <div
+      class="
+        bg-[#14181D]
+        border border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Estaciones encontradas
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ estaciones().length }}
+      </p>
+    </div>
+
+    <div
+      class="
+        bg-[#14181D]
+        border border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Filtro actual
+      </p>
+
+      <p class="text-base font-bold text-gray-200 mt-2">
+        @if (
+          filtroForm.controls.municipioId.value
+        ) {
+          Departamento y municipio
+        } @else if (
+          filtroForm.controls.departamentoId.value
+        ) {
+          Departamento
+        } @else {
+          Todas las estaciones
+        }
+      </p>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div
+    class="
+      bg-[#14181D]
+      border border-gray-200/20
+      rounded-2xl
+      p-4
+    "
+  >
+
+    @if (cargando()) {
+      <div
+        class="
+          min-h-[250px]
+          flex
+          items-center
+          justify-center
+          text-gray-400
+        "
+      >
+        Cargando estaciones...
+      </div>
+    } @else if (estaciones().length === 0) {
+      <div
+        class="
+          min-h-[250px]
+          flex
+          flex-col
+          items-center
+          justify-center
+          text-center
+        "
+      >
+        <p class="text-lg font-bold text-gray-200">
+          No se encontraron estaciones
+        </p>
+
+        <p class="text-sm text-gray-400 mt-1">
+          Pruebe seleccionando otro departamento o municipio.
+        </p>
+      </div>
+    } @else {
+      <app-table-custom
+        [columns]="columnasEstaciones"
+        [data]="estaciones()"
+        [actions]="actions"
+        (actionClick)="onTableAction($event)"
+      />
+    }
+
+  </div>
+
+</div>
+
+<!-- MODAL DE EDICIÓN -->
+<app-modal-component
+  [show]="showModalEdicion()"
+  [titulo]="'Editar estación'"
+  [width]="'750px'"
+  [height]="'auto'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="true"
+  (closed)="cerrarModalEdicion()"
+>
+
+  <form
+    class="flex flex-col gap-5 p-3"
+    [formGroup]="estacionForm"
+    (ngSubmit)="guardarEstacion()"
+  >
+
+    <div>
+      <h3 class="text-lg font-black text-gray-100">
+        Información de la estación
+      </h3>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Modifique el nombre, ubicación y clasificación de la estación.
+      </p>
+    </div>
+
+    <div
+      class="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        gap-4
+      "
+    >
+
+      <!-- NOMBRE -->
+      <div class="md:col-span-2">
+        <label
+          for="nombre"
+          class="label-form"
+        >
+          Nombre
+        </label>
+
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          maxlength="80"
+          placeholder="Nombre de la estación"
+          class="input-form"
+        >
+
+        @if (
+          estacionForm.controls.nombre.touched &&
+          estacionForm.controls.nombre.invalid
+        ) {
+          <p class="error-form">
+            El nombre es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- DEPARTAMENTO -->
+      <div>
+        <label
+          for="departamentoId"
+          class="label-form"
+        >
+          Departamento
+        </label>
+
+        <select
+          id="departamentoId"
+          formControlName="departamentoId"
+          class="input-form"
+        >
+          <option value="">
+            Seleccione un departamento
+          </option>
+
+          @for (
+            departamento of departamentos();
+            track departamento.id
+          ) {
+            <option [value]="departamento.id">
+              {{ departamento.nombre }}
+            </option>
+          }
+        </select>
+
+        @if (
+          estacionForm.controls.departamentoId.touched &&
+          estacionForm.controls.departamentoId.invalid
+        ) {
+          <p class="error-form">
+            El departamento es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- MUNICIPIO -->
+      <div>
+        <label
+          for="municipioId"
+          class="label-form"
+        >
+          Municipio
+        </label>
+
+        <select
+          id="municipioId"
+          formControlName="municipioId"
+          class="input-form"
+          [disabled]="
+            !estacionForm.controls.departamentoId.value ||
+            cargandoMunicipiosEdicion()
+          "
+        >
+          <option value="">
+            @if (cargandoMunicipiosEdicion()) {
+              Cargando municipios...
+            } @else {
+              Seleccione un municipio
+            }
+          </option>
+
+          @for (
+            municipio of municipiosEdicion();
+            track municipio.id
+          ) {
+            <option [value]="municipio.id">
+              {{ municipio.nombre }}
+            </option>
+          }
+        </select>
+
+        @if (
+          estacionForm.controls.municipioId.touched &&
+          estacionForm.controls.municipioId.invalid
+        ) {
+          <p class="error-form">
+            El municipio es obligatorio.
+          </p>
+        }
+      </div>
+
+      <!-- PUNTO -->
+      <div class="md:col-span-2">
+        <label
+          for="point"
+          class="label-form"
+        >
+          Punto geográfico
+        </label>
+
+        <textarea
+          id="point"
+          formControlName="point"
+          rows="4"
+          placeholder='Ejemplo: {"lat":14.0723,"lng":-87.1921}'
+          class="input-form resize-none"
+        ></textarea>
+
+        <p class="text-xs text-gray-500 mt-1">
+          Este campo es opcional y puede contener el punto geográfico
+          en formato JSON.
+        </p>
+      </div>
+
+      <!-- CENTRAL -->
+      <div class="md:col-span-2">
+        <label
+          class="
+            flex
+            items-center
+            gap-3
+            bg-white/5
+            border border-white/10
+            rounded-xl
+            px-4 py-3
+            cursor-pointer
+          "
+        >
+          <input
+            type="checkbox"
+            formControlName="central"
+            class="checkbox-form"
+          >
+
+          <div>
+            <p class="text-sm font-bold text-gray-200">
+              Estación central
+            </p>
+
+            <p class="text-xs text-gray-500">
+              Marque esta opción si corresponde a una estación central.
+            </p>
+          </div>
+        </label>
+      </div>
+
+    </div>
+
+    @if (errorModal()) {
+      <div
+        class="
+          bg-red-500/10
+          border border-red-400/30
+          text-red-200
+          rounded-xl
+          px-4 py-3
+          text-sm
+        "
+      >
+        {{ errorModal() }}
+      </div>
+    }
+
+    <!-- BOTONES -->
+    <div
+      class="
+        flex
+        justify-end
+        gap-3
+        pt-5
+        border-t border-gray-500/20
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          text-gray-100
+          rounded-xl
+          px-5 py-2.5
+          font-semibold
+        "
+        [disabled]="guardando()"
+        (click)="cerrarModalEdicion()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          disabled:bg-red-900
+          disabled:cursor-not-allowed
+          text-white
+          rounded-xl
+          px-5 py-2.5
+          font-bold
+        "
+        [disabled]="guardando()"
+      >
+        {{ guardando() ? 'Guardando...' : 'Actualizar estación' }}
+      </button>
+    </div>
+
+  </form>
+
+</app-modal-component>

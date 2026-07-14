@@ -1,8 +1,8 @@
-package com.bomberoshn.usersAplications.Controller;
+package com.bomberoshn.usersAplications.Controller.Seguridad;
 
 import com.bomberoshn.usersAplications.DTO.ObjetoRequestDTO;
 import com.bomberoshn.usersAplications.DTO.ObjetoResponseDTO;
-import com.bomberoshn.usersAplications.Services.IObjetoService;
+import com.bomberoshn.usersAplications.Services.Interfaces.IObjetoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

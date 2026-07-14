@@ -1,4 +1,20 @@
 package com.bomberoshn.cceAplications.DTO;
 
-public class EstacionUpdateRequestDTO {
+import java.util.UUID;
+
+public record EstacionUpdateRequestDTO(
+
+        String nombre,
+
+        UUID regionalId,
+
+        UUID departamentoId,
+
+        UUID municipioId,
+
+        boolean central,
+
+        String point
+
+) {
 }

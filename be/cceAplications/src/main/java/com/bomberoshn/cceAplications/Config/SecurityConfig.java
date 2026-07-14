@@ -41,10 +41,12 @@ public class SecurityConfig {
                                 HttpMethod.OPTIONS,
                                 "/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET,"/incidente/{id}").permitAll()
+                        .requestMatchers("/archivos/**").permitAll()
+
 
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

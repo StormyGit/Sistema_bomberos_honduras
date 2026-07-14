@@ -6,6 +6,8 @@ export interface User {
   region: string;
   idDepartamento: string;
   rol: string;
+  rolId: string;
+  rolCodigo: string;
 }
 
 

@@ -1,0 +1,31 @@
+<div class="p-4">
+
+  @if (cargando()) {
+    <div class="flex items-center justify-center h-64">
+      <p class="text-sm text-gray-400 font-semibold">
+        Cargando incidente...
+      </p>
+    </div>
+  } @else if (error()) {
+    <div class="bg-rose-500/10 border border-rose-400/30 rounded-xl p-6 text-center">
+      <p class="text-sm font-semibold text-rose-200">
+        {{ error() }}
+      </p>
+    </div>
+  } @else if (incidente_selection()) {
+    <app-incidente-info-components
+      [dataIncidente]="incidente_selection()"
+      [showImage]="true"
+      [showRecurso]="true"
+      [showTimer]="true"
+      [showMap]="true"
+    ></app-incidente-info-components>
+  } @else {
+    <div class="bg-[#14181D] border border-dashed border-gray-200/20 rounded-xl p-6 text-center">
+      <p class="text-sm text-gray-400 font-semibold">
+        Incidente no encontrado.
+      </p>
+    </div>
+  }
+
+</div>

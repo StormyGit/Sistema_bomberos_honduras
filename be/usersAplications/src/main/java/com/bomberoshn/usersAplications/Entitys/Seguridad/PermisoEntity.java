@@ -1,5 +1,6 @@
-package com.bomberoshn.usersAplications.Entitys;
+package com.bomberoshn.usersAplications.Entitys.Seguridad;
 
+import com.bomberoshn.usersAplications.Utils.enums.AccionTipo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

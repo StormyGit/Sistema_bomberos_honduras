@@ -15,6 +15,7 @@ import { incidente, IncidenteEstado, Tiempo, TiempoTipo } from '../../../types/c
 import { IncidenteService } from '../services/incidente-service';
 import { AuthServiceService } from '../../../auth/authService.service';
 import { IncidenteTiempoComponent } from "../../components/incidente-tiempo-component/incidente-tiempo-component";
+import { Router } from '@angular/router';
 
 
 
@@ -37,6 +38,9 @@ export class IncidenteCreateComponent implements OnInit {
   svrIncidente    = inject(IncidenteService);
   svFormData      = inject(DataFormService);
   scrAuth         = inject(AuthServiceService);
+
+  router =
+    inject(Router);
   User            = signal<User | null>(this.scrAuth.getUser);
 
   //data Table
@@ -425,13 +429,13 @@ showModal_detalles: boolean = false;
 
 
 
-    let json = null;
-    if (this.incidente_selection?.point){
-      json = JSON.parse(this.incidente_selection?.point);
-      this.mapaDetalle.pointDefault = json;
-    }
+    // let json = null;
+    // if (this.incidente_selection?.point){
+    //   json = JSON.parse(this.incidente_selection?.point);
+    //   //this.mapaDetalle.pointDefault = json;
+    // }
     this.showModal_detalles = true;
-    console.log(json);
+    //console.log(json);
   }
 
 cerrarModal_detalles() {
@@ -500,6 +504,63 @@ abrirModal_seguimiento(row: any): void {
 
   this.showModal.set(true);
   this.cambiarPasoWizard(2); // índice 2 = "Bitacora y seguimiento"
+}
+
+async compartirPreliminar(
+  data: incidente | null
+): Promise<void> {
+
+  if (!data?.id) {
+    console.error('El incidente no tiene ID');
+    return;
+  }
+
+  // Crear la ruta con Angular
+  const ruta = this.router.serializeUrl(
+    this.router.createUrlTree([
+      '/public',
+      'incidente',
+      data.id
+    ])
+  );
+
+  // Convertirla en una URL completa
+  const urlPublica = new URL(
+    ruta,
+    window.location.origin
+  ).href;
+
+  const recurso = data.recursos?.[0];
+
+  const texto = [
+    'REPORTE PRELIMINAR',
+    'CUERPO DE BOMBEROS DE HONDURAS',
+    '',
+    `FECHA: ${data.fecha ?? 'Pendiente'}`,
+    `INCIDENTE: ${data.incidente ?? 'Pendiente'}`,
+    `DIRECCIÓN: ${data.direccion ?? data.colonia ?? 'Pendiente'}`,
+    `UNIDAD: ${recurso?.unidad ?? 'Pendiente'}`,
+    `AL MANDO: ${recurso?.oficialEncargado ?? 'Pendiente'}`,
+    '',
+    'PENDIENTE DE MÁS INFORMACIÓN',
+    '',
+    'CONSULTAR REPORTE:',
+    urlPublica
+  ].join('\n');
+
+  try {
+    await navigator.clipboard.writeText(texto);
+
+    console.log('Reporte copiado al portapapeles');
+
+    // Puedes reemplazar esto por tu toast o mensaje personalizado
+    alert('Reporte preliminar copiado');
+  } catch (error) {
+    console.error(
+      'No se pudo copiar el reporte:',
+      error
+    );
+  }
 }
 
 }

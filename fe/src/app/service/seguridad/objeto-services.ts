@@ -70,7 +70,7 @@ export class ObjetoServices {
   ): Observable<boolean> {
 
     return this.http.delete<boolean>(
-      `${this.apiUrl}/${id}`
+      `${this.apiUrl}/${id}notpermiss`
     );
   }
 }

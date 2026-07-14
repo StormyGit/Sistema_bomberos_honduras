@@ -1,4 +1,4 @@
-package com.bomberoshn.usersAplications.Entitys;
+package com.bomberoshn.usersAplications.Entitys.Seguridad;
 
 import jakarta.persistence.*;
 import lombok.Getter;

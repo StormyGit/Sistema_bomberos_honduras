@@ -1,7 +1,7 @@
 package com.bomberoshn.usersAplications.Repository;
 
-import com.bomberoshn.usersAplications.Entitys.ObjetoEntity;
-import com.bomberoshn.usersAplications.Entitys.ObjetoTipo;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.ObjetoEntity;
+import com.bomberoshn.usersAplications.Utils.enums.ObjetoTipo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -2,8 +2,9 @@ package com.bomberoshn.usersAplications.Services;
 
 import com.bomberoshn.usersAplications.DTO.RolRequestDTO;
 import com.bomberoshn.usersAplications.DTO.RolResponseDTO;
-import com.bomberoshn.usersAplications.Entitys.RolEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.RolEntity;
 import com.bomberoshn.usersAplications.Repository.RolRepository;
+import com.bomberoshn.usersAplications.Services.Interfaces.IRolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

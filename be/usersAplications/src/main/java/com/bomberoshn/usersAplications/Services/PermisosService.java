@@ -3,10 +3,15 @@ package com.bomberoshn.usersAplications.Services;
 import com.bomberoshn.usersAplications.DTO.AccionPermisoDTO;
 import com.bomberoshn.usersAplications.DTO.CambiarPermisoRequestDTO;
 import com.bomberoshn.usersAplications.DTO.ObjetoPermisoResponseDTO;
-import com.bomberoshn.usersAplications.Entitys.*;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.ObjetoEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.PermisoEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.RolEntity;
 import com.bomberoshn.usersAplications.Repository.ObjetoRepository;
 import com.bomberoshn.usersAplications.Repository.PermisoRepository;
 import com.bomberoshn.usersAplications.Repository.RolRepository;
+import com.bomberoshn.usersAplications.Services.Interfaces.IPermisosService;
+import com.bomberoshn.usersAplications.Utils.enums.AccionTipo;
+import com.bomberoshn.usersAplications.Utils.enums.ObjetoTipo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

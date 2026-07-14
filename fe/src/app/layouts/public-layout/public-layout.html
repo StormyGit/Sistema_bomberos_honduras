@@ -1,0 +1,70 @@
+<div class="flex w-full h-screen overflow-hidden">
+
+  <!-- CONTENEDOR DERECHO -->
+  <div class="w-full h-full flex flex-col min-h-0">
+<!-- HEADER -->
+<div
+  class="
+    relative
+    w-full h-20 color-bombero
+    shadow-3xl shadow-black/80
+    flex items-center
+    px-6
+    shrink-0
+  "
+>
+  <!-- LOGOS Y TEXTO CENTRADOS -->
+  <div
+    class="
+      absolute left-1/2 -translate-x-1/2
+      flex items-center justify-center
+    "
+  >
+    <div class="mr-6">
+      <img
+        src="/assets/img/icon.png"
+        alt="Logo"
+        class="w-15 h-15 object-contain"
+      >
+    </div>
+
+    <div class="text-center whitespace-nowrap">
+      <div class="text-3xl text-white font-black">
+        Cuerpo de Bomberos
+      </div>
+
+      <div class="text-md text-white font-black">
+
+      </div>
+    </div>
+
+    <div class="ml-6">
+      <img
+        src="/assets/img/icon2.png"
+        alt="Logo"
+        class="w-15 h-15 object-contain"
+      >
+    </div>
+  </div>
+
+</div>
+<!-- HEADER -->
+
+    <!-- BODY -->
+    <div
+      class="
+        flex-1
+        min-h-0
+        overflow-y-auto
+        p-4
+        back
+
+        text-white
+      "
+
+    >
+      <router-outlet />
+    </div>
+    <!-- BODY -->
+  </div>
+</div>

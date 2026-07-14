@@ -1,6 +1,6 @@
 package com.bomberoshn.usersAplications.DTO;
 
-import com.bomberoshn.usersAplications.Entitys.UsuarioTipo;
+import com.bomberoshn.usersAplications.Utils.enums.UsuarioTipo;
 
 import java.util.UUID;
 

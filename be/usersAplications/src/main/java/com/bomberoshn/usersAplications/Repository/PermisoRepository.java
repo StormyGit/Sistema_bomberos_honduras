@@ -1,7 +1,7 @@
 package com.bomberoshn.usersAplications.Repository;
 
-import com.bomberoshn.usersAplications.Entitys.AccionTipo;
-import com.bomberoshn.usersAplications.Entitys.PermisoEntity;
+import com.bomberoshn.usersAplications.Utils.enums.AccionTipo;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.PermisoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

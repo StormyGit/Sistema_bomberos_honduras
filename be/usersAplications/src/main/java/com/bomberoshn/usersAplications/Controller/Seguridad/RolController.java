@@ -1,9 +1,9 @@
-package com.bomberoshn.usersAplications.Controller;
+package com.bomberoshn.usersAplications.Controller.Seguridad;
 
 
 import com.bomberoshn.usersAplications.DTO.RolRequestDTO;
 import com.bomberoshn.usersAplications.DTO.RolResponseDTO;
-import com.bomberoshn.usersAplications.Services.IRolService;
+import com.bomberoshn.usersAplications.Services.Interfaces.IRolService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

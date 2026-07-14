@@ -1,4 +1,4 @@
-package com.bomberoshn.usersAplications.Services;
+package com.bomberoshn.usersAplications.Services.Interfaces;
 
 import com.bomberoshn.usersAplications.DTO.CambiarPermisoRequestDTO;
 import com.bomberoshn.usersAplications.DTO.ObjetoPermisoResponseDTO;

@@ -3,6 +3,7 @@ package com.bomberoshn.cceAplications.Controller;
 import com.bomberoshn.cceAplications.DTO.Catalogo.DepartamentoResponseDto;
 import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.DTO.Catalogo.MunicipioResponseDto;
+import com.bomberoshn.cceAplications.DTO.EstacionUpdateRequestDTO;
 import com.bomberoshn.cceAplications.Services.CatalogoServices;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,4 +54,16 @@ public class CatalogoController {
         );
     }
 
+
+
+    @PutMapping("/estacion/{id}")
+    public EstacionResponseDTO actualizarEstacion(
+            @PathVariable UUID id,
+            @RequestBody EstacionUpdateRequestDTO dto
+    ) {
+        return catalogoServices.actualizarEstacion(
+                id,
+                dto
+        );
+    }
 }

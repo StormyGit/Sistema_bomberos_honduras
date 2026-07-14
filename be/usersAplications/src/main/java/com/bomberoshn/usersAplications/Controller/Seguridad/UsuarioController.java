@@ -1,10 +1,10 @@
-package com.bomberoshn.usersAplications.Controller;
+package com.bomberoshn.usersAplications.Controller.Seguridad;
 
 
 import com.bomberoshn.usersAplications.DTO.UsuarioCreateDTO;
 import com.bomberoshn.usersAplications.DTO.UsuarioResponseDTO;
 import com.bomberoshn.usersAplications.DTO.UsuarioUpdateDTO;
-import com.bomberoshn.usersAplications.Services.IUsuarioService;
+import com.bomberoshn.usersAplications.Services.Interfaces.IUsuarioService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,3 +1,5 @@
+<!-- MAIN incidente -->
+
 <button
   type="button"
   class="
@@ -398,14 +400,12 @@
   [showCloseButton]="true"
   (closed)="cerrarModal_detalles()"
 >
-  <div class="flex w-full space-x-2 ">
-    <div class="w-1/2">
-      <app-map-picker #mapa_detalle
-        [height]="'700px'"/>
-    </div>
-    <div class="w-1/2 overflow-auto h-[700px]">
-      <app-incidente-info-components [dataIncidente]="incidente_selection" [showImage]="true" [showRecurso]="true" [showTimer]="true"></app-incidente-info-components>
-    </div>
-  </div>
+    <button
+      (click)="compartirPreliminar(incidente_selection);"
+    >
+      ir Preliminar
+    </button>
+
+      <app-incidente-info-components [dataIncidente]="incidente_selection" [showImage]="true" [showRecurso]="true" [showTimer]="true" [showMap]="true"></app-incidente-info-components>
 
 </app-modal-component>

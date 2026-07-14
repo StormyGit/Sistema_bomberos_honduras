@@ -1,6 +1,6 @@
 package com.bomberoshn.usersAplications.Repository;
 
-import com.bomberoshn.usersAplications.Entitys.UsuarioEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.UsuarioEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -7,10 +7,11 @@ export const CURRENT_USER: User = {
   correo: 'admin',
   region: 'FRANCISCO MORAZÁN',
   idDepartamento: "11e52c2c-73ee-4916-b048-ac74320e51a6",
-  rol: 'superAdmin'
+  rol: 'superAdmin',
+  rolId: '',
+  rolCodigo: ''
 };
 
 
 
 
-	

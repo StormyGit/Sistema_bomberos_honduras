@@ -1,6 +1,6 @@
 package com.bomberoshn.usersAplications.DTO;
 
-import com.bomberoshn.usersAplications.Entitys.ObjetoTipo;
+import com.bomberoshn.usersAplications.Utils.enums.ObjetoTipo;
 
 public record ObjetoRequestDTO(
 

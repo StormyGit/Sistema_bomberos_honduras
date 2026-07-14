@@ -4,20 +4,24 @@ import { IncidenteComponent } from './pages/cce/incidente-component/incidente-co
 import { IncidenteCreateComponent } from './pages/cce/incidente-create-component/incidente-create-component';
 import { InventarioLayoutComponent } from './layouts/inventario-layout-component/inventario-layout-component';
 import { LoginLayoutComponent } from './layouts/login-layout-component/login-layout-component';
-import { authGuard, authGuard_login } from './guards/auth.guard';
+import { authGuard, authGuard_login, permisoGuard } from './guards/auth.guard';
 import { UsuariosComponent } from './pages/seguridad/usuarios-component/usuarios-component';
 import { RolComponents } from './pages/seguridad/rol-components/rol-components';
 import { ObjetoComponent } from './pages/seguridad/objeto-component/objeto-component';
 import { PermisosComponent } from './pages/seguridad/permisos-component/permisos-component';
+import { PublicLayout } from './layouts/public-layout/public-layout';
+import { IncidenteResumen } from './pages/public/incidente-resumen/incidente-resumen';
+import { EstacionesCompenent } from './pages/seguridad/estaciones-compenent/estaciones-compenent';
 
 export const routes: Routes = [
   {
     path:"cce",
     canActivate: [authGuard],
-    canActivateChild: [authGuard],
+    canActivateChild: [authGuard, permisoGuard],
+    data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},
     component: CceLayoutComponent, children:[
-      {path:"incidente/create", component: IncidenteComponent},
-      {path:"incidente", component: IncidenteCreateComponent},
+      {path:"incidente/create", component: IncidenteComponent,    data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},},
+      {path:"incidente", component: IncidenteCreateComponent,    data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},},
   ]},
   {
     path:"seguridad",
@@ -28,6 +32,7 @@ export const routes: Routes = [
       {path:"roles", component: RolComponents},
       {path:'roles/:rolId/permisos', component: PermisosComponent},
       {path:"objeto", component: ObjetoComponent},
+      {path:"estaciones", component: EstacionesCompenent},
   ]},
 
   {
@@ -36,8 +41,11 @@ export const routes: Routes = [
     canActivateChild: [authGuard],
     component:InventarioLayoutComponent
   },
+  {path:"public", component:PublicLayout, children:[
+      {path:"incidente/:incidenteId", component: IncidenteResumen},
+  ]},
   {path:"login", canActivate: [authGuard_login], component:LoginLayoutComponent},
-
-  {path:"**", redirectTo: "cce"}
+  {path:"dashboard", canActivate: [authGuard], component:CceLayoutComponent},
+  {path:"**", redirectTo: "dashboard"}
 
 ];

@@ -2,8 +2,9 @@ package com.bomberoshn.usersAplications.Services;
 
 import com.bomberoshn.usersAplications.DTO.ObjetoRequestDTO;
 import com.bomberoshn.usersAplications.DTO.ObjetoResponseDTO;
-import com.bomberoshn.usersAplications.Entitys.ObjetoEntity;
+import com.bomberoshn.usersAplications.Entitys.Seguridad.ObjetoEntity;
 import com.bomberoshn.usersAplications.Repository.ObjetoRepository;
+import com.bomberoshn.usersAplications.Services.Interfaces.IObjetoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

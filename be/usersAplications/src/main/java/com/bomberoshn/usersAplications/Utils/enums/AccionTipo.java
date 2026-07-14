@@ -1,4 +1,4 @@
-package com.bomberoshn.usersAplications.Entitys;
+package com.bomberoshn.usersAplications.Utils.enums;
 
 public enum AccionTipo {
     View,

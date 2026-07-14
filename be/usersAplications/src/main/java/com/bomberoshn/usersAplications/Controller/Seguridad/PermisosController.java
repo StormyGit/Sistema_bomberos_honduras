@@ -1,8 +1,8 @@
-package com.bomberoshn.usersAplications.Controller;
+package com.bomberoshn.usersAplications.Controller.Seguridad;
 
 import com.bomberoshn.usersAplications.DTO.CambiarPermisoRequestDTO;
 import com.bomberoshn.usersAplications.DTO.ObjetoPermisoResponseDTO;
-import com.bomberoshn.usersAplications.Services.IPermisosService;
+import com.bomberoshn.usersAplications.Services.Interfaces.IPermisosService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,8 +1,9 @@
-package com.bomberoshn.usersAplications.Entitys;
+package com.bomberoshn.usersAplications.Entitys.Seguridad;
 
 
 import com.bomberoshn.usersAplications.Entitys.Catalogo.DepartamentoEntity;
 import com.bomberoshn.usersAplications.Entitys.Catalogo.EstacionEntity;
+import com.bomberoshn.usersAplications.Utils.enums.UsuarioTipo;
 import jakarta.persistence.*;
 import lombok.*;
 

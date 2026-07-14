@@ -29,6 +29,15 @@ export interface Estacion {
   municipioId: string
 }
 
+export interface EstacionUpdateRequest {
+  nombre: string;
+  regionalId?: string | null;
+  departamentoId: string;
+  municipioId: string;
+  central: boolean;
+  point?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -135,6 +144,18 @@ export class CatalogoLugaresServices {
       { params }
     );
   }
+
+  actualizarEstacion(
+    id: string,
+    estacion: EstacionUpdateRequest
+  ): Observable<Estacion | null> {
+
+    return this.http.put<Estacion | null>(
+      `${this.apiUrl}/estacion/${id}`,
+      estacion
+    );
+  }
+
 
   limpiarCache(): void {
     this.departamentos$ = undefined;

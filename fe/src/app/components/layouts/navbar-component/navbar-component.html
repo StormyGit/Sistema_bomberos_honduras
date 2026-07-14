@@ -1,8 +1,18 @@
-<div class="h-full min-h-0 border border-white/10 bg-black/40 flex flex-col overflow-hidden">
+<div
+  class="
+    h-full min-h-0
+    border border-white/10
+    bg-black/40
+    flex flex-col
+    overflow-hidden
+  "
+>
 
   <!-- HEADER DEL MENÚ -->
   <div class="p-4 border-b border-white/10 shrink-0">
+
     <div class="flex items-center gap-3">
+
       <div
         class="
           w-12 h-12
@@ -12,18 +22,39 @@
           flex items-center justify-center
         "
       >
-        <span class="text-white font-black text-lg">C</span>
+        <span class="text-white font-black text-lg">
+          {{ User()?.nombre?.charAt(0) || 'U' }}
+        </span>
       </div>
 
-      <div class="text-white">
-        <div class="font-black text-lg leading-tight">
-          {{User()?.nombre}}
+      <div class="text-white min-w-0">
+
+        <div
+          class="
+            font-black
+            text-lg
+            leading-tight
+            truncate
+          "
+        >
+          {{ User()?.nombre }}
         </div>
-        <div class="text-xs text-white/50 font-semibold">
-          {{User()?.rol}}
+
+        <div
+          class="
+            text-xs
+            text-white/50
+            font-semibold
+            truncate
+          "
+        >
+          {{ User()?.rol }}
         </div>
+
       </div>
+
     </div>
+
   </div>
 
   <!-- LISTA CON SCROLL -->
@@ -40,76 +71,169 @@
     "
   >
 
-    @for (i of listButtons; track $index) {
+    <!-- CARGANDO PERMISOS -->
+    @if (cargandoMenu()) {
 
-      <!-- BOTÓN PRINCIPAL -->
-      <div
-        class="
-          group
-          bg-white/5
-          hover:bg-[#E4572E]/20
-          border border-white/10
-          hover:border-[#E4572E]/70
-          text-white
-          p-3
-          rounded-xl
-          cursor-pointer
-          flex justify-between items-center
-          transition-all duration-200
-          shadow-sm
-        "
-        (click)="clickButton(i, $index)"
-      >
-        <span class="font-semibold text-sm">
-          {{ i.name }}
-        </span>
+      <div class="space-y-3">
 
-        @if (i.child && i.child.length > 0) {
-          <span
+        @for (_ of [1, 2, 3]; track $index) {
+          <div
             class="
-              text-xs text-white/60
-              group-hover:text-white
-              transition
+              h-12
+              bg-white/5
+              border border-white/10
+              rounded-xl
+              animate-pulse
             "
-          >
-            {{ isOpen($index) ? '▲' : '▼' }}
-          </span>
+          ></div>
         }
+
       </div>
 
-      <!-- HIJOS / DESPLEGABLE -->
-      @if (i.child && i.child.length > 0 && isOpen($index)) {
+    } @else {
 
-        <div class="ml-3 pl-3 border-l border-white/10 space-y-1">
+      <!-- MENÚ FILTRADO POR PERMISOS -->
+      @for (
+        i of listButtonsVisibles();
+        track i.name;
+        let index = $index
+      ) {
 
-          @for (child of i.child; track child.path) {
+        <!-- BOTÓN PRINCIPAL -->
+        <div
+          class="
+            group
+            bg-white/5
+            hover:bg-[#E4572E]/20
+            border border-white/10
+            hover:border-[#E4572E]/70
+            text-white
+            p-3
+            rounded-xl
+            cursor-pointer
+            flex justify-between items-center
+            transition-all duration-200
+            shadow-sm
+          "
+          [class.bg-[#E4572E]]="isActive(i.path)"
+          [class.border-[#E4572E]]="isActive(i.path)"
+          [class.shadow-lg]="isActive(i.path)"
+          [class.shadow-red-900/30]="isActive(i.path)"
+          (click)="clickButton(i, index)"
+        >
 
-            <div
+          <span class="font-semibold text-sm">
+            {{ i.name }}
+          </span>
+
+          @if (i.child && i.child.length > 0) {
+
+            <span
               class="
-                p-2.5
-                rounded-lg
-                cursor-pointer
-                text-sm
-                font-semibold
-                transition-all duration-200
+                text-xs
+                text-white/60
+                group-hover:text-white
+                transition-transform duration-200
               "
-              [class.bg-[#E4572E]]="isActive(child.path)"
-              [class.text-white]="isActive(child.path)"
-              [class.shadow-lg]="isActive(child.path)"
-              [class.shadow-red-900/30]="isActive(child.path)"
-
-              [class.bg-white/5]="!isActive(child.path)"
-              [class.text-white/70]="!isActive(child.path)"
-              [class.hover:bg-white/10]="!isActive(child.path)"
-              [class.hover:text-white]="!isActive(child.path)"
-
-              (click)="irPagina(child.path)"
+              [class.rotate-180]="isOpen(index)"
             >
-              {{ child.name }}
-            </div>
+              ▼
+            </span>
 
           }
 
+        </div>
+
+        <!-- HIJOS / DESPLEGABLE -->
+        @if (
+          i.child &&
+          i.child.length > 0 &&
+          isOpen(index)
+        ) {
+
+          <div
+            class="
+              ml-3
+              pl-3
+              border-l
+              border-white/10
+              space-y-1
+            "
+          >
+
+            @for (
+              child of i.child;
+              track child.path
+            ) {
+
+              <button
+                type="button"
+                class="
+                  block
+                  w-full
+                  p-2.5
+                  rounded-lg
+                  cursor-pointer
+                  text-left
+                  text-sm
+                  font-semibold
+                  transition-all duration-200
+                "
+                [class.bg-[#E4572E]]="
+                  isActive(child.path)
+                "
+                [class.text-white]="
+                  isActive(child.path)
+                "
+                [class.shadow-lg]="
+                  isActive(child.path)
+                "
+                [class.shadow-red-900/30]="
+                  isActive(child.path)
+                "
+
+                [class.bg-white/5]="
+                  !isActive(child.path)
+                "
+                [class.text-white/70]="
+                  !isActive(child.path)
+                "
+                [class.hover:bg-white/10]="
+                  !isActive(child.path)
+                "
+                [class.hover:text-white]="
+                  !isActive(child.path)
+                "
+
+                (click)="clickChild(child)"
+              >
+                {{ child.name }}
+              </button>
+
+            }
+
+          </div>
+
+        }
+
+      } @empty {
+
+        <div
+          class="
+            bg-white/5
+            border border-white/10
+            rounded-xl
+            px-4 py-5
+            text-center
+          "
+        >
+          <p class="text-sm font-semibold text-white/70">
+            No tiene módulos disponibles
+          </p>
+
+          <p class="text-xs text-white/40 mt-1">
+            Consulte con el administrador del sistema.
+          </p>
         </div>
 
       }
@@ -144,21 +268,24 @@
           flex items-center justify-between
         "
       >
+
         <div>
           <div class="text-xs text-white/50 font-semibold">
-            Mas
+            Más
           </div>
         </div>
 
         <span class="text-white/50 text-xs">
           ▲
         </span>
+
       </button>
 
       <!-- CONTENIDO DEL POPOVER -->
       <div popoverContent>
 
         <button
+          type="button"
           class="
             w-full
             px-4 py-3
@@ -171,11 +298,11 @@
             flex items-center gap-2
           "
         >
-          <!-- <span>❓</span> -->
           <span>Ayuda</span>
         </button>
 
         <button
+          type="button"
           class="
             w-full
             px-4 py-3
@@ -188,14 +315,13 @@
             flex items-center gap-2
           "
         >
-          <!-- <span>⚙️</span> -->
           <span>Opciones</span>
         </button>
 
         <div class="border-t border-white/10"></div>
 
         <button
-          (click)="onLogout()"
+          type="button"
           class="
             w-full
             px-4 py-3
@@ -207,8 +333,8 @@
             transition
             flex items-center gap-2
           "
+          (click)="onLogout()"
         >
-          <!-- <span>🚪</span> -->
           <span>Cerrar sesión</span>
         </button>
 
