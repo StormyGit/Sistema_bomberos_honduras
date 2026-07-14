@@ -2,8 +2,6 @@ package com.bomberoshn.cceAplications.DTO;
 
 import com.bomberoshn.cceAplications.Entitys.IncidenteEstado;
 import com.bomberoshn.cceAplications.Entitys.IncidenteRecepcion;
-import com.bomberoshn.cceAplications.Entitys.IncidenteTipo;
-import com.bomberoshn.cceAplications.Entitys.RecursoEntity;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -19,7 +17,8 @@ import java.util.UUID;
 public class IncidenteDTO {
 
     private UUID id;
-    private IncidenteTipo incidente;
+    private String incidente;
+    private UUID incidenteTipoId;
     private UUID idParent;
     private IncidenteEstado estado;
     private String departamento;

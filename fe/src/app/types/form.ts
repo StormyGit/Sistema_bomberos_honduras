@@ -18,10 +18,12 @@ interface iFormRows{
 
 interface iFormField {
     label: string;
-    type: 'text' | 'number' | 'email' | 'select' | 'password' | 'image' | 'file' | 'input' | 'textarea' | 'date' | 'checkbox' | 'select-search';
+    type: 'text' | 'number' | 'email' | 'select' | 'password' | 'image' | 'file' | 'input' | 'textarea' | 'date' | 'checkbox' | 'select-search' | 'autocomplete';
     name: string;
     max?: number;
     min?: number;
+    minChars?: number;
+    allowFreeText?: boolean;
     placeholder?: string;
     readonly?: boolean;
     required?: boolean;

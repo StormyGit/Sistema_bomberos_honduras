@@ -72,6 +72,7 @@ export enum IncidenteEstado {
     Pendiente="Pendiente",
     Ejecucion="Ejecucion",
     Finalizado="Finalizado",
+    SinEvidencias="Sin Evidencias",
     Cancelado="Cancelado"
 }
 

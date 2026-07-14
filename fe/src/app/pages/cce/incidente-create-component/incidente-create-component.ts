@@ -16,6 +16,7 @@ import { IncidenteService } from '../services/incidente-service';
 import { AuthServiceService } from '../../../auth/authService.service';
 import { IncidenteTiempoComponent } from "../../components/incidente-tiempo-component/incidente-tiempo-component";
 import { Router } from '@angular/router';
+import { CatalogoLugaresServices } from '../../../service/catalogo-lugares-services';
 
 
 
@@ -30,12 +31,14 @@ export class IncidenteCreateComponent implements OnInit {
   wizard!: WizardComponent;
 
   @ViewChild('formCreate') formCreate!: FormComponent;
+  @ViewChild('formInfo') formInfo!: FormComponent;
 
   @ViewChild('mapa_detalle')
   mapaDetalle!: MapPickerComponent;
 
   // servicios
   svrIncidente    = inject(IncidenteService);
+  svrCatalogo     = inject(CatalogoLugaresServices);
   svFormData      = inject(DataFormService);
   scrAuth         = inject(AuthServiceService);
 
@@ -70,6 +73,7 @@ incidente_reset(): void {
   this.tiemposPorTipo = {};
   this.formCreate?.resetForm();   // <-- nuevo
   this.cambiarPasoWizard(0);
+  this.recargarList();
 }
 
   abrirModal_creacion() {
@@ -78,10 +82,8 @@ incidente_reset(): void {
 
   cerrarModal_creacion() {
     console.log("g");
-    setTimeout(() => {
-      this.incidente_reset();
-      this.showModal.set(false);
-    }, 200);
+    this.showModal.set(false);
+    this.incidente_reset();
   }
 
   guardarWizard() {
@@ -210,6 +212,7 @@ incidente_reset(): void {
         console.log('Voy a cerrar modal');
 
         this.cerrarModal_creacion();
+        this.recargarList();
 
         console.log('Ya llamé cerrarModal_creacion');
       },
@@ -562,5 +565,16 @@ async compartirPreliminar(
     );
   }
 }
+
+
+onSearchAutocomplete({ name, search }: { name: string; search: string }) {
+  console.log({ name, search });
+
+  this.svrCatalogo.buscarTiposIncidente(search).subscribe(resultados => {
+    const options = resultados.map(r => ({ label: r.nombre, value: r.nombre }));
+    this.formInfo.setFieldOptions(name, options, false);
+  });
+}
+
 
 }

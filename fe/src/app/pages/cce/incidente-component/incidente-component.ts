@@ -12,6 +12,30 @@ import { CatalogoLugaresServices } from '../../../service/catalogo-lugares-servi
 import { AuthServiceService } from '../../../auth/authService.service';
 import { User } from '../../../auth/auth.interface.ts';
 import { IncidenteService } from '../services/incidente-service';
+export interface TipoMunicipioResumen {
+  municipioId: string;
+  municipio: string;
+  tipoId: string;
+  tipoNombre: string;
+  total: number;
+}
+
+export interface IncidenteMunicipioItem {
+  key: string;
+  tipoId: string;
+  tipoNombre: string;
+  total: number;
+}
+
+export interface MunicipioIncidenteTablaRow {
+  municipioId: string;
+  municipio: string;
+  total: number;
+  totalTexto: string;
+  incidentes: IncidenteMunicipioItem[];
+}
+
+
 export interface IncidenteInforme {
   id: number;
   status: 'pendiente' | 'Ejecucion' | 'finalizado' | 'cancelado';
@@ -36,13 +60,6 @@ export interface MarkerInforme {
   unidades: string[];
 }
 
-export interface TipoMunicipioResumen {
-  municipioId: string;
-  municipio: string;
-  incidente: string;
-  incidenteNombre: string;
-  total: number;
-}
 
 export interface MunicipioResumenTabla {
   key: string;
@@ -61,23 +78,6 @@ export interface TipoMunicipioTablaRow {
   columnas: MunicipioResumenTabla[][];
 }
 
-export interface IncidenteMunicipioItem {
-  key: string;
-  incidente: string;
-  incidenteNombre: string;
-  total: number;
-  label: string;
-}
-
-export interface MunicipioIncidenteTablaRow {
-  municipioId: string;
-  municipio: string;
-  total: number;
-  totalTexto: string;
-  incidentes: IncidenteMunicipioItem[];
-}
-
-
 @Component({
   selector: 'app-incidente-component',
   imports: [MatTableModule, MatPaginatorModule, CardComponent, FormComponent, TableCustomComponent],
@@ -91,9 +91,9 @@ export class IncidenteComponent implements OnInit {
     const filtros = {
       fecha_Inicio: fechaHoy,
       fecha_Final: fechaHoy,
-      isFinalizado:true,
+      isFinalizado: true,
       buscar: null,
-      tipo: null,
+      tipoId: null,
       idEstacion: null
     };
 
@@ -177,111 +177,194 @@ export class IncidenteComponent implements OnInit {
       );
   }
 
-  onSubmit(data: any){
-    console.log(data)
-    this.searchIncidente(data.data);
-  }
+onSubmit(event: any): void {
+  const data = event?.data ?? {};
+  console.log(data);
+  const filtros = {
+    buscar: data.buscar?.trim() || null,
+
+    fecha_Inicio:
+      data.fecha_Inicio || null,
+
+    fecha_Final:
+      data.fecha_Final || null,
+
+    tipoId:
+      data.tipoId ??
+      data.tipo ??
+      null,
+
+    finalizado: data.isFinalizado ?? false,
+
+    idEstacion:
+      data.idEstacion ?? null
+  };
+
+  console.log('Filtros enviados:', filtros);
+
+  this.searchIncidente(filtros);
+}
+
+
 searchIncidente(data: any): void {
   this.loading.set(true);
 
-  this.svrIncidente.buscarIncidentes(data).subscribe({
-    next: (res) => {
-      console.log(res);
+  this.svrIncidente
+    .buscarIncidentes(data)
+    .subscribe({
+      next: res => {
+        console.log(
+          'Respuesta búsqueda:',
+          res
+        );
 
-      this.tableList.set([...(res.Incidentes ?? [])]);
+        this.tableList.set(
+          [...(res.Incidentes ?? [])]
+        );
 
-      this.tipoResumenList.set(
-        (res.TipoResumen ?? []).filter(
-          (item: TipoResumen) => Number(item.total) > 0
-        )
-      );
+        this.tipoResumenList.set(
+          (res.TipoResumen ?? [])
+            .map((item: TipoResumen) => ({
+              ...item,
+              total: Number(item.total ?? 0)
+            }))
+            .filter(
+              (item: TipoResumen) =>
+                item.total > 0
+            )
+        );
 
-      this.tipoAndMunicipiosList.set(
-        (res.tipoAndMunicipios ?? []).filter(
-          (item: TipoMunicipioResumen) => Number(item.total) > 0
-        )
-      );
+        this.tipoAndMunicipiosList.set(
+          (res.tipoAndMunicipios ?? [])
+            .map(
+              (
+                item: TipoMunicipioResumen
+              ) => ({
+                ...item,
+                total: Number(
+                  item.total ?? 0
+                )
+              })
+            )
+            .filter(
+              (
+                item: TipoMunicipioResumen
+              ) => item.total > 0
+            )
+        );
 
-      this.loading.set(false);
-    },
-    error: (err) => {
-      console.error('Error al obtener incidentes', err);
+        console.log(
+          'Resumen municipios:',
+          this.tipoAndMunicipiosList()
+        );
 
-      this.tableList.set([]);
-      this.tipoResumenList.set([]);
-      this.tipoAndMunicipiosList.set([]);
+        console.log(
+          'Tabla agrupada:',
+          this.tablaMunicipiosAndTipos()
+        );
 
-      this.loading.set(false);
-    }
-  });
+        this.loading.set(false);
+      },
+
+      error: err => {
+        console.error(
+          'Error al obtener incidentes',
+          err
+        );
+
+        this.tableList.set([]);
+        this.tipoResumenList.set([]);
+        this.tipoAndMunicipiosList.set([]);
+
+        this.loading.set(false);
+      }
+    });
 }
-tablaMunicipiosAndTipos = computed<MunicipioIncidenteTablaRow[]>(() => {
-  const agrupado = new Map<string, MunicipioIncidenteTablaRow>();
 
-  for (const item of this.tipoAndMunicipiosList()) {
-    const total = Number(item.total || 0);
 
-    if (total <= 0) {
-      continue;
+tablaMunicipiosAndTipos =
+  computed<MunicipioIncidenteTablaRow[]>(() => {
+
+    const agrupado =
+      new Map<string, MunicipioIncidenteTablaRow>();
+
+    for (const item of this.tipoAndMunicipiosList()) {
+
+      const total = Number(item.total ?? 0);
+
+      if (total <= 0) {
+        continue;
+      }
+
+      const keyMunicipio =
+        item.municipioId ||
+        item.municipio ||
+        'sin-municipio';
+
+      let row = agrupado.get(keyMunicipio);
+
+      if (!row) {
+        row = {
+          municipioId: item.municipioId,
+          municipio: item.municipio || 'Sin municipio',
+          total: 0,
+          totalTexto: '00',
+          incidentes: []
+        };
+
+        agrupado.set(keyMunicipio, row);
+      }
+
+      row.total += total;
+
+      const incidenteExistente =
+        row.incidentes.find(
+          incidente =>
+            incidente.tipoId === item.tipoId
+        );
+
+      if (incidenteExistente) {
+        incidenteExistente.total += total;
+      } else {
+        row.incidentes.push({
+          key: `${keyMunicipio}-${item.tipoId}`,
+          tipoId: item.tipoId,
+          tipoNombre:
+            item.tipoNombre || 'Sin identificar',
+          total
+        });
+      }
     }
 
-    const keyMunicipio = item.municipioId || item.municipio;
+    return Array.from(agrupado.values())
+      .map(row => ({
+        ...row,
 
-    if (!agrupado.has(keyMunicipio)) {
-      agrupado.set(keyMunicipio, {
-        municipioId: item.municipioId,
-        municipio: item.municipio,
-        total: 0,
-        totalTexto: '00',
-        incidentes: []
-      });
-    }
+        totalTexto:
+          String(row.total).padStart(2, '0'),
 
-    const row = agrupado.get(keyMunicipio)!;
-
-    row.total += total;
-
-    const incidenteExistente = row.incidentes.find(
-      incidente => incidente.incidente === item.incidente
-    );
-
-    if (incidenteExistente) {
-      incidenteExistente.total += total;
-      incidenteExistente.label =
-        incidenteExistente.total > 1
-          ? `${incidenteExistente.incidenteNombre} (${incidenteExistente.total})`
-          : incidenteExistente.incidenteNombre;
-    } else {
-      row.incidentes.push({
-        key: `${item.municipioId}-${item.incidente}`,
-        incidente: item.incidente,
-        incidenteNombre: item.incidenteNombre,
-        total,
-        label: total > 1
-          ? `${item.incidenteNombre} (${total})`
-          : item.incidenteNombre
-      });
-    }
-  }
-
-  return Array.from(agrupado.values())
-    .map(row => {
-      row.totalTexto = String(row.total).padStart(2, '0');
-
-      row.incidentes = row.incidentes.sort((a, b) =>
-        a.incidenteNombre.localeCompare(b.incidenteNombre, 'es', {
-          sensitivity: 'base'
-        })
+        incidentes: [...row.incidentes].sort(
+          (a, b) =>
+            a.tipoNombre.localeCompare(
+              b.tipoNombre,
+              'es',
+              {
+                sensitivity: 'base'
+              }
+            )
+        )
+      }))
+      .sort(
+        (a, b) =>
+          a.municipio.localeCompare(
+            b.municipio,
+            'es',
+            {
+              sensitivity: 'base'
+            }
+          )
       );
-
-      return row;
-    })
-    .sort((a, b) =>
-      a.municipio.localeCompare(b.municipio, 'es', {
-        sensitivity: 'base'
-      })
-    );
-});
+  });
 
 private dividirEnColumnas<T>(items: T[], cantidadColumnas: number): T[][] {
   const columnas: T[][] = Array.from({ length: cantidadColumnas }, () => []);

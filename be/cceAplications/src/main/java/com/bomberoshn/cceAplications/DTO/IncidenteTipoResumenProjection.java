@@ -1,8 +1,12 @@
 package com.bomberoshn.cceAplications.DTO;
 
-import com.bomberoshn.cceAplications.Entitys.IncidenteTipo;
+import java.util.UUID;
 
 public interface IncidenteTipoResumenProjection {
-    IncidenteTipo getTipo();
+
+    UUID getTipoId();
+
+    String getTipoNombre();
+
     Long getTotal();
 }

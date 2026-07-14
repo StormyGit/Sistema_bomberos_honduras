@@ -327,6 +327,7 @@ private bytesToMB(bytes: number): string {
   colorEstado(estado: string | null | undefined): string {
     switch (estado) {
       case 'Pendiente': return 'warning';
+      case 'SinEvidencias': return 'warning';
       case 'Ejecucion': return 'primary';
       case 'Finalizado': return 'success';
       case 'Cancelado': return 'danger';

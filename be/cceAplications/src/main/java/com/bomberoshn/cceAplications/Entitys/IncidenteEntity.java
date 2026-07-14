@@ -1,5 +1,6 @@
 package com.bomberoshn.cceAplications.Entitys;
 
+import com.bomberoshn.cceAplications.Entitys.Catalogo.IncidenteTipoEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,9 +22,9 @@ public class IncidenteEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 80)
-    private IncidenteTipo incidente;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "incidente_tipo_id", nullable = false)
+    private IncidenteTipoEntity incidenteTipo;
 
     @Column(name = "id_parent")
     private UUID idParent;

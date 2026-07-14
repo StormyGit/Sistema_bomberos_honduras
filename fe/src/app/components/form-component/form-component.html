@@ -45,7 +45,7 @@
                                 </label>
 
                                 <!-- inputs -->
-                                @if(field.type !== 'select' && field.type !== 'select-search' && field.type !== 'image' && field.type !== 'file' && field.type !== 'textarea' && field.type !== 'checkbox'){
+                                @if(field.type !== 'select' && field.type !== 'select-search' && field.type !== 'image' && field.type !== 'file' && field.type !== 'textarea' && field.type !== 'checkbox' && field.type !== 'autocomplete'){
                                     <input
                                         class="rounded-lg border px-3.5 py-2.5 text-sm text-gray-100 w-full
                                             placeholder:text-gray-500
@@ -272,6 +272,77 @@
                                                     </button>
                                                 } @empty {
                                                     <div class="px-3.5 py-2 text-sm text-gray-500">Sin resultados</div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                @if(field.type === 'autocomplete'){
+                                    <div class="relative w-full" #panelRef>
+                                        <div class="relative">
+                                            <input
+                                              class="rounded-lg border px-3.5 py-2.5 pr-9 text-sm text-gray-100 w-full
+                                                      placeholder:text-gray-500
+                                                      transition-colors duration-150
+                                                      border-gray-600 bg-gray-800
+                                                      hover:border-gray-500
+                                                      focus:outline-none
+                                              "
+                                              [ngClass]="{
+                                                '!border-emerald-400 !bg-emerald-950/30':
+                                                  _formGroup.get(field.name)?.valid &&
+                                                  (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+                                                '!border-red-400 !bg-red-950/30':
+                                                  _formGroup.get(field.name)?.invalid &&
+                                                  (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+                                                '!border-blue-500 ring-4 ring-blue-500/10':
+                                                  _OpenSelectInput === field.name
+                                              }"
+                                              type="text"
+                                              [placeholder]="field.placeholder ?? 'Escribe para buscar...'"
+                                              [value]="getAutocompleteValue(field)"
+                                              (focus)="onAutocompleteFocus(field)"
+                                              (input)="onAutocompleteInput($event, field)"
+                                              (keydown)="onAutocompleteKeydown($event, field)"
+                                            />
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                                @if (_loadingAutocomplete[field.name]) {
+                                                    <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                                        <circle cx="12" cy="12" r="9" stroke-opacity="0.25"></circle>
+                                                        <path d="M21 12a9 9 0 0 0-9-9"></path>
+                                                    </svg>
+                                                } @else {
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                }
+                                            </span>
+                                        </div>
+
+                                        @if (_OpenSelectInput === field.name) {
+                                            <div class="absolute left-0 mt-1.5 w-full z-50 rounded-lg bg-gray-800 border border-gray-200/10 shadow-lg py-1.5 max-h-60 overflow-y-auto">
+                                                @if (_loadingAutocomplete[field.name]) {
+                                                    <div class="px-3.5 py-2 text-sm text-gray-500">Buscando...</div>
+                                                } @else if ((_searchText[field.name] ?? '').trim().length < (field.minChars ?? 2)) {
+                                                    <div class="px-3.5 py-2 text-sm text-gray-500">Escribe para buscar, ejemplo: incendio</div>
+                                                } @else {
+                                                    @for (op of getFieldOptions(field); track op.value; let i = $index) {
+                                                        <button
+                                                            type="button"
+                                                            class="w-full text-left px-3.5 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors duration-100"
+                                                            [ngClass]="{
+                                                                'text-blue-400 font-medium bg-blue-950/40':
+                                                                    _formGroup.get(field.name)?.value === op.value,
+                                                                '!bg-gray-700':
+                                                                    _highlightedIndex[field.name] === i
+                                                            }"
+                                                            (mouseenter)="_highlightedIndex[field.name] = i"
+                                                            (click)="selectOption(field.name, op.value, op.label)"
+                                                        >
+                                                            {{ op.label !== "" ? op.label : "Seleccionar..." }}
+                                                        </button>
+                                                    } @empty {
+                                                        <div class="px-3.5 py-2 text-sm text-gray-500">Sin resultados, preciona enter para usar: <strong>'{{getAutocompleteValue(field)}}'</strong></div>
+                                                    }
                                                 }
                                             </div>
                                         }

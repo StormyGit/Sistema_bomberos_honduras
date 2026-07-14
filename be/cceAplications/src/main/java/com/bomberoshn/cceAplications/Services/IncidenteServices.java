@@ -3,7 +3,9 @@ package com.bomberoshn.cceAplications.Services;
 import com.bomberoshn.cceAplications.DTO.*;
 import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.Entitys.*;
+import com.bomberoshn.cceAplications.Entitys.Catalogo.IncidenteTipoEntity;
 import com.bomberoshn.cceAplications.Repository.*;
+import com.bomberoshn.cceAplications.Repository.Catalogo.IncidenteTipoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -30,14 +32,16 @@ public class IncidenteServices implements IIncidenteService {
     private final EvidenciaRepository evidenciaRepository;
     private final ArchivoService archivoService;
     private final CatalogoServices catalogoServices;
+    private final IncidenteTipoRepository incidenteTipoRepository;
 
-    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices) {
+    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices, IncidenteTipoRepository incidenteTipoRepository) {
         this.incidenteRepository = incidenteRepository;
         this.recursoRepository = recursoRepository;
         this.tiempoRepository = tiempoRepository;
         this.evidenciaRepository = evidenciaRepository;
         this.archivoService = archivoService;
         this.catalogoServices = catalogoServices;
+        this.incidenteTipoRepository = incidenteTipoRepository;
     }
 
     public List<IncidenteDTO> getAll() {
@@ -90,29 +94,56 @@ public class IncidenteServices implements IIncidenteService {
 
 
 
+    @Transactional
     public IncidenteDTO create(IncidenteDTO dto) {
+
+        if (dto == null) {
+            throw new RuntimeException(
+                    "Los datos del incidente son obligatorios."
+            );
+        }
+
         dto.setId(null);
 
         IncidenteEntity entity = toEntity(dto);
 
         entity.setEstado(IncidenteEstado.Pendiente);
+
         entity = incidenteRepository.save(entity);
+
         addTimer(entity.getId(), TiempoTipo.REPORTE);
-        logger.info("Incidente creado: {}, Id: {}", entity.getIncidente(), entity.getId());
+
+        logger.info(
+                "Incidente creado: {}, Id: {}",
+                entity.getIncidenteTipo().getNombre(),
+                entity.getId()
+        );
 
         return toDTO(entity);
     }
 
+    @Transactional
     public IncidenteDTO update(UUID id, IncidenteDTO dto) {
 
+        if (id == null) {
+            throw new RuntimeException(
+                    "El ID del incidente es obligatorio."
+            );
+        }
+
         IncidenteEntity entity = incidenteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("El incidente no existe."));
+                .orElseThrow(() ->
+                        new RuntimeException("El incidente no existe.")
+                );
 
         updateFields(entity, dto);
 
         entity = incidenteRepository.save(entity);
 
-        logger.info("Incidente actualizado, Id: {}", entity.getId());
+        logger.info(
+                "Incidente actualizado, Id: {}",
+                entity.getId()
+        );
 
         return toDTO(entity);
     }
@@ -236,7 +267,67 @@ public class IncidenteServices implements IIncidenteService {
 
 
     @Transactional(readOnly = true)
-    public List<IncidenteDTO> buscarIncidentes(SearchIncidenteDTO filtros) {
+    public List<IncidenteDTO> buscarIncidentes(
+            SearchIncidenteDTO filtros
+    ) {
+
+        if (filtros == null) {
+            filtros = new SearchIncidenteDTO();
+        }
+
+        String buscar = filtros.getBuscar();
+
+        if (buscar != null) {
+            buscar = buscar.trim();
+
+            if (buscar.isEmpty()) {
+                buscar = null;
+            }
+        }
+
+        LocalDateTime fechaInicio =
+                filtros.getFecha_Inicio() != null
+                        ? filtros.getFecha_Inicio().atStartOfDay()
+                        : LocalDateTime.of(
+                        1900,
+                        1,
+                        1,
+                        0,
+                        0
+                );
+
+        LocalDateTime fechaFinal =
+                filtros.getFecha_Final() != null
+                        ? filtros.getFecha_Final()
+                        .plusDays(1)
+                        .atStartOfDay()
+                        : LocalDateTime.of(
+                        9999,
+                        12,
+                        31,
+                        23,
+                        59,
+                        59
+                );
+
+        return incidenteRepository.buscarIncidentes(
+                        buscar,
+                        fechaInicio,
+                        fechaFinal,
+                        filtros.getTipoId(),
+                        filtros.getFinalizado(),
+                        IncidenteEstado.Finalizado
+                )
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(
+            SearchIncidenteDTO filtros
+    ) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -260,76 +351,57 @@ public class IncidenteServices implements IIncidenteService {
                 ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
                 : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
 
-        return incidenteRepository.buscarIncidentes(
+        UUID tipoId = filtros.getTipoId();
+
+        List<IncidenteTipoResumenProjection> resultado =
+                incidenteRepository.resumenPorTipo(
                         buscar,
+                        tipoId,
                         fechaInicio,
                         fechaFinal,
-                        filtros.getTipo(),
                         filtros.getFinalizado(),
                         IncidenteEstado.Finalizado
-                )
-                .stream()
-                .map(this::toDTO)
-                .toList();
-    }
+                );
 
-    @Transactional(readOnly = true)
-    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(SearchIncidenteDTO filtros) {
-
-        if (filtros == null) {
-            filtros = new SearchIncidenteDTO();
-        }
-
-        String buscar = filtros.getBuscar();
-
-        if (buscar == null) {
-            buscar = "";
-        } else {
-            buscar = buscar.trim();
-        }
-
-        LocalDateTime fechaInicio = filtros.getFecha_Inicio() != null
-                ? filtros.getFecha_Inicio().atStartOfDay()
-                : LocalDateTime.of(1900, 1, 1, 0, 0);
-
-        LocalDateTime fechaFinal = filtros.getFecha_Final() != null
-                ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
-                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
-
-        Boolean filtrarTipo = filtros.getTipo() != null;
-
-        IncidenteTipo tipo = filtrarTipo
-                ? filtros.getTipo()
-                : IncidenteTipo.OTRO;
-
-        List<IncidenteTipoResumenProjection> resultado = incidenteRepository.resumenPorTipo(
-                buscar,
-                filtrarTipo,
-                tipo,
-                fechaInicio,
-                fechaFinal,
-                filtros.getFinalizado(),
-                IncidenteEstado.Finalizado
-        );
-
-        Map<IncidenteTipo, Long> totalesPorTipo = resultado.stream()
+        Map<UUID, Long> totalesPorTipo = resultado.stream()
                 .collect(Collectors.toMap(
-                        IncidenteTipoResumenProjection::getTipo,
+                        IncidenteTipoResumenProjection::getTipoId,
                         IncidenteTipoResumenProjection::getTotal
                 ));
 
-        return Arrays.stream(IncidenteTipo.values())
-                .map(tipoEnum -> new IncidenteTipoResumenDTO(
-                        tipoEnum,
-                        formatearNombreTipo(tipoEnum),
-                        totalesPorTipo.getOrDefault(tipoEnum, 0L)
-                ))
+        List<IncidenteTipoEntity> tipos;
+
+        if (tipoId != null) {
+            tipos = incidenteTipoRepository.findById(tipoId)
+                    .map(List::of)
+                    .orElseGet(List::of);
+        } else {
+            tipos = incidenteTipoRepository.findAll(
+                    Sort.by(
+                            Sort.Direction.ASC,
+                            "nombre"
+                    )
+            );
+        }
+
+        return tipos.stream()
+                .map(tipo -> IncidenteTipoResumenDTO.builder()
+                        .tipoId(tipo.getId())
+                        .nombre(tipo.getNombre())
+                        .total(
+                                totalesPorTipo.getOrDefault(
+                                        tipo.getId(),
+                                        0L
+                                )
+                        )
+                        .build()
+                )
                 .toList();
     }
 
-
     @Transactional(readOnly = true)
-    public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros) {
+    public List<IncidenteMunicipioTipoResumenDTO>
+    resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -337,54 +409,89 @@ public class IncidenteServices implements IIncidenteService {
 
         String buscar = filtros.getBuscar();
 
-        if (buscar == null) {
-            buscar = "";
-        } else {
+        if (buscar != null) {
             buscar = buscar.trim();
+
+            if (buscar.isEmpty()) {
+                buscar = null;
+            }
         }
 
-        LocalDateTime fechaInicio = filtros.getFecha_Inicio() != null
-                ? filtros.getFecha_Inicio().atStartOfDay()
-                : LocalDateTime.of(1900, 1, 1, 0, 0);
+        LocalDateTime fechaInicio =
+                filtros.getFecha_Inicio() != null
+                        ? filtros.getFecha_Inicio().atStartOfDay()
+                        : LocalDateTime.of(
+                        1900,
+                        1,
+                        1,
+                        0,
+                        0
+                );
 
-        LocalDateTime fechaFinal = filtros.getFecha_Final() != null
-                ? filtros.getFecha_Final().plusDays(1).atStartOfDay()
-                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        LocalDateTime fechaFinal =
+                filtros.getFecha_Final() != null
+                        ? filtros.getFecha_Final()
+                        .plusDays(1)
+                        .atStartOfDay()
+                        : LocalDateTime.of(
+                        9999,
+                        12,
+                        31,
+                        23,
+                        59,
+                        59
+                );
 
-        String tipo = filtros.getTipo() != null
-                ? filtros.getTipo().name()
-                : null;
+        UUID tipoId = filtros.getTipoId();
 
         List<IncidentesPorMunicipioTipoProjection> resultado =
                 recursoRepository.contarIncidentesPorMunicipioYTipo(
                         fechaInicio,
                         fechaFinal,
-                        tipo,
+                        tipoId,
                         buscar
                 );
 
         return resultado.stream()
-                .map(item -> {
-                    IncidenteTipo incidenteTipo = IncidenteTipo.valueOf(item.getIncidente());
-
-                    return new IncidenteMunicipioTipoResumenDTO(
-                            item.getMunicipioId(),
-                            item.getMunicipio(),
-                            incidenteTipo,
-                            formatearNombreTipo(incidenteTipo),
-                            item.getTotal()
-                    );
-                })
+                .map(item -> new IncidenteMunicipioTipoResumenDTO(
+                        item.getMunicipioId(),
+                        item.getMunicipio(),
+                        item.getTipoId(),
+                        item.getTipoNombre(),
+                        item.getTotal()
+                ))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<IncidenteTipoResponseDTO> buscar_tipo(String buscar) {
 
-    private String formatearNombreTipo(IncidenteTipo tipo) {
-        if (tipo == null) {
-            return "";
+        String texto = buscar != null
+                ? buscar.trim()
+                : "";
+
+        List<IncidenteTipoEntity> tipos;
+
+        if (texto.isEmpty()) {
+            tipos = incidenteTipoRepository.findAll(
+                    Sort.by(
+                            Sort.Direction.ASC,
+                            "nombre"
+                    )
+            );
+        } else {
+            tipos = incidenteTipoRepository
+                    .findByNombreContainingIgnoreCaseOrderByNombreAsc(
+                            texto
+                    );
         }
 
-        return tipo.name().replace("_", " ");
+        return tipos.stream()
+                .map(tipo -> new IncidenteTipoResponseDTO(
+                        tipo.getId(),
+                        tipo.getNombre()
+                ))
+                .toList();
     }
 
     private IncidenteDTO toDTO(IncidenteEntity entity) {
@@ -394,7 +501,16 @@ public class IncidenteServices implements IIncidenteService {
 
         return IncidenteDTO.builder()
                 .id(entity.getId())
-                .incidente(entity.getIncidente())
+                .incidente(
+                        entity.getIncidenteTipo() != null
+                                ? entity.getIncidenteTipo().getNombre()
+                                : null
+                )
+                .incidenteTipoId(
+                        entity.getIncidenteTipo() != null
+                                ? entity.getIncidenteTipo().getId()
+                                : null
+                )
                 .idParent(entity.getIdParent())
                 .estado(
                         entity.getEstado() == IncidenteEstado.Finalizado
@@ -433,11 +549,17 @@ public class IncidenteServices implements IIncidenteService {
                 .build();
     }
     private IncidenteEntity toEntity(IncidenteDTO dto) {
-        if (dto == null) return null;
+
+        if (dto == null) {
+            return null;
+        }
+
+        IncidenteTipoEntity tipoIncidente =
+                obtenerOCrearTipoIncidente(dto.getIncidente());
 
         return IncidenteEntity.builder()
                 .id(dto.getId())
-                .incidente(dto.getIncidente())
+                .incidenteTipo(tipoIncidente)
                 .idParent(dto.getIdParent())
                 .estado(dto.getEstado())
                 .departamento(dto.getDepartamento())
@@ -465,8 +587,13 @@ public class IncidenteServices implements IIncidenteService {
     }
     private void updateFields(IncidenteEntity entity, IncidenteDTO dto) {
 
-        if (dto.getIncidente() != null) {
-            entity.setIncidente(dto.getIncidente());
+        if (dto.getIncidente() != null
+                && !dto.getIncidente().isBlank()) {
+
+            IncidenteTipoEntity tipoIncidente =
+                    obtenerOCrearTipoIncidente(dto.getIncidente());
+
+            entity.setIncidenteTipo(tipoIncidente);
         }
 
         if (dto.getIdParent() != null) {
@@ -590,4 +717,38 @@ public class IncidenteServices implements IIncidenteService {
 
         return archivo;
     }
+
+    private IncidenteTipoEntity obtenerOCrearTipoIncidente(String nombre) {
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new RuntimeException(
+                    "El tipo de incidente es obligatorio."
+            );
+        }
+
+        String nombreLimpio = nombre
+                .trim()
+                .replaceAll("\\s+", " ");
+
+        return incidenteTipoRepository
+                .findByNombreIgnoreCase(nombreLimpio)
+                .orElseGet(() -> {
+                    IncidenteTipoEntity nuevoTipo =
+                            new IncidenteTipoEntity();
+
+                    nuevoTipo.setNombre(nombreLimpio);
+
+                    IncidenteTipoEntity tipoGuardado =
+                            incidenteTipoRepository.save(nuevoTipo);
+
+                    logger.info(
+                            "Nuevo tipo de incidente creado: {}, Id: {}",
+                            tipoGuardado.getNombre(),
+                            tipoGuardado.getId()
+                    );
+
+                    return tipoGuardado;
+                });
+    }
+
 }

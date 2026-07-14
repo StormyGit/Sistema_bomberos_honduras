@@ -93,7 +93,7 @@ export class DataFormService {
               showTitle: true,
               w: 1,
               field: [
-                { label: 'Incidente', type: 'select-search', name: 'incidente', w: 2, required: true, option: incidente_list },
+                { label: 'Incidente', type: 'autocomplete', name: 'incidente', w: 2, required: true, minChars:3, allowFreeText:true },
                 { label: 'Ticket', type: 'text', name: 'ticket', w: 2, required: false },
                 { label: 'Colonia / Barrio', type: 'text', name: 'colonia', w: 2, required: true },
                 { label: 'Punto de referencia', type: 'text', name: 'referencia', w: 2, required: false },

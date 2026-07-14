@@ -7,7 +7,7 @@ type EstadoIncidente =
   | 'en_camino'
   | 'ejecucion'
   | 'finalizado'
-  | 'SinEvidencias'
+  | 'sinevidencias'
   | 'cancelado';
 
 interface BadgeConfig {
@@ -57,7 +57,7 @@ export class BadgeComponent {
       badgeClass: 'bg-rose-500/10 text-rose-200 border-rose-400/30',
       dotClass: 'bg-rose-400',
     },
-    SinEvidencias: {
+    sinevidencias: {
       label: 'Sin Evidencias',
       badgeClass: 'bg-orange-500/10 text-orange-200 border-orange-400/30',
       dotClass: 'bg-orange-400',
@@ -81,7 +81,7 @@ export class BadgeComponent {
       ejecucion: 'ejecucion',
       en_ejecucion: 'ejecucion',
       finalizado: 'finalizado',
-      SinEvidencias: 'SinEvidencias',
+      sinevidencias: 'sinevidencias',
       cancelado: 'cancelado',
     };
 

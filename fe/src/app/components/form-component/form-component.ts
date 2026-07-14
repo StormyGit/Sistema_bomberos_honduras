@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, output, QueryList, Signal, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { OnDestroy } from '@angular/core';
+
 
 interface iFilePreview {
   file: File;
@@ -16,7 +20,7 @@ interface iFilePreview {
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './form-component.html'
 })
-export class FormComponent {
+export class FormComponent implements OnDestroy {
   @ViewChildren('panelRef', { read: ElementRef })
   panels?: QueryList<ElementRef<HTMLElement>>;
 
@@ -27,6 +31,14 @@ export class FormComponent {
   @Input() ShowButtonCancel: boolean = false;
   @Output() getSubmit = new EventEmitter<iFormEmit>();
   @Output() getCancel = new EventEmitter();
+  @Output() searchAutocomplete = new EventEmitter<{ name: string; search: string }>();
+
+  _loadingAutocomplete: { [fieldName: string]: boolean } = {};
+  _selectedLabel: { [fieldName: string]: string } = {};
+
+  private _autocompleteSubject = new Subject<{ name: string; search: string }>();
+
+
 
   _OpenSelectInput: string = "";
   //svrToast = inject(ToastService);
@@ -34,12 +46,26 @@ export class FormComponent {
   // previews de archivos/imágenes seleccionados, por nombre de campo
   _filesPreview: { [fieldName: string]: iFilePreview[] } = {};
 
+_highlightedIndex: { [fieldName: string]: number } = {};
+
   _formGroup!: FormGroup;
   fb = inject(FormBuilder);
 
-  ngOnInit() {
-    this.buildForm();
-  }
+ngOnInit() {
+  this.buildForm();
+
+  this._autocompleteSubject
+    .pipe(debounceTime(400))
+    .subscribe(({ name, search }) => {
+      this.searchAutocomplete.emit({ name, search });
+    });
+}
+
+ngOnDestroy() {
+  this._autocompleteSubject.complete();
+}
+
+
 buildForm() {
   const controls: any = {};
 
@@ -128,10 +154,13 @@ onClickOutside(event: MouseEvent) {
   }
 }
 
-  selectOption(name: string, value: any) {
+  selectOption(name: string, value: any, label?: string) {
     this._formGroup.get(name)?.setValue(value);
     this._OpenSelectInput = '';
     this._searchText[name] = '';
+    if (label !== undefined) {
+      this._selectedLabel[name] = label;
+    }
     this.fieldChange.emit({ name, value });
   }
 
@@ -259,13 +288,15 @@ setFieldValue(fieldName: string, value: any) {
 // Setea opciones + valor de una sola vez (útil para selects)
 setFieldOptions(fieldName: string, options: iFormOption[], resetValue: boolean = true) {
   this._dynamicOptions[fieldName] = options;
+  this._loadingAutocomplete[fieldName] = false;
   if (resetValue) {
     this._formGroup.get(fieldName)?.setValue(null);
+    this._selectedLabel[fieldName] = '';
   }
-  console.log("fieldName: ", fieldName);
-  console.log("data del select: ", this._formGroup.get(fieldName));
   this.cdr.markForCheck();
 }
+
+
 
 // Setea varios campos a la vez (ideal para "precargar" un form completo)
 patchForm(data: { [key: string]: any }) {
@@ -327,5 +358,79 @@ resetForm(clearDynamicOptions: boolean = false) {
   // reconstruye el formGroup con los valores default de la config original
   this.buildForm();
 }
+
+  onAutocompleteFocus(field: iFormField) {
+    this._OpenSelectInput = field.name;
+  }
+
+  onAutocompleteInput(event: Event, field: iFormField) {
+    const value = (event.target as HTMLInputElement).value;
+    this._searchText[field.name] = value;
+    this._OpenSelectInput = field.name;
+    this._highlightedIndex[field.name] = -1; // 👈 nuevo
+
+    const minChars = field.minChars ?? 2;
+
+    if (value.trim().length < minChars) {
+      this._dynamicOptions[field.name] = [];
+      this._loadingAutocomplete[field.name] = false;
+      return;
+    }
+
+    this._loadingAutocomplete[field.name] = true;
+    this._autocompleteSubject.next({ name: field.name, search: value.trim() });
+  }
+
+
+  onAutocompleteKeydown(event: KeyboardEvent, field: iFormField) {
+    const options = this.getFieldOptions(field);
+    const currentIndex = this._highlightedIndex[field.name] ?? -1;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (options.length === 0) return;
+      this._highlightedIndex[field.name] = Math.min(currentIndex + 1, options.length - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (options.length === 0) return;
+      this._highlightedIndex[field.name] = Math.max(currentIndex - 1, 0);
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const highlighted = options[currentIndex];
+
+      if (highlighted) {
+        // hay algo resaltado (con flechas o único resultado) -> selecciónalo
+        this.selectOption(field.name, highlighted.value, highlighted.label);
+      } else if (options.length === 1) {
+        // solo hay una opción en la lista aunque no esté "resaltada" -> selecciónala
+        this.selectOption(field.name, options[0].value, options[0].label);
+      } else if (field.allowFreeText) {
+        // sin match, pero se permite texto libre
+        const typed = (this._searchText[field.name] ?? '').trim();
+        if (typed) this.selectOption(field.name, typed, typed);
+      }
+
+      this._highlightedIndex[field.name] = -1;
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      this._OpenSelectInput = '';
+      this._highlightedIndex[field.name] = -1;
+    }
+  }
+
+  getAutocompleteValue(field: iFormField): string {
+    if (this._OpenSelectInput === field.name) {
+      return this._searchText[field.name] ?? '';
+    }
+    return this._selectedLabel[field.name] ?? '';
+  }
 
 }

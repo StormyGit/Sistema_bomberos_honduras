@@ -38,6 +38,11 @@ export interface EstacionUpdateRequest {
   point?: string | null;
 }
 
+export interface IncidenteTipo {
+  id: string;
+  nombre: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -156,6 +161,23 @@ export class CatalogoLugaresServices {
     );
   }
 
+  buscarTiposIncidente(
+    buscar?: string
+  ): Observable<IncidenteTipo[]> {
+
+    let params = new HttpParams();
+
+    const texto = buscar?.trim();
+
+    if (texto) {
+      params = params.set('buscar', texto);
+    }
+
+    return this.http.get<IncidenteTipo[]>(
+      `${this.apiUrl}/buscar_tipo`,
+      { params }
+    );
+  }
 
   limpiarCache(): void {
     this.departamentos$ = undefined;

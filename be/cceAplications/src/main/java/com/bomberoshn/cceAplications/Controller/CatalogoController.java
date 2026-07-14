@@ -4,7 +4,10 @@ import com.bomberoshn.cceAplications.DTO.Catalogo.DepartamentoResponseDto;
 import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.DTO.Catalogo.MunicipioResponseDto;
 import com.bomberoshn.cceAplications.DTO.EstacionUpdateRequestDTO;
+import com.bomberoshn.cceAplications.DTO.IncidenteTipoResponseDTO;
 import com.bomberoshn.cceAplications.Services.CatalogoServices;
+import com.bomberoshn.cceAplications.Services.IIncidenteService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +18,11 @@ import java.util.UUID;
 public class CatalogoController {
 
     private final CatalogoServices catalogoServices;
+    private final IIncidenteService incidenteSrv;
 
-    public CatalogoController(CatalogoServices catalogoServices) {
+    public CatalogoController(CatalogoServices catalogoServices, IIncidenteService incidenteSrv) {
         this.catalogoServices = catalogoServices;
+        this.incidenteSrv = incidenteSrv;
     }
 
     @GetMapping("/departamentos")
@@ -64,6 +69,21 @@ public class CatalogoController {
         return catalogoServices.actualizarEstacion(
                 id,
                 dto
+        );
+    }
+
+
+    @GetMapping("/buscar_tipo")
+    public ResponseEntity<List<IncidenteTipoResponseDTO>> buscar_tipo(
+            @RequestParam(
+                    name = "buscar",
+                    required = false
+            )
+            String buscar
+    ) {
+
+        return ResponseEntity.ok(
+                incidenteSrv.buscar_tipo(buscar)
         );
     }
 }

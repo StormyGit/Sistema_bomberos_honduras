@@ -52,7 +52,7 @@ export interface Tiempo {
 }
 
 export interface TipoResumen {
-  tipo: string;
+  tipoId: string;
   nombre: string;
   total: number;
 }

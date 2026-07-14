@@ -270,12 +270,13 @@
       titulo="Incidente"
       descripcion="Datos principales"
     >
-      <app-form-component
+      <app-form-component #formInfo
         [Formulary]="svFormData.incidente('info')"
         (getSubmit)="submitForm_info($event)"
         [labelSudmit]="'Siguiente'"
         [ShowButtonCancel]="true"
         (getCancel)=" cerrarModal_creacion() "
+        (searchAutocomplete)="onSearchAutocomplete($event)"
       />
     </app-wizard-step>
 

@@ -8,7 +8,9 @@ public interface IncidentesPorMunicipioTipoProjection {
 
     String getMunicipio();
 
-    String getIncidente();
+    UUID getTipoId();
+
+    String getTipoNombre();
 
     Long getTotal();
 }

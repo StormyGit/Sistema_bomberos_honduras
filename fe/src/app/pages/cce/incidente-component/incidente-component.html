@@ -45,7 +45,7 @@
         } @else {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 m-5">
 
-            @for (item of tipoResumenList(); track item.tipo) {
+            @for (item of tipoResumenList(); track item.tipoId) {
               <article
                 class="rounded-2xl border border-slate-700 bg-[#0f151d] p-4 text-center shadow-lg transition hover:border-orange-500/60 hover:bg-[#151f2c]"
               >
@@ -134,7 +134,7 @@
                     [class.bg-red-500\/10]="incidente.total > 1"
                     [class.text-red-300]="incidente.total > 1"
                   >
-                    {{ incidente.label }}
+                    {{ incidente.tipoNombre }}
                   </span>
                 }
               </div>

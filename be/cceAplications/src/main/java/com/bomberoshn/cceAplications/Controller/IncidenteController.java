@@ -142,7 +142,9 @@ public class IncidenteController {
         resumen.setTipoAndMunicipios(incidenteSrv.resumenIncidentesPorMunicipios(filtros));
 
         return resumen;
-        //return ;
     }
+
+
+
 
 }

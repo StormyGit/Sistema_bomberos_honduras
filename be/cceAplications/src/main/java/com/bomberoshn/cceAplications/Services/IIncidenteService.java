@@ -19,4 +19,5 @@ public interface IIncidenteService {
     public List<IncidenteDTO> buscarIncidentes(SearchIncidenteDTO filtros);
     public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(SearchIncidenteDTO filtros);
     public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros);
+    List<IncidenteTipoResponseDTO> buscar_tipo(String buscar);
 }
