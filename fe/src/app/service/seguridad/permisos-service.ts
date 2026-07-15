@@ -339,7 +339,7 @@ export class PermisosService {
 
     const usuario = this.authService.getUser;
 
-    return usuario?.rolCodigo?.toUpperCase() === 'SUPER_ADMIN';// || usuario?.rolCodigo?.toUpperCase() === 'ADMIN_PROGRAMER';
+    return usuario?.rolCodigo?.toUpperCase() === 'SUPER_ADMIN' || usuario?.rolCodigo?.toUpperCase() === 'ADMIN_PROGRAMER';
   }
 
   private actualizarCache(

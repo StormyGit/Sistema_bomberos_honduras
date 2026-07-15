@@ -54,7 +54,6 @@ export class DataFormService {
           w:2,
           field: [
             { label: 'buscar', type: 'text', name: 'buscar', w: 1, required: false },
-            { label: 'Tipo incidente', type: 'select', name: 'tipo', w: 2, required: false },
             { label: 'Estación', type: 'select', name: 'idEstacion', w: 2, required: false },
 
           ]

@@ -9,6 +9,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import localeEn from '@angular/common/locales/en';
 import { LOCALE_ID } from '@angular/core';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 registerLocaleData(localeEs);
 
@@ -21,6 +22,6 @@ export const appConfig: ApplicationConfig = {
         authInterceptor
       ])
     ),
-    { provide: LOCALE_ID, useValue: 'es' }
+    { provide: LOCALE_ID, useValue: 'es' }, provideCharts(withDefaultRegisterables())
   ]
 };
