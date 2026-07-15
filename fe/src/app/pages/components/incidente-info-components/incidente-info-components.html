@@ -6,7 +6,7 @@
 
     <div>
       <h1 class="text-xl font-bold text-gray-100">
-        Reporte de Incidente
+        Reporte de Incidente <span class="ml-10"> <app-badge-component [estado]="dataIncidente.estado ?? 'Pendiente'"/> </span>
       </h1>
       <p class="text-xs text-gray-500">
         Detalle completo del incidente registrado

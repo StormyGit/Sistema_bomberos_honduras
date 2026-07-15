@@ -1,8 +1,8 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, NgZone, OnInit, signal, ViewChild } from '@angular/core';
 import { CardComponent } from "../../../components/card-component/card-component";
 import { FormComponent } from "../../../components/form-component/form-component";
 import { DataFormService } from '../../../utils/data-form-service';
-import { incidentes_list, TipoResumen } from '../../../types/cce/incidente.interface';
+import { incidente, incidentes_list, TipoResumen } from '../../../types/cce/incidente.interface';
 
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
@@ -12,6 +12,30 @@ import { CatalogoLugaresServices } from '../../../service/catalogo-lugares-servi
 import { AuthServiceService } from '../../../auth/authService.service';
 import { User } from '../../../auth/auth.interface.ts';
 import { IncidenteService } from '../services/incidente-service';
+
+import { BaseChartDirective } from 'ng2-charts';
+
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  DoughnutController,
+  ArcElement
+} from 'chart.js';
+
+import type {
+  ChartConfiguration
+} from 'chart.js';
+import { IncidenteInfoComponents } from "../../components/incidente-info-components/incidente-info-components";
+import { ModalComponent } from "../../../components/modal-component/modal-component";
+import { Router } from '@angular/router';
+import { ToastService } from '../../../components/toast-service';
+
+
 export interface TipoMunicipioResumen {
   municipioId: string;
   municipio: string;
@@ -78,13 +102,34 @@ export interface TipoMunicipioTablaRow {
   columnas: MunicipioResumenTabla[][];
 }
 
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  DoughnutController,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+export interface IncidenteEstadoResumen {
+  finalizados: number;
+  enEjecucion: number;
+  falsasAlarmas: number;
+}
+
+
 @Component({
   selector: 'app-incidente-component',
-  imports: [MatTableModule, MatPaginatorModule, CardComponent, FormComponent, TableCustomComponent],
+  imports: [MatTableModule, MatPaginatorModule, CardComponent, FormComponent, TableCustomComponent, BaseChartDirective, IncidenteInfoComponents, ModalComponent],
   templateUrl: './incidente-component.html',
   styleUrl: './incidente-component.css',
 })
 export class IncidenteComponent implements OnInit {
+  private scrToast = inject(ToastService);
+  private zone = inject(NgZone);
+  router = inject(Router);
+
   ngOnInit(): void {
     const fechaHoy = this.obtenerFechaHoy();
     console.log(fechaHoy);
@@ -96,8 +141,6 @@ export class IncidenteComponent implements OnInit {
       tipoId: null,
       idEstacion: null
     };
-
-
     setTimeout(()=>{
           this.formRef.setFieldValue('fecha_Inicio',fechaHoy );
     this.formRef.setFieldValue('fecha_Final',fechaHoy );
@@ -129,6 +172,25 @@ export class IncidenteComponent implements OnInit {
     this.tipoResumenList().reduce((total, item) => total + Number(item.total || 0), 0)
   );
 
+estadoResumen = signal<IncidenteEstadoResumen>({
+  finalizados: 0,
+  enEjecucion: 0,
+  falsasAlarmas: 0
+});
+
+totalEstadoResumen = computed(() => {
+  const resumen = this.estadoResumen();
+
+  return (
+    Number(resumen.finalizados || 0) +
+    Number(resumen.enEjecucion || 0) +
+    Number(resumen.falsasAlarmas || 0)
+  );
+});
+
+
+
+
     //data Table
   tableList = signal<any[]>([]);
   columnasUsuarios: TableColumn[] = [
@@ -144,7 +206,7 @@ export class IncidenteComponent implements OnInit {
       label: 'Ver',
       class: 'btn btn-sm btn-blue'
     }
-  ]
+  ];
 
 
 
@@ -153,7 +215,7 @@ export class IncidenteComponent implements OnInit {
     console.log(event.row);
 
     if (event.action === 'view') {
-      //this.abrirModal_detalles(event.row);
+      this.abrirModal_detalles(event.row);
     }
   }
 
@@ -262,7 +324,22 @@ searchIncidente(data: any): void {
           'Tabla agrupada:',
           this.tablaMunicipiosAndTipos()
         );
+        const estadoResumen =
+          res.incidenteEstadoResumenDTO ?? {};
 
+        this.estadoResumen.set({
+          finalizados: Number(
+            estadoResumen.finalizados ?? 0
+          ),
+
+          enEjecucion: Number(
+            estadoResumen.enEjecucion ?? 0
+          ),
+
+          falsasAlarmas: Number(
+            estadoResumen.falsasAlarmas ?? 0
+          )
+        });
         this.loading.set(false);
       },
 
@@ -275,7 +352,11 @@ searchIncidente(data: any): void {
         this.tableList.set([]);
         this.tipoResumenList.set([]);
         this.tipoAndMunicipiosList.set([]);
-
+        this.estadoResumen.set({
+          finalizados: 0,
+          enEjecucion: 0,
+          falsasAlarmas: 0
+        });
         this.loading.set(false);
       }
     });
@@ -388,185 +469,263 @@ private dividirEnColumnas<T>(items: T[], cantidadColumnas: number): T[][] {
 private formatearTotalReporte(total: number): string {
   return String(total).padStart(2, '0');
 }
-  /*
-listInformes: IncidenteInforme[] = [
-  {
-    id: 1,
-    status: 'ejecucion',
-    lugar: 'Col. Ayestas',
-    region: 'Tegucigalpa',
-    incidente: 'Incendio estructural',
-    unidad: 'B-12',
-    fecha: '2026-07-01',
-    hora: '08:15',
-    lat: 14.0818,
-    lng: -87.2068
-  },
-  {
-    id: 2,
-    status: 'ejecucion',
-    lugar: 'Col. Ayestas',
-    region: 'Tegucigalpa',
-    incidente: 'Fuga de gas',
-    unidad: 'B-04',
-    fecha: '2026-07-01',
-    hora: '09:30',
-    lat: 14.0818,
-    lng: -87.2068
-  },
-  {
-    id: 3,
-    status: 'pendiente',
-    lugar: 'Col. Kennedy',
-    region: 'Tegucigalpa',
-    incidente: 'Accidente vehicular',
-    unidad: 'Pendiente',
-    fecha: '2026-07-01',
-    hora: '10:10',
-    lat: 14.0627,
-    lng: -87.1766
-  },
-  {
-    id: 4,
-    status: 'finalizado',
-    lugar: 'Barrio La Granja',
-    region: 'Comayagüela',
-    incidente: 'Persona herida',
-    unidad: 'A-09',
-    fecha: '2026-07-01',
-    hora: '11:20',
-    lat: 14.0943,
-    lng: -87.2209
-  },
-  {
-    id: 5,
-    status: 'cancelado',
-    lugar: 'Col. Miraflores',
-    region: 'Tegucigalpa',
-    incidente: 'Falsa alarma',
-    unidad: 'N/A',
-    fecha: '2026-07-01',
-    hora: '12:40',
-    lat: 14.0835,
-    lng: -87.1871
-  }
-];
 
+barChartType: 'bar' = 'bar';
 
-get totalIncidentes(): number {
-  return this.listInformes.length;
-}
+barChartData = computed<ChartConfiguration<'bar'>['data']>(() => {
+  const resumenOrdenado = [...this.tipoResumenList()]
+    .sort((a, b) => Number(b.total) - Number(a.total));
 
-get totalEnEjecucion(): number {
-  return this.getTotalPorEstado('ejecucion');
-}
+  return {
+    labels: resumenOrdenado.map(item => item.nombre),
 
-get totalPendientes(): number {
-  return this.getTotalPorEstado('pendiente');
-}
+    datasets: [
+      {
+        label: 'Cantidad de incidentes',
 
-get totalFinalizados(): number {
-  return this.getTotalPorEstado('finalizado');
-}
+        data: resumenOrdenado.map(item =>
+          Number(item.total ?? 0)
+        ),
 
-get totalCancelados(): number {
-  return this.getTotalPorEstado('cancelado');
-}
+        backgroundColor: 'rgba(239, 68, 68, 0.75)',
+        borderColor: 'rgb(239, 68, 68)',
+        borderWidth: 1,
+        borderRadius: 7,
+        borderSkipped: false,
+        barThickness: 25,
+        maxBarThickness: 32
+      }
+    ]
+  };
+});
 
-getTotalPorEstado(status: string): number {
-  return this.listInformes.filter(item => item.status === status).length;
-}
+barChartOptions: ChartConfiguration<'bar'>['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: 'y',
 
-getAgrupadoPor(campo: keyof IncidenteInforme) {
-  const result = new Map<string, number>();
+  plugins: {
+    legend: {
+      display: false
+    },
 
-  this.listInformes.forEach(item => {
-    const key = String(item[campo] ?? 'Sin dato');
-    result.set(key, (result.get(key) ?? 0) + 1);
-  });
+    tooltip: {
+      callbacks: {
+        label: context => {
+          const total = Number(context.raw ?? 0);
 
-  return Array.from(result.entries())
-    .map(([label, total]) => ({ label, total }))
-    .sort((a, b) => b.total - a.total);
-}
-get incidentesPorRegion() {
-  return this.getAgrupadoPor('region');
-}
-
-get incidentesPorTipo() {
-  return this.getAgrupadoPor('incidente');
-}
-
-get incidentesPorEstado() {
-  return this.getAgrupadoPor('status');
-}
-
-get incidentesPorLugar() {
-  return this.getAgrupadoPor('lugar');
-}
-getTopLugares(limit: number = 5) {
-  return this.incidentesPorLugar.slice(0, limit);
-}
-
-getMarkersMapa(): MarkerInforme[] {
-  const markers = new Map<string, MarkerInforme>();
-
-  this.listInformes.forEach(incidente => {
-    const key = `${incidente.lat}-${incidente.lng}`;
-
-    const current = markers.get(key);
-
-    if (!current) {
-      markers.set(key, {
-        key,
-        lat: incidente.lat,
-        lng: incidente.lng,
-        lugar: incidente.lugar,
-        region: incidente.region,
-        total: 1,
-        incidentes: [incidente],
-        unidades: [incidente.unidad]
-      });
-
-      return;
+          return `${total} incidente${total === 1 ? '' : 's'}`;
+        }
+      }
     }
+  },
 
-    current.total += 1;
-    current.incidentes.push(incidente);
+  scales: {
+    x: {
+      beginAtZero: true,
 
-    if (!current.unidades.includes(incidente.unidad)) {
-      current.unidades.push(incidente.unidad);
+      ticks: {
+        stepSize: 1,
+        precision: 0,
+        color: '#cbd5e1'
+      },
+
+      grid: {
+        color: 'rgba(148, 163, 184, 0.15)'
+      }
+    },
+
+    y: {
+      ticks: {
+        color: '#f8fafc',
+        autoSkip: false
+      },
+
+      grid: {
+        display: false
+      }
     }
-  });
+  }
+};
 
-  return Array.from(markers.values());
+
+
+doughnutChartType: 'doughnut' = 'doughnut';
+
+doughnutChartData =
+  computed<ChartConfiguration<'doughnut'>['data']>(
+    () => {
+
+      const resumen = this.estadoResumen();
+
+      return {
+        labels: [
+          'Finalizados',
+          'En ejecución',
+          'Falsas alarmas'
+        ],
+
+        datasets: [
+          {
+            label: 'Incidentes',
+
+            data: [
+              Number(resumen.finalizados ?? 0),
+              Number(resumen.enEjecucion ?? 0),
+              Number(resumen.falsasAlarmas ?? 0)
+            ],
+
+            backgroundColor: [
+              'rgba(34, 197, 94, 0.85)',
+              'rgba(249, 115, 22, 0.85)',
+              'rgba(239, 68, 68, 0.85)'
+            ],
+
+            borderColor: '#0f151d',
+            borderWidth: 4,
+            hoverOffset: 10
+          }
+        ]
+      };
+    }
+  );
+
+doughnutChartOptions:
+  ChartConfiguration<'doughnut'>['options'] = {
+
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '68%',
+
+  plugins: {
+    legend: {
+      display: true,
+      position: 'bottom',
+
+      labels: {
+        color: '#f8fafc',
+        padding: 20,
+        usePointStyle: true,
+        pointStyle: 'circle',
+        font: {
+          size: 12,
+          weight: 'bold'
+        }
+      }
+    },
+
+    tooltip: {
+      callbacks: {
+        label: context => {
+          const label =
+            context.label ?? 'Incidentes';
+
+          const cantidad =
+            Number(context.raw ?? 0);
+
+          const datos =
+            context.dataset.data ?? [];
+
+          const total = datos.reduce(
+            (acumulado, valor) =>
+              acumulado + Number(valor ?? 0),
+            0
+          );
+
+          const porcentaje =
+            total > 0
+              ? (
+                  (cantidad / total) * 100
+                ).toFixed(1)
+              : '0.0';
+
+          return `${label}: ${cantidad} (${porcentaje}%)`;
+        }
+      }
+    }
+  }
+};
+
+
+  incidente_selection : incidente | null  = null;
+showModal_detalles: boolean = false;
+cerrarModal_detalles() {
+  this.showModal_detalles = false;
 }
 
-
-
-  svFormData = inject(DataFormService);
-  submitForm(data: iFormEmit){
-    console.log("data::::: ", data)
-    this.list = [...this.list, data.data];
+async compartirPreliminar(data: incidente | null): Promise<void> {
+  if (!data?.id) {
+    console.error('El incidente no tiene ID');
+    return;
   }
-  listTimer = [
-    {title: "recibido", time: 0},
-    {title: "Despacho", time: 0},
-    {title: "Desplazo", time: 0},
-    {title: "Llegada", time: 0},
-    {title: "finalizacion", time: 0},
-    {title: "retorno", time: 0},
-  ];
+
+  const ruta = this.router.serializeUrl(
+    this.router.createUrlTree(['/public', 'incidente', data.id])
+  );
+  const urlPublica = new URL(ruta, window.location.origin).href;
+  const recurso = data.recursos?.[0];
+
+  const texto = [
+    'REPORTE PRELIMINAR',
+    'CUERPO DE BOMBEROS DE HONDURAS',
+    '',
+    `FECHA: ${data.fecha ?? 'Pendiente'}`,
+    `ESTADO: ${data.estado ?? 'Pendiente'}`,
+    `INCIDENTE: ${data.incidente ?? 'Pendiente'}`,
+    `DIRECCIÓN: ${data.direccion ?? data.colonia ?? 'Pendiente'}`,
+    `UNIDAD: ${recurso?.unidad ?? 'Pendiente'}`,
+    `AL MANDO: ${recurso?.oficialEncargado ?? 'Pendiente'}`,
+    '',
+    'CONSULTAR REPORTE:',
+    urlPublica
+  ].join('\n');
+
+  try {
+    await navigator.clipboard.writeText(texto);
+    console.log('Reporte copiado al portapapeles');
+
+    // 👇 esto es lo que corre fuera de la zona, hay que forzarlo de vuelta
+    this.zone.run(() => {
+      this.buttonPre_text.set('preliminar copiado!');
+      this.buttonPre_disable.set(true);
+      this.scrToast.info('Reporte preliminar copiado', 6000);
+
+      setTimeout(() => {
+        this.buttonPre_text.set('Copiar Preliminar');
+        this.buttonPre_disable.set(false);
+      }, 3000);
+    });
+  } catch (error) {
+    console.error('No se pudo copiar el reporte:', error);
+  }
+}
+buttonPre_text = signal<string>("Copiar Preliminar");
+buttonPre_disable = signal<boolean>(false);
+IrPreliminar(data: incidente | null){
+  if (!data?.id) {
+    console.error('El incidente no tiene ID');
+    return;
+  }
+  this.router.navigate(['/public', 'incidente', data.id])
+}
+abrirModal_detalles(row: any) {
+
+  console.log(row.estado);
+  if (row.estado !== "Finalizado" && row.estado !== "Cancelado" ) return;
+
+  this.incidente_selection = {
+    ...row
+  };
 
 
 
-  list: any = [];
-
-  columnasUsuarios: TableColumn[] = [
-    { key: 'id', label: 'ID' },
-    { key: 'incidente_name', label: 'Nombre' },
-    { key: 'incidente_dir', label: 'Correo' }
-  ];
-*/
+  // let json = null;
+  // if (this.incidente_selection?.point){
+  //   json = JSON.parse(this.incidente_selection?.point);
+  //   //this.mapaDetalle.pointDefault = json;
+  // }
+  this.showModal_detalles = true;
+  //console.log(json);
+}
 
 }

@@ -1,5 +1,5 @@
 <div>
-    <form [formGroup]="_formGroup" (submit)="Submit()"
+    <form [formGroup]="_formGroup" autocomplete="off" (submit)="Submit()"
         class="p-2 ">
 
         <div class="flex flex-wrap">
@@ -77,6 +77,7 @@
                                           type="checkbox"
                                           class="hidden peer"
                                           [formControlName]="field.name"
+                                          (change)="onCheckBox($event, field.name)"
                                       >
                                       <span
                                           class="

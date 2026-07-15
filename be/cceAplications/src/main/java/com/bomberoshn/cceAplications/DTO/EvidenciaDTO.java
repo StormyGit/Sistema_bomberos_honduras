@@ -14,6 +14,7 @@ import java.util.UUID;
 public class EvidenciaDTO {
     private UUID idIncidente;
     private String observacionGeneral;
+    private boolean falsaAlarma;
     private MultipartFile image1;
     private MultipartFile image2;
     private MultipartFile image3;

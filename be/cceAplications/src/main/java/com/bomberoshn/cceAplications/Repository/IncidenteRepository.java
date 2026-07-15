@@ -1,5 +1,6 @@
 package com.bomberoshn.cceAplications.Repository;
 
+import com.bomberoshn.cceAplications.DTO.IncidenteEstadoResumenProjection;
 import com.bomberoshn.cceAplications.DTO.IncidenteTipoResumenProjection;
 import com.bomberoshn.cceAplications.Entitys.IncidenteEntity;
 import com.bomberoshn.cceAplications.Entitys.IncidenteEstado;
@@ -168,4 +169,112 @@ public interface IncidenteRepository
             @Param("estadoFinalizado")
             IncidenteEstado estadoFinalizado
     );
+
+    @Query("""
+    SELECT
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN i.estado = :estadoFinalizado
+                         AND COALESCE(i.isFalsaAlarma, FALSE) = FALSE
+                    THEN 1
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS finalizados,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN i.estado = :estadoEjecucion
+                         AND COALESCE(i.isFalsaAlarma, FALSE) = FALSE
+                    THEN 1
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS enEjecucion,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN COALESCE(i.isFalsaAlarma, FALSE) = TRUE
+                    THEN 1
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS falsasAlarmas
+
+    FROM IncidenteEntity i
+    JOIN i.incidenteTipo tipo
+
+    WHERE (
+        :buscar IS NULL
+        OR :buscar = ''
+        OR LOWER(COALESCE(tipo.nombre, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.departamento, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.colonia, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.referencia, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.direccion, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.denuncianteNombre, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.denuncianteTelefono, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.recepcionNombre, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+        OR LOWER(COALESCE(i.observacionGeneral, ''))
+            LIKE LOWER(CONCAT('%', :buscar, '%'))
+    )
+
+    AND (
+        :tipoId IS NULL
+        OR tipo.id = :tipoId
+    )
+
+    AND (
+        :finalizado IS NULL
+        OR (
+            :finalizado = TRUE
+            AND i.estado = :estadoFinalizado
+        )
+        OR (
+            :finalizado = FALSE
+            AND i.estado <> :estadoFinalizado
+        )
+    )
+
+    AND i.fechaCreacion >= :fechaInicio
+    AND i.fechaCreacion < :fechaFinal
+    """)
+    IncidenteEstadoResumenProjection resumenPorEstado(
+            @Param("buscar")
+            String buscar,
+
+            @Param("tipoId")
+            UUID tipoId,
+
+            @Param("fechaInicio")
+            LocalDateTime fechaInicio,
+
+            @Param("fechaFinal")
+            LocalDateTime fechaFinal,
+
+            @Param("finalizado")
+            Boolean finalizado,
+
+            @Param("estadoFinalizado")
+            IncidenteEstado estadoFinalizado,
+
+            @Param("estadoEjecucion")
+            IncidenteEstado estadoEjecucion
+    );
+
+
 }

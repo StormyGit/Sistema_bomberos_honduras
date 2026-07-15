@@ -62,11 +62,11 @@
   <!-- FECHA Y HORA A LA DERECHA -->
   <div class="absolute right-6 text-right text-white">
     <div class="text-sm font-bold">
-      {{ fechaHoraActual | date:"EEEE, d 'de' MMMM 'de' y" }}
+      {{ fechaHoraActual() | date:"EEEE, d 'de' MMMM 'de' y" }}
     </div>
 
     <div class="text-2xl font-black">
-      {{ fechaHoraActual | date:'hh:mm a' }}
+      {{ fechaHoraActual() | date:'hh:mm a' }}
     </div>
   </div>
 </div>

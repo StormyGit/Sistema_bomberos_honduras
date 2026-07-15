@@ -260,7 +260,7 @@
   <app-wizard-component  class="block h-full"
     [showHeader]="true"
     [showButtons]="false"
-    [disableHeader]="false"
+    [disableHeader]="true"
     [finishText]="'Guardar'"
     (finished)="guardarWizard()"
   >
@@ -275,7 +275,8 @@
         (getSubmit)="submitForm_info($event)"
         [labelSudmit]="'Siguiente'"
         [ShowButtonCancel]="true"
-        (getCancel)=" cerrarModal_creacion() "
+        (getCancel)=" cerrarModal_creacion()"
+        (fieldChange)="cambiosForm_info($event)"
         (searchAutocomplete)="onSearchAutocomplete($event)"
       />
     </app-wizard-step>
@@ -373,6 +374,7 @@
             [labelSudmit]="'Finalizar Inciente'"
             [labelCancel]="'salir sin guardar'"
             [ShowButtonCancel]="true",
+
             (getCancel)=" cerrarModal_creacion() "
           />
 
@@ -401,11 +403,35 @@
   [showCloseButton]="true"
   (closed)="cerrarModal_detalles()"
 >
+  <div class="flex justify-start space-x-3 items-center w-4/5 mx-auto mb-10">
     <button
-      (click)="compartirPreliminar(incidente_selection);"
-    >
+      class="
+          rounded-xl
+          border border-red-500/30
+          hover:bg-red-500/30
+          disabled:bg-gray-500/10
+          bg-red-500/10
+          px-4 py-2
+          "
+        [disabled]="buttonPre_disable()"
+        (click)="compartirPreliminar(incidente_selection);"
+      >
+      {{buttonPre_text()}}
+    </button>
+    <button
+      class="
+          rounded-xl
+          border border-blue-500/30
+          hover:bg-blue-500/30
+          disabled:bg-gray-500/10
+          bg-blue-500/10
+          px-4 py-2
+          "
+      (click)="IrPreliminar(incidente_selection);"
+      >
       ir Preliminar
     </button>
+  </div>
 
       <app-incidente-info-components [dataIncidente]="incidente_selection" [showImage]="true" [showRecurso]="true" [showTimer]="true" [showMap]="true"></app-incidente-info-components>
 

@@ -1,6 +1,6 @@
-import { Component, inject, OnDestroy, OnInit, signal, } from '@angular/core';
-import { RouterOutlet } from "@angular/router";
-import { NavbarComponent } from "../../components/layouts/navbar-component/navbar-component";
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { NavbarComponent } from '../../components/layouts/navbar-component/navbar-component';
 import { CommonModule } from '@angular/common';
 import { User } from '../../auth/auth.interface.ts';
 import { AuthServiceService } from '../../auth/authService.service';
@@ -11,14 +11,16 @@ import { AuthServiceService } from '../../auth/authService.service';
   templateUrl: './cce-layout-component.html',
   styleUrl: './cce-layout-component.css',
 })
-export class CceLayoutComponent implements OnInit, OnDestroy  {
-  scrAuth         = inject(AuthServiceService);
-  User            = signal<User | null>(this.scrAuth.getUser);
+export class CceLayoutComponent implements OnInit, OnDestroy {
+  scrAuth = inject(AuthServiceService);
+  User = signal<User | null>(this.scrAuth.getUser);
 
   Departamento: string = 'Centro de Coordinacion de Emergencias';
   Region: string = this.User()?.region ?? '-';
 
-  fechaHoraActual: Date = new Date();
+  // Ahora es un signal: cada .set() notifica a la vista automáticamente,
+  // sin depender de que zone.js "se entere" del setInterval.
+  fechaHoraActual = signal<Date>(new Date());
 
   private intervaloHora?: ReturnType<typeof setInterval>;
 
@@ -37,7 +39,6 @@ export class CceLayoutComponent implements OnInit, OnDestroy  {
   }
 
   private actualizarFechaHora(): void {
-    this.fechaHoraActual = new Date();
+    this.fechaHoraActual.set(new Date());
   }
-
 }

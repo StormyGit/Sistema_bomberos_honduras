@@ -17,6 +17,7 @@ export interface Resumen {
   TipoResumen: any[];
   Incidentes: incidente[];
   tipoAndMunicipios: any[];
+  incidenteEstadoResumenDTO: any;
 }
 
 @Injectable({

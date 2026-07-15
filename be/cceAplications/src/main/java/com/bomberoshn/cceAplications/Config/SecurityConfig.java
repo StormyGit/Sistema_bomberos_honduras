@@ -35,17 +35,23 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS
                         )
                 )
-
+/*
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
                                 "/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,"/incidente/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/incidente").permitAll()
                         .requestMatchers("/archivos/**").permitAll()
 
 
                         .anyRequest().authenticated()
+                )
+
+ */
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,

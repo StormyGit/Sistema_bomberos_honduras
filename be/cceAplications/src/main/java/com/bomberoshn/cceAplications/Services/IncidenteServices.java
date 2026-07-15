@@ -494,6 +494,81 @@ public class IncidenteServices implements IIncidenteService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public IncidenteEstadoResumenDTO resumenIncidentesPorEstado(
+            SearchIncidenteDTO filtros
+    ) {
+
+        if (filtros == null) {
+            filtros = new SearchIncidenteDTO();
+        }
+
+        String buscar = filtros.getBuscar();
+
+        if (buscar != null) {
+            buscar = buscar.trim();
+
+            if (buscar.isEmpty()) {
+                buscar = null;
+            }
+        }
+
+        LocalDateTime fechaInicio =
+                filtros.getFecha_Inicio() != null
+                        ? filtros.getFecha_Inicio().atStartOfDay()
+                        : LocalDateTime.of(
+                        1900,
+                        1,
+                        1,
+                        0,
+                        0
+                );
+
+        LocalDateTime fechaFinal =
+                filtros.getFecha_Final() != null
+                        ? filtros.getFecha_Final()
+                        .plusDays(1)
+                        .atStartOfDay()
+                        : LocalDateTime.of(
+                        9999,
+                        12,
+                        31,
+                        23,
+                        59,
+                        59
+                );
+
+        IncidenteEstadoResumenProjection resultado =
+                incidenteRepository.resumenPorEstado(
+                        buscar,
+                        filtros.getTipoId(),
+                        fechaInicio,
+                        fechaFinal,
+                        filtros.getFinalizado(),
+                        IncidenteEstado.Finalizado,
+                        IncidenteEstado.Ejecucion
+                );
+
+        return IncidenteEstadoResumenDTO.builder()
+                .finalizados(
+                        resultado != null && resultado.getFinalizados() != null
+                                ? resultado.getFinalizados()
+                                : 0L
+                )
+                .enEjecucion(
+                        resultado != null && resultado.getEnEjecucion() != null
+                                ? resultado.getEnEjecucion()
+                                : 0L
+                )
+                .falsasAlarmas(
+                        resultado != null && resultado.getFalsasAlarmas() != null
+                                ? resultado.getFalsasAlarmas()
+                                : 0L
+                )
+                .build();
+    }
+
+
     private IncidenteDTO toDTO(IncidenteEntity entity) {
         if (entity == null) return null;
 
@@ -513,17 +588,18 @@ public class IncidenteServices implements IIncidenteService {
                 )
                 .idParent(entity.getIdParent())
                 .estado(
-                        entity.getEstado() == IncidenteEstado.Finalizado
-                                && (images == null || images.isEmpty())
-                                ? IncidenteEstado.SinEvidencias
-                                : entity.getEstado()
+                        Boolean.TRUE.equals(entity.getIsFalsaAlarma())
+                                ? IncidenteEstado.Cancelado
+                                : (entity.getEstado() == IncidenteEstado.Finalizado && (images == null || images.isEmpty())
+                                    ? IncidenteEstado.SinEvidencias
+                                    : entity.getEstado())
                 )
                 .departamento(entity.getDepartamento())
                 .colonia(entity.getColonia())
                 .referencia(entity.getReferencia())
                 .direccion(entity.getDireccion())
                 .isAnonimo(entity.getIsAnonimo())
-                .denuncianteNombre(entity.getDenuncianteNombre())
+                .denuncianteNombre( Boolean.FALSE.equals(entity.getIsAnonimo()) ? entity.getDenuncianteNombre() : "Anónimo")
                 .denuncianteTelefono(entity.getDenuncianteTelefono())
                 .recepcionFecha(entity.getRecepcionFecha())
                 .recepcionNombre(entity.getRecepcionNombre())

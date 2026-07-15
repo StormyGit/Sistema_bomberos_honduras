@@ -284,7 +284,20 @@ cdr = inject(ChangeDetectorRef);
 setFieldValue(fieldName: string, value: any) {
   this._formGroup.get(fieldName)?.setValue(value);
 }
+setFieldDisabled(fieldName: string, disabled: boolean): void {
+  const control = this._formGroup.get(fieldName);
 
+  if (!control) {
+    console.warn(`No existe el campo: ${fieldName}`);
+    return;
+  }
+
+  if (disabled) {
+    control.disable();
+  } else {
+    control.enable();
+  }
+}
 // Setea opciones + valor de una sola vez (útil para selects)
 setFieldOptions(fieldName: string, options: iFormOption[], resetValue: boolean = true) {
   this._dynamicOptions[fieldName] = options;
@@ -306,7 +319,7 @@ patchForm(data: { [key: string]: any }) {
 
 
 // nuevo: texto de búsqueda por campo
-_searchText: { [fieldName: string]: string } = {};
+_searchText: { [fieldName: string]: string | undefined } = {};
 
 // valor a mostrar en el input: si está abierto muestra lo que escribiste,
 // si está cerrado muestra la opción seleccionada
@@ -433,4 +446,9 @@ resetForm(clearDynamicOptions: boolean = false) {
     return this._selectedLabel[field.name] ?? '';
   }
 
+  onCheckBox(event: Event, nombreCampo: string): void {
+    const marcado =
+      (event.target as HTMLInputElement).checked;
+      this.fieldChange.emit({ name: nombreCampo, value: marcado });
+  }
 }

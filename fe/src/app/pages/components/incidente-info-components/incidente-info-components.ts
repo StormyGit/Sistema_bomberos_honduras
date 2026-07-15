@@ -13,6 +13,7 @@ import * as L from 'leaflet';
 import { incidente } from '../../../types/cce/incidente.interface';
 import { CardComponent } from "../../../components/card-component/card-component";
 import { ImageViewerComponent } from "../../../components/image-viewer-component/image-viewer-component";
+import { BadgeComponent } from "../../../components/badge-component/badge-component";
 
 interface PuntoIncidente {
   crs?: string;
@@ -26,7 +27,7 @@ interface PuntoIncidente {
 @Component({
   selector: 'app-incidente-info-components',
   standalone: true,
-  imports: [CommonModule, CardComponent, ImageViewerComponent],
+  imports: [CommonModule, CardComponent, ImageViewerComponent, BadgeComponent],
   templateUrl: './incidente-info-components.html',
   styleUrl: './incidente-info-components.css',
 })

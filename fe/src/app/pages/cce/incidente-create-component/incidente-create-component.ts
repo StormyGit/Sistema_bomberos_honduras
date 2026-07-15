@@ -1,6 +1,6 @@
 import { point, estaciones } from './../../../types/cce/incidente.interface';
 import { User } from './../../../auth/auth.interface.ts';
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, NgZone, OnInit, signal, ViewChild } from '@angular/core';
 import { TableColumn, TableCustomComponent } from "../../../components/table-custom/table-custom"
 import { CardComponent } from "../../../components/card-component/card-component";
 import { ModalComponent } from "../../../components/modal-component/modal-component";
@@ -17,6 +17,7 @@ import { AuthServiceService } from '../../../auth/authService.service';
 import { IncidenteTiempoComponent } from "../../components/incidente-tiempo-component/incidente-tiempo-component";
 import { Router } from '@angular/router';
 import { CatalogoLugaresServices } from '../../../service/catalogo-lugares-services';
+import { ToastService } from '../../../components/toast-service';
 
 
 
@@ -41,6 +42,8 @@ export class IncidenteCreateComponent implements OnInit {
   svrCatalogo     = inject(CatalogoLugaresServices);
   svFormData      = inject(DataFormService);
   scrAuth         = inject(AuthServiceService);
+  private scrToast = inject(ToastService);
+  private zone = inject(NgZone);
 
   router =
     inject(Router);
@@ -130,6 +133,17 @@ incidente_reset(): void {
     });
 
   }
+  cambiosForm_info(data: any){
+    console.log(data);
+    if (data.value === true){
+      this.formInfo.setFieldValue( 'denuncianteNombre', "anonimo" );
+      this.formInfo.setFieldDisabled( 'denuncianteNombre', true );
+    }else{
+      this.formInfo.setFieldValue( 'denuncianteNombre', "" );
+      this.formInfo.setFieldDisabled( 'denuncianteNombre', false );
+    }
+
+  }
 
   submitForm_despacho(data: iFormEmit) {
     if (!data.status) {
@@ -172,11 +186,14 @@ incidente_reset(): void {
   }
 
   submitForm_seguimineto(data: iFormEmit) {
+    console.log(data);
+
     if (!data.status) return;
-    if (this.timer_index() !== 6) {
-      console.log("ingrea los tiempos");
-      return
-    }
+
+    // if (this.timer_index() !== 6) {
+    //   console.log("ingrea los tiempos");
+    //   return
+    // }
 
     const cleanData = this.removeEmptyValues(data.data);
 
@@ -184,7 +201,7 @@ incidente_reset(): void {
       console.log("no hay id del incidente");
       return;
     }
-    console.log(cleanData)
+
     const formData = new FormData();
 
     formData.append("idIncidente", this.incidente_create.id);
@@ -202,7 +219,9 @@ incidente_reset(): void {
     }
 
     formData.append("observacionGeneral", cleanData["observacionGeneral"]);
-    console.log(formData.values);
+    formData.append("falsaAlarma", cleanData["isFalsaAlarma"]);
+    console.log("data: ", cleanData)
+    console.log("formdata: ",formData.values());
 
 
 
@@ -289,18 +308,6 @@ actions = [
     label: 'Ver',
     class: 'btn btn-sm btn-blue'
   }
-  /*,
-  {
-    key: 'edit',
-    label: 'Editar',
-    class: 'btn btn-sm btn-yellow'
-  },
-  {
-    key: 'delete',
-    label: 'Eliminar',
-    class: 'btn btn-sm btn-red'
-  }
-    */
 ];
 
 listTimer = [
@@ -424,7 +431,7 @@ showModal_detalles: boolean = false;
   abrirModal_detalles(row: any) {
 
     console.log(row.estado);
-    if (row.estado !== "Finalizado") return;
+    if (row.estado !== "Finalizado" && row.estado !== "Cancelado" ) return;
 
     this.incidente_selection = {
       ...row
@@ -474,7 +481,7 @@ onTableAction(event: any): void {
 
 // Decide qué modal abrir según el estado del incidente
 verIncidente(row: any): void {
-  if (row.estado === 'Finalizado' && row.images.length > 0) {
+  if ((row.estado === 'Finalizado' && row.images.length > 0) || row.estado === 'Cancelado') {
     this.abrirModal_detalles(row);
     return;
   }
@@ -509,30 +516,16 @@ abrirModal_seguimiento(row: any): void {
   this.cambiarPasoWizard(2); // índice 2 = "Bitacora y seguimiento"
 }
 
-async compartirPreliminar(
-  data: incidente | null
-): Promise<void> {
-
+async compartirPreliminar(data: incidente | null): Promise<void> {
   if (!data?.id) {
     console.error('El incidente no tiene ID');
     return;
   }
 
-  // Crear la ruta con Angular
   const ruta = this.router.serializeUrl(
-    this.router.createUrlTree([
-      '/public',
-      'incidente',
-      data.id
-    ])
+    this.router.createUrlTree(['/public', 'incidente', data.id])
   );
-
-  // Convertirla en una URL completa
-  const urlPublica = new URL(
-    ruta,
-    window.location.origin
-  ).href;
-
+  const urlPublica = new URL(ruta, window.location.origin).href;
   const recurso = data.recursos?.[0];
 
   const texto = [
@@ -540,12 +533,11 @@ async compartirPreliminar(
     'CUERPO DE BOMBEROS DE HONDURAS',
     '',
     `FECHA: ${data.fecha ?? 'Pendiente'}`,
+    `ESTADO: ${data.estado ?? 'Pendiente'}`,
     `INCIDENTE: ${data.incidente ?? 'Pendiente'}`,
     `DIRECCIÓN: ${data.direccion ?? data.colonia ?? 'Pendiente'}`,
     `UNIDAD: ${recurso?.unidad ?? 'Pendiente'}`,
     `AL MANDO: ${recurso?.oficialEncargado ?? 'Pendiente'}`,
-    '',
-    'PENDIENTE DE MÁS INFORMACIÓN',
     '',
     'CONSULTAR REPORTE:',
     urlPublica
@@ -553,17 +545,32 @@ async compartirPreliminar(
 
   try {
     await navigator.clipboard.writeText(texto);
-
     console.log('Reporte copiado al portapapeles');
 
-    // Puedes reemplazar esto por tu toast o mensaje personalizado
-    alert('Reporte preliminar copiado');
+    // 👇 esto es lo que corre fuera de la zona, hay que forzarlo de vuelta
+    this.zone.run(() => {
+      this.buttonPre_text.set('preliminar copiado!');
+      this.buttonPre_disable.set(true);
+      this.scrToast.info('Reporte preliminar copiado', 6000);
+
+      setTimeout(() => {
+        this.buttonPre_text.set('Copiar Preliminar');
+        this.buttonPre_disable.set(false);
+      }, 3000);
+    });
   } catch (error) {
-    console.error(
-      'No se pudo copiar el reporte:',
-      error
-    );
+    console.error('No se pudo copiar el reporte:', error);
   }
+}
+buttonPre_text = signal<string>("Copiar Preliminar");
+buttonPre_disable = signal<boolean>(false);
+IrPreliminar(data: incidente | null){
+  if (!data?.id) {
+    console.error('El incidente no tiene ID');
+    return;
+  }
+  this.router.navigate(['/public', 'incidente', data.id])
+
 }
 
 

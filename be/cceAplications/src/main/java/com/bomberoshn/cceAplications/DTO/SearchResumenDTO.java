@@ -15,4 +15,5 @@ public class SearchResumenDTO {
     private List<IncidenteDTO>  Incidentes;
     private List<IncidenteTipoResumenDTO> TipoResumen;
     private List<IncidenteMunicipioTipoResumenDTO> tipoAndMunicipios;
+    private IncidenteEstadoResumenDTO incidenteEstadoResumenDTO;
 }

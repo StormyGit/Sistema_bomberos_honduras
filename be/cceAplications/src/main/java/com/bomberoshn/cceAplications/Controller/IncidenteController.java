@@ -125,6 +125,9 @@ public class IncidenteController {
         long t4 = System.currentTimeMillis();
         IncidenteDTO dto = new IncidenteDTO();
         dto.setObservacionGeneral(evi.getObservacionGeneral());
+        dto.setIsFalsaAlarma(evi.isFalsaAlarma());
+        logger.info("Esta falso???? {}", evi.isFalsaAlarma());
+
         incidenteSrv.update(evi.getIdIncidente(), dto);
         logger.info("EVIDENCIAS: update tardó {}ms", System.currentTimeMillis() - t4);
 
@@ -140,6 +143,7 @@ public class IncidenteController {
         resumen.setIncidentes(incidenteSrv.buscarIncidentes(filtros));
         resumen.setTipoResumen(incidenteSrv.resumenIncidentesPorTipo(filtros));
         resumen.setTipoAndMunicipios(incidenteSrv.resumenIncidentesPorMunicipios(filtros));
+        resumen.setIncidenteEstadoResumenDTO(incidenteSrv.resumenIncidentesPorEstado(filtros));
 
         return resumen;
     }

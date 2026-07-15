@@ -104,7 +104,8 @@ export class DataFormService {
               showTitle: true,
               w: 2,
               field: [
-                { label: 'Nombre', type: 'text', name: 'denuncianteNombre', w: 1, required: true },
+                { label: 'Nombre', type: 'text', name: 'denuncianteNombre', w: 2, required: true },
+                { label: 'es Anónimo?', type: 'checkbox', name: 'isAnonimo', w: 3, value: false },
                 { label: 'Teléfono', type: 'text', name: 'denuncianteTelefono', w: 1, required: true },
               ]
             },
@@ -150,7 +151,8 @@ export class DataFormService {
                 { label: ' ', type: 'image', name: 'image_1', w: 3, required: false },
                 { label: ' ', type: 'image', name: 'image_2', w: 3, required: false },
                 { label: ' ', type: 'image', name: 'image_3', w: 3, required: false },
-                { label: 'Observaciones', type: 'textarea', name: 'observacionGeneral', w: 1, required: true }
+                { label: 'Observaciones', type: 'textarea', name: 'observacionGeneral', w: 1, required: false },
+                { label: 'es falsa alarma?', type: 'checkbox', name: 'isFalsaAlarma', w: 1, value: false }
               ]
             },
           ]
