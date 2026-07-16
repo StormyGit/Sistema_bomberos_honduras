@@ -135,12 +135,14 @@ incidente_reset(): void {
   }
   cambiosForm_info(data: any){
     console.log(data);
-    if (data.value === true){
-      this.formInfo.setFieldValue( 'denuncianteNombre', "anonimo" );
-      this.formInfo.setFieldDisabled( 'denuncianteNombre', true );
-    }else{
-      this.formInfo.setFieldValue( 'denuncianteNombre', "" );
-      this.formInfo.setFieldDisabled( 'denuncianteNombre', false );
+    if (data.name === 'isAnonimo'){
+      if (data.value === true){
+        this.formInfo.setFieldValue( 'denuncianteNombre', "anonimo" );
+        this.formInfo.setFieldDisabled( 'denuncianteNombre', true );
+      }else{
+        this.formInfo.setFieldValue( 'denuncianteNombre', "" );
+        this.formInfo.setFieldDisabled( 'denuncianteNombre', false );
+      }
     }
 
   }

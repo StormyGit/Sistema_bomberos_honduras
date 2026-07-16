@@ -5,26 +5,44 @@
     class="
       w-full h-20 color-bombero
       shadow-2xl shadow-black/40
-      flex items-center px-6
+      flex items-center px-4 md:px-6
       shrink-0
     "
   >
-    <div class="mr-5">
-      <img src="/assets/img/icon.png" alt="Logo" class="w-15 h-15 object-cover">
+    <!-- Botón hamburguesa: solo visible en móvil -->
+    <button
+      class="mr-3 md:hidden text-white"
+      (click)="sidebarOpen = !sidebarOpen"
+      aria-label="Abrir menú"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="mr-3 md:mr-5 shrink-0">
+      <img src="/assets/img/icon.png" alt="Logo" class="w-12 h-12 md:w-15 md:h-15 object-cover">
     </div>
-    <div>
-      <span class="text-3xl text-white font-black">
+    <div class="min-w-0">
+      <span class="block text-lg md:text-3xl text-white font-black truncate">
         {{ Departamento }}
       </span>
-      <br>
-      <span class="text-md text-white font-black">
+      <span class="block text-xs md:text-md text-white font-black truncate">
         {{ Region }}
       </span>
     </div>
   </div>
 
   <!-- CONTENEDOR: SIDEBAR + BODY -->
-  <div class="flex flex-1 min-h-0">
+  <div class="flex flex-1 min-h-0 relative">
+
+    <!-- Overlay oscuro cuando el sidebar está abierto en móvil -->
+    <div
+      *ngIf="sidebarOpen"
+      class="fixed inset-0 bg-black/50 z-20 md:hidden"
+      (click)="sidebarOpen = false"
+    ></div>
 
     <!-- NAVBAR IZQUIERDA -->
     <div
@@ -34,10 +52,14 @@
         shadow-xl shadow-black/20
         p-4
         overflow-auto
+        fixed md:static top-20 bottom-0 left-0 z-30
+        transition-transform duration-300 ease-in-out
+        md:translate-x-0
       "
+      [class.-translate-x-full]="!sidebarOpen"
+      [class.translate-x-0]="sidebarOpen"
     >
       <app-navbar-component/>
-
     </div>
 
     <!-- BODY -->
@@ -46,7 +68,7 @@
         bg-amber-200
         flex-1 min-w-0 min-h-0
         overflow-auto
-        p-4
+        p-3 md:p-4
       "
     >
       <router-outlet />

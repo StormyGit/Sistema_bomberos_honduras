@@ -191,7 +191,7 @@
             @if (tipoResumenList().length > 0) {
 
               <!-- El canvas necesita un contenedor con altura -->
-              <div class="relative h-[430px] w-full">
+              <div class="relative h-[430px] w-full min-w-0 overflow-hidden">
                 <canvas
                   baseChart
                   [type]="barChartType"
@@ -281,7 +281,7 @@
               >
 
                 <!-- Gráfico -->
-                <div class="relative h-[380px] w-full">
+                <div class="relative h-[380px] w-full min-w-0 overflow-hidden">
 
                   <canvas
                     baseChart

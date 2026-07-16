@@ -45,8 +45,9 @@
                                 </label>
 
                                 <!-- inputs -->
-                                @if(field.type !== 'select' && field.type !== 'select-search' && field.type !== 'image' && field.type !== 'file' && field.type !== 'textarea' && field.type !== 'checkbox' && field.type !== 'autocomplete'){
+                                @if(field.type !== 'select' && field.type !== 'select-search' && field.type !== 'image' && field.type !== 'file' && field.type !== 'textarea' && field.type !== 'checkbox' && field.type !== 'autocomplete' && field.type !== 'phone'){
                                     <input
+                                        autocomplete="new-password"
                                         class="rounded-lg border px-3.5 py-2.5 text-sm text-gray-100 w-full
                                             placeholder:text-gray-500
                                             transition-colors duration-150
@@ -56,11 +57,11 @@
                                             read-only:bg-gray-800/50 read-only:text-gray-500 read-only:cursor-default
                                         "
                                         [ngClass]="{
-                                            '!border-emerald-400 !bg-emerald-950/30':
+                                            'border-emerald-400! bg-emerald-950/30!':
                                                 _formGroup.get(field.name)?.valid &&
                                                 (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
 
-                                            '!border-red-400 !bg-red-950/30':
+                                            'border-red-400! bg-red-950/30!':
                                                 _formGroup.get(field.name)?.invalid &&
                                                 (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty)
                                             }"
@@ -71,6 +72,38 @@
                                         [formControlName]="field.name"
                                     >
                                 }
+
+                                @if(field.type === 'phone'){
+                                    <input
+                                        autocomplete="off"
+                                        class="rounded-lg border px-3.5 py-2.5 text-sm text-gray-100 w-full
+                                            placeholder:text-gray-500
+                                            transition-colors duration-150
+                                            border-gray-600 bg-gray-800
+                                            hover:border-gray-500
+                                            focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+                                            read-only:bg-gray-800/50 read-only:text-gray-500 read-only:cursor-default
+                                        "
+                                        [ngClass]="{
+                                            'border-emerald-400! bg-emerald-950/30!':
+                                                _formGroup.get(field.name)?.valid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty),
+
+                                            'border-red-400! bg-red-950/30!':
+                                                _formGroup.get(field.name)?.invalid &&
+                                                (_formGroup.get(field.name)?.touched || _formGroup.get(field.name)?.dirty)
+                                            }"
+
+                                        type="text"
+                                        inputmode="numeric"
+                                        maxlength="9"
+                                        [placeholder]="field.placeholder ?? '9999-9999'"
+                                        [readonly]="field.readonly ?? false"
+                                        [value]="_formGroup.get(field.name)?.value ?? ''"
+                                        (input)="onPhoneInput($event, field)"
+                                    >
+                                }
+
                                 @if(field.type === 'checkbox'){
                                   <label class="flex items-center gap-2.5 cursor-pointer select-none w-fit">
                                       <input

@@ -54,7 +54,7 @@ export class DataFormService {
           w:2,
           field: [
             { label: 'buscar', type: 'text', name: 'buscar', w: 1, required: false },
-            { label: 'Estación', type: 'select', name: 'idEstacion', w: 2, required: false },
+           // { label: 'Estación', type: 'select', name: 'idEstacion', w: 2, required: false },
 
           ]
         },
@@ -93,10 +93,10 @@ export class DataFormService {
               w: 1,
               field: [
                 { label: 'Incidente', type: 'autocomplete', name: 'incidente', w: 2, required: true, minChars:3, allowFreeText:true },
-                { label: 'Ticket', type: 'text', name: 'ticket', w: 2, required: false },
-                { label: 'Colonia / Barrio', type: 'text', name: 'colonia', w: 2, required: true },
-                { label: 'Punto de referencia', type: 'text', name: 'referencia', w: 2, required: false },
-                { label: 'Dirección', type: 'textarea', name: 'direccion', w: 1, required: true },
+                { label: 'Ticket', type: 'text', name: 'ticket', w: 2, required: false, max:50 },
+                { label: 'Colonia / Barrio', type: 'text', name: 'colonia', w: 2, required: true, max:50, min:5 },
+                { label: 'Punto de referencia', type: 'text', name: 'referencia', w: 2, required: false, max:50, min:5 },
+                { label: 'Dirección', type: 'textarea', name: 'direccion', w: 1, required: true,max:150, min:5 },
               ]
             },
             {
@@ -104,9 +104,9 @@ export class DataFormService {
               showTitle: true,
               w: 2,
               field: [
-                { label: 'Nombre', type: 'text', name: 'denuncianteNombre', w: 2, required: true },
-                { label: 'es Anónimo?', type: 'checkbox', name: 'isAnonimo', w: 3, value: false },
-                { label: 'Teléfono', type: 'text', name: 'denuncianteTelefono', w: 1, required: true },
+                { label: 'Nombre', type: 'text', name: 'denuncianteNombre', w: 2, required: true, max:50, min:5 },
+                { label: 'es Anónimo?', type: 'checkbox', name: 'isAnonimo', w: 2, value: false },
+                { label: 'Teléfono', type: 'phone', name: 'denuncianteTelefono', w: 1, required: true },
               ]
             },
             {
@@ -130,11 +130,11 @@ export class DataFormService {
               showTitle: true,
               w: 1,
               field: [
-                { label: 'Estación', type: 'select', name: 'idEstacion', w: 3, required: true, option: [{ label: 'Cuartel General', value: '07cc136b-2115-4fa2-8caa-dff35b2dcc1a' }] },
-                { label: 'Unidades', type: 'text', name: 'unidad', w: 3, required: true, option: [{ label: 'Opción 1', value: 'opcion 1' }] },
-                { label: 'Galones de agua', type: 'number', name: 'galonAgua', w: 3, required: true },
-                { label: 'Encargado', type: 'text', name: 'oficialEncargado', w: 2, required: true },
-                { label: 'Personal', type: 'number', name: 'numPersonal', w: 5, required: true },
+                { label: 'Estación', type: 'select', name: 'idEstacion', w: 3, required: true },
+                { label: 'Unidades', type: 'text', name: 'unidad', w: 3, required: true },
+                { label: 'Galones de agua', type: 'number', name: 'galonAgua', w: 3, required: true, max:50, min:0 },
+                { label: 'Encargado', type: 'text', name: 'oficialEncargado', w: 2, required: true, max:50, min:5 },
+                { label: 'Personal', type: 'number', name: 'numPersonal', w: 5, required: true, max:50, min:0 },
               ]
             },
           ]

@@ -244,7 +244,7 @@
   [show]="showModal()"
   [titulo]="'Registrar incidente'"
   [width]="'100%'"
-  [height]="'90%'"
+  [height]="'100%'"
   [closeOnBackdrop]="false"
   [showCloseButton]="false"
 
@@ -407,10 +407,11 @@
     <button
       class="
           rounded-xl
-          border border-red-500/30
-          hover:bg-red-500/30
-          disabled:bg-gray-500/10
-          bg-red-500/10
+          border border-red-500
+          hover:bg-red-500
+          disabled:bg-gray-500
+          disabled:border-gray-800
+          bg-red-500
           px-4 py-2
           "
         [disabled]="buttonPre_disable()"
@@ -421,10 +422,10 @@
     <button
       class="
           rounded-xl
-          border border-blue-500/30
-          hover:bg-blue-500/30
-          disabled:bg-gray-500/10
-          bg-blue-500/10
+          border border-blue-500
+          hover:bg-blue-500
+          disabled:bg-gray-500
+          bg-blue-500
           px-4 py-2
           "
       (click)="IrPreliminar(incidente_selection);"

@@ -18,7 +18,7 @@ interface iFormRows{
 
 interface iFormField {
     label: string;
-    type: 'text' | 'number' | 'email' | 'select' | 'password' | 'image' | 'file' | 'input' | 'textarea' | 'date' | 'checkbox' | 'select-search' | 'autocomplete';
+    type: 'text' | 'number' | 'email' | 'select' | 'password' | 'image' | 'file' | 'input' | 'textarea' | 'date' | 'checkbox' | 'select-search' | 'autocomplete' | 'phone';
     name: string;
     max?: number;
     min?: number;
@@ -32,6 +32,7 @@ interface iFormField {
     file_Multiple?: boolean;
     option?: iFormOption[];
     w?: 1 | 2 | 3 | 4 | 5 | 6;
+    h?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 interface iFormOption {
     label: string;

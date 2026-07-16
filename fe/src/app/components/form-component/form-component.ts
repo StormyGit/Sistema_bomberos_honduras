@@ -81,7 +81,9 @@ buildForm() {
         if (field.type === 'email') {
           validators.push(Validators.email);
         }
-
+        if (field.type === 'phone') {
+          validators.push(Validators.pattern(/^\d{4}-\d{4}$/));
+        }
         if (field.type === 'number') {
           if (field.max) validators.push(Validators.max(field.max));
           if (field.min) validators.push(Validators.min(field.min));
@@ -451,4 +453,24 @@ resetForm(clearDynamicOptions: boolean = false) {
       (event.target as HTMLInputElement).checked;
       this.fieldChange.emit({ name: nombreCampo, value: marcado });
   }
+
+
+  onPhoneInput(event: Event, field: iFormField) {
+    const input = event.target as HTMLInputElement;
+
+    // Solo dígitos, máximo 8 (4 + 4)
+    let digits = input.value.replace(/\D/g, '').slice(0, 8);
+
+    // Inserta el guion después de los primeros 4 dígitos
+    let formatted = digits.length > 4
+      ? `${digits.slice(0, 4)}-${digits.slice(4)}`
+      : digits;
+
+    input.value = formatted;
+
+    this._formGroup.get(field.name)?.setValue(formatted);
+    this._formGroup.get(field.name)?.markAsTouched();
+    this._formGroup.get(field.name)?.markAsDirty();
+  }
+
 }
