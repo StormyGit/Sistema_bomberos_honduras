@@ -27,7 +27,7 @@ public class RecursoEntity {
     private UUID idEstacion;
 
     @Column(name = "unidad")
-    private String unidad;
+    private UUID unidad;
 
     @Column(name = "oficial_encargado")
     private String oficialEncargado;

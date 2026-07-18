@@ -1,0 +1,534 @@
+<div class="w-full flex flex-col gap-5 p-4">
+
+  <!-- ENCABEZADO -->
+  <div
+    class="
+      flex
+      flex-col
+      sm:flex-row
+      sm:items-center
+      sm:justify-between
+      gap-4
+    "
+  >
+    <div>
+      <h1 class="text-2xl font-black text-gray-100">
+        Administración de unidades
+      </h1>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Administre las unidades pertenecientes a la estación seleccionada.
+      </p>
+    </div>
+
+    <div
+      class="
+        flex
+        flex-col
+        sm:flex-row
+        gap-3
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          text-gray-100
+          rounded-xl
+          px-5
+          py-2.5
+          font-semibold
+          transition-colors
+        "
+        (click)="regresar()"
+      >
+        Regresar
+      </button>
+
+      <button
+        type="button"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          text-white
+          rounded-xl
+          px-5
+          py-2.5
+          font-bold
+          transition-colors
+        "
+        (click)="abrirModalCreacion()"
+      >
+        Nueva unidad
+      </button>
+    </div>
+  </div>
+
+  <!-- MENSAJE CORRECTO -->
+  @if (mensaje()) {
+    <div
+      class="
+        bg-emerald-500/10
+        border border-emerald-400/30
+        text-emerald-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ mensaje() }}
+    </div>
+  }
+
+  <!-- ERROR -->
+  @if (errorPagina()) {
+    <div
+      class="
+        bg-red-500/10
+        border border-red-400/30
+        text-red-200
+        rounded-xl
+        px-4
+        py-3
+        text-sm
+      "
+    >
+      {{ errorPagina() }}
+    </div>
+  }
+
+  <!-- FILTRO -->
+  <div
+    class="
+      bg-[#14181D]
+      border border-gray-200/20
+      rounded-2xl
+      p-5
+    "
+  >
+    <div class="mb-4">
+      <h2 class="text-lg font-black text-gray-100">
+        Filtros
+      </h2>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Filtre las unidades según su disponibilidad.
+      </p>
+    </div>
+
+    <form
+      [formGroup]="filtroForm"
+      class="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        gap-4
+        items-end
+      "
+    >
+      <div>
+        <label
+          for="disponibilidad"
+          class="
+            block
+            text-sm
+            font-bold
+            text-gray-200
+            mb-2
+          "
+        >
+          Disponibilidad
+        </label>
+
+        <select
+          id="disponibilidad"
+          formControlName="disponibilidad"
+          class="input-form"
+        >
+          <option value="">
+            Todas las unidades
+          </option>
+
+          <option value="true">
+            Solamente disponibles
+          </option>
+
+          <option value="false">
+            Solamente no disponibles
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          class="
+            w-full
+            bg-gray-700
+            hover:bg-gray-600
+            text-gray-100
+            rounded-xl
+            px-5
+            py-3
+            font-semibold
+            transition-colors
+          "
+          (click)="limpiarFiltro()"
+        >
+          Mostrar todas
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- RESUMEN -->
+  <div
+    class="
+      grid
+      grid-cols-1
+      sm:grid-cols-3
+      gap-4
+    "
+  >
+    <!-- TOTAL -->
+    <div
+      class="
+        bg-[#14181D]
+        border border-gray-200/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-gray-400
+          uppercase
+          font-semibold
+        "
+      >
+        Unidades encontradas
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-gray-100
+          mt-2
+        "
+      >
+        {{ unidades().length }}
+      </p>
+    </div>
+
+    <!-- DISPONIBLES -->
+    <div
+      class="
+        bg-[#14181D]
+        border border-emerald-400/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-emerald-300
+          uppercase
+          font-semibold
+        "
+      >
+        Disponibles
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-emerald-200
+          mt-2
+        "
+      >
+        {{ unidadesDisponibles() }}
+      </p>
+    </div>
+
+    <!-- NO DISPONIBLES -->
+    <div
+      class="
+        bg-[#14181D]
+        border border-red-400/20
+        rounded-2xl
+        p-5
+      "
+    >
+      <p
+        class="
+          text-xs
+          text-red-300
+          uppercase
+          font-semibold
+        "
+      >
+        No disponibles
+      </p>
+
+      <p
+        class="
+          text-3xl
+          font-black
+          text-red-200
+          mt-2
+        "
+      >
+        {{ unidadesNoDisponibles() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div
+    class="
+      bg-[#14181D]
+      border border-gray-200/20
+      rounded-2xl
+      p-4
+    "
+  >
+    @if (cargando()) {
+      <div
+        class="
+          min-h-[250px]
+          flex
+          items-center
+          justify-center
+          text-gray-400
+        "
+      >
+        Cargando unidades...
+      </div>
+    } @else if (unidades().length === 0) {
+      <div
+        class="
+          min-h-[250px]
+          flex
+          flex-col
+          items-center
+          justify-center
+          text-center
+        "
+      >
+        <p class="text-lg font-bold text-gray-200">
+          No se encontraron unidades
+        </p>
+
+        <p class="text-sm text-gray-400 mt-1">
+          Esta estación no tiene unidades registradas
+          con el filtro seleccionado.
+        </p>
+
+        <button
+          type="button"
+          class="
+            bg-red-600
+            hover:bg-red-700
+            text-white
+            rounded-xl
+            px-5
+            py-2.5
+            font-bold
+            mt-5
+          "
+          (click)="abrirModalCreacion()"
+        >
+          Crear primera unidad
+        </button>
+      </div>
+    } @else {
+      <app-table-custom
+        [columns]="columnasUnidades"
+        [data]="unidades()"
+        [actions]="actions"
+        (actionClick)="onTableAction($event)"
+      />
+    }
+  </div>
+
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<app-modal-component
+  [show]="showModal()"
+  [titulo]="
+    esEdicion()
+      ? 'Editar unidad'
+      : 'Nueva unidad'
+  "
+  [width]="'650px'"
+  [height]="'auto'"
+  [closeOnBackdrop]="false"
+  [showCloseButton]="true"
+  (closed)="cerrarModal()"
+>
+  <form
+    class="flex flex-col gap-5 p-3"
+    [formGroup]="unidadForm"
+    (ngSubmit)="guardarUnidad()"
+  >
+    <div>
+      <h3 class="text-lg font-black text-gray-100">
+        Información de la unidad
+      </h3>
+
+      <p class="text-sm text-gray-400 mt-1">
+        Ingrese el nombre de la unidad y establezca su disponibilidad.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-4">
+
+      <!-- NOMBRE -->
+      <div>
+        <label
+          for="nombre"
+          class="label-form"
+        >
+          Nombre
+        </label>
+
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          maxlength="80"
+          placeholder="Ejemplo: Unidad HRB-01"
+          class="input-form"
+        >
+
+        @if (
+          unidadForm.controls.nombre.touched &&
+          unidadForm.controls.nombre.hasError('required')
+        ) {
+          <p class="error-form">
+            El nombre de la unidad es obligatorio.
+          </p>
+        }
+
+        @if (
+          unidadForm.controls.nombre.touched &&
+          unidadForm.controls.nombre.hasError('maxlength')
+        ) {
+          <p class="error-form">
+            El nombre no puede superar los 80 caracteres.
+          </p>
+        }
+      </div>
+
+      <!-- DISPONIBILIDAD -->
+      <div>
+        <label
+          class="
+            flex
+            items-center
+            gap-3
+            bg-white/5
+            border border-white/10
+            rounded-xl
+            px-4
+            py-3
+            cursor-pointer
+          "
+        >
+          <input
+            type="checkbox"
+            formControlName="available"
+            class="checkbox-form"
+          >
+
+          <div>
+            <p class="text-sm font-bold text-gray-200">
+              Unidad disponible
+            </p>
+
+            <p class="text-xs text-gray-500">
+              Desmarque esta opción cuando la unidad
+              no se encuentre disponible para operar.
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- ERROR DEL MODAL -->
+    @if (errorModal()) {
+      <div
+        class="
+          bg-red-500/10
+          border border-red-400/30
+          text-red-200
+          rounded-xl
+          px-4
+          py-3
+          text-sm
+        "
+      >
+        {{ errorModal() }}
+      </div>
+    }
+
+    <!-- BOTONES -->
+    <div
+      class="
+        flex
+        justify-end
+        gap-3
+        pt-5
+        border-t border-gray-500/20
+      "
+    >
+      <button
+        type="button"
+        class="
+          bg-gray-700
+          hover:bg-gray-600
+          text-gray-100
+          rounded-xl
+          px-5
+          py-2.5
+          font-semibold
+        "
+        [disabled]="guardando()"
+        (click)="cerrarModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="
+          bg-red-600
+          hover:bg-red-700
+          disabled:bg-red-900
+          disabled:cursor-not-allowed
+          text-white
+          rounded-xl
+          px-5
+          py-2.5
+          font-bold
+        "
+        [disabled]="guardando()"
+      >
+        @if (guardando()) {
+          Guardando...
+        } @else if (esEdicion()) {
+          Actualizar unidad
+        } @else {
+          Crear unidad
+        }
+      </button>
+    </div>
+  </form>
+</app-modal-component>

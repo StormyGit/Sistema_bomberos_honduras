@@ -16,6 +16,7 @@ public class RecursoDTO {
     private UUID idIncidente;
     private String estacion;
     private UUID idEstacion;
+    private UUID idUnidad;
     private String unidad;
     private String oficialEncargado;
     private Integer numPersonal;

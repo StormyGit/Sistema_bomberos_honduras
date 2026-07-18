@@ -12,6 +12,7 @@ import { PermisosComponent } from './pages/seguridad/permisos-component/permisos
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { IncidenteResumen } from './pages/public/incidente-resumen/incidente-resumen';
 import { EstacionesCompenent } from './pages/seguridad/estaciones-compenent/estaciones-compenent';
+import { UnidadesComponent } from './pages/seguridad/unidades-component/unidades-component';
 
 export const routes: Routes = [
   {
@@ -33,6 +34,7 @@ export const routes: Routes = [
       {path:'roles/:rolId/permisos', component: PermisosComponent},
       {path:"objeto", component: ObjetoComponent},
       {path:"estaciones", component: EstacionesCompenent},
+      {path:"unidades/:idEstacion", component: UnidadesComponent},
   ]},
 
   {

@@ -72,7 +72,7 @@
               </div>
 
               <span class="text-sm font-black text-amber-100">
-                {{ getCountByStatus('Pendiente') }}
+                {{ getCountByStatus('Pendiente') + getCountByStatus('PendienteAsignacion')}}
               </span>
             </div>
 
@@ -116,7 +116,7 @@
               </div>
 
               <span class="text-sm font-black text-emerald-100">
-                {{ getCountByStatus('Finalizado') }}
+                {{ getCountByStatus('Finalizado') + getCountByStatus('SinEvidencias')}}
               </span>
             </div>
 
@@ -208,9 +208,13 @@
                     <p class="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
                       Unidad
                     </p>
-                    <p class="text-sm font-bold text-gray-100">
-                      {{ inc.recursos.unidad }}
-                    </p>
+                    @if(inc.recursos.length > 0){
+                      <p class="text-sm font-bold text-gray-100">
+                        @for(res of inc.recursos; track res.id){
+                          {{ res.unidad ?? 'no' }}
+                        }
+                      </p>
+                    }
                   </div>
 
                   <span class="text-xs text-gray-400">
@@ -292,6 +296,7 @@
           [height]="'600px'"
           (pointSelected)="onPointSelected($event)"
           [setPoint]="true"
+
           (estacionesCercanas)="estaciones_cercanas($event)"
           >
         </app-map-picker>
@@ -304,6 +309,7 @@
         <app-form-component #formCreate
           [Formulary]="svFormData.incidente('recursos')"
           (getSubmit)="submitForm_despacho($event)"
+          (fieldChange)="cambiosForm_despacho($event)"
           [labelSudmit]="'Siguiente'"
 
         />
@@ -342,6 +348,18 @@
             <p class="text-lg font-bold text-gray-800">
               @if (tiempoTotalEjecucionTexto) {
                 {{tiempoTotalEjecucionTexto}}
+              }
+            </p>
+          </div>
+          <div class="rounded-xl p-4">
+            <p class="text-xs text-gray-500 font-semibold uppercase">
+              Unidad(es)
+            </p>
+            <p class="text-lg font-bold text-gray-800">
+              @for(resc of incidente_create?.recursos; ; track resc.id){
+                <span>
+                  {{resc.unidad}}
+                </span>
               }
             </p>
           </div>

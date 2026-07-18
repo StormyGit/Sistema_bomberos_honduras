@@ -131,7 +131,7 @@ export class DataFormService {
               w: 1,
               field: [
                 { label: 'Estación', type: 'select', name: 'idEstacion', w: 3, required: true },
-                { label: 'Unidades', type: 'text', name: 'unidad', w: 3, required: true },
+                { label: 'Unidades', type: 'select', name: 'idUnidad', w: 3, required: true },
                 { label: 'Galones de agua', type: 'number', name: 'galonAgua', w: 3, required: true, max:50, min:0 },
                 { label: 'Encargado', type: 'text', name: 'oficialEncargado', w: 2, required: true, max:50, min:5 },
                 { label: 'Personal', type: 'number', name: 'numPersonal', w: 5, required: true, max:50, min:0 },

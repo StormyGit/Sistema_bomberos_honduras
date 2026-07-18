@@ -1,4 +1,4 @@
-import { point, estaciones } from './../../../types/cce/incidente.interface';
+import { point, estaciones, Recurso } from './../../../types/cce/incidente.interface';
 import { User } from './../../../auth/auth.interface.ts';
 import { Component, inject, NgZone, OnInit, signal, ViewChild } from '@angular/core';
 import { TableColumn, TableCustomComponent } from "../../../components/table-custom/table-custom"
@@ -18,6 +18,7 @@ import { IncidenteTiempoComponent } from "../../components/incidente-tiempo-comp
 import { Router } from '@angular/router';
 import { CatalogoLugaresServices } from '../../../service/catalogo-lugares-services';
 import { ToastService } from '../../../components/toast-service';
+import { UnidadService } from '../../../service/unidad-service';
 
 
 
@@ -40,6 +41,7 @@ export class IncidenteCreateComponent implements OnInit {
   // servicios
   svrIncidente    = inject(IncidenteService);
   svrCatalogo     = inject(CatalogoLugaresServices);
+  svrUnidad     = inject(UnidadService);
   svFormData      = inject(DataFormService);
   scrAuth         = inject(AuthServiceService);
   private scrToast = inject(ToastService);
@@ -146,6 +148,61 @@ incidente_reset(): void {
     }
 
   }
+
+cambiosForm_despacho(data: {
+  name: string;
+  value: string | null;
+}): void {
+
+  if (data.name !== 'idEstacion') {
+    return;
+  }
+
+  // Limpia las unidades cuando no hay estación seleccionada.
+  if (!data.value) {
+    this.formCreate.setFieldOptions(
+      'idUnidad',
+      [],
+      false
+    );
+
+    return;
+  }
+
+  // true = cargar solamente unidades disponibles.
+  this.svrUnidad
+    .getByEstacion(data.value, true)
+    .subscribe({
+      next: unidades => {
+        const opciones = unidades
+        .filter(unidad => unidad.id)
+        .map(unidad => ({
+          label: unidad.nombre,
+          value: unidad.id as string
+        }));
+
+        console.log("ops: ", opciones)
+        this.formCreate.setFieldOptions(
+          'idUnidad',
+          opciones,
+          false
+        );
+      },
+
+      error: error => {
+        console.error(
+          'Error al obtener las unidades:',
+          error
+        );
+
+        this.formCreate.setFieldOptions(
+          'idUnidad',
+          [],
+          false
+        );
+      }
+    });
+}
 
   submitForm_despacho(data: iFormEmit) {
     if (!data.status) {
@@ -506,6 +563,11 @@ abrirModal_seguimiento(row: any): void {
       }
     });
   }
+  let stepWizard = 2
+
+  if (row.recursos.length === 0){
+    stepWizard = 1;
+  }
 
   this.tiempoTotalEjecucionTexto = this.calcularTiempoTotalEjecucionTexto();
 
@@ -515,7 +577,7 @@ abrirModal_seguimiento(row: any): void {
   this.mostrarTimers = true;
 
   this.showModal.set(true);
-  this.cambiarPasoWizard(2); // índice 2 = "Bitacora y seguimiento"
+  this.cambiarPasoWizard(stepWizard); // índice 2 = "Bitacora y seguimiento"
 }
 
 async compartirPreliminar(data: incidente | null): Promise<void> {

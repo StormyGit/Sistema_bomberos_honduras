@@ -4,8 +4,10 @@ import com.bomberoshn.cceAplications.DTO.*;
 import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.Entitys.*;
 import com.bomberoshn.cceAplications.Entitys.Catalogo.IncidenteTipoEntity;
+import com.bomberoshn.cceAplications.Entitys.Catalogo.UnidadEntity;
 import com.bomberoshn.cceAplications.Repository.*;
 import com.bomberoshn.cceAplications.Repository.Catalogo.IncidenteTipoRepository;
+import com.bomberoshn.cceAplications.Services.Catalogo.UnidadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -17,10 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,15 +31,17 @@ public class IncidenteServices implements IIncidenteService {
     private final EvidenciaRepository evidenciaRepository;
     private final ArchivoService archivoService;
     private final CatalogoServices catalogoServices;
+    private final UnidadService unidadService;
     private final IncidenteTipoRepository incidenteTipoRepository;
 
-    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices, IncidenteTipoRepository incidenteTipoRepository) {
+    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices, UnidadService unidadService, IncidenteTipoRepository incidenteTipoRepository) {
         this.incidenteRepository = incidenteRepository;
         this.recursoRepository = recursoRepository;
         this.tiempoRepository = tiempoRepository;
         this.evidenciaRepository = evidenciaRepository;
         this.archivoService = archivoService;
         this.catalogoServices = catalogoServices;
+        this.unidadService = unidadService;
         this.incidenteTipoRepository = incidenteTipoRepository;
     }
 
@@ -156,13 +157,15 @@ public class IncidenteServices implements IIncidenteService {
         RecursoEntity recurso = new RecursoEntity();
         recurso.setIdIncidente(idIncidente);
         recurso.setIdEstacion(dto.getIdEstacion());
-        recurso.setUnidad(dto.getUnidad());
+        recurso.setUnidad(dto.getIdUnidad());
         recurso.setNumPersonal(dto.getNumPersonal());
         recurso.setOficialEncargado(dto.getOficialEncargado());
 
         recurso = recursoRepository.save(recurso);
         incidenteRepository.save(incidente);
         addTimer(idIncidente, TiempoTipo.DESPACHO);
+        //unidadService.toggleDisponible(dto.getIdUnidad(), false);
+
         logger.info("recurso agregado, Id: {}", recurso.getId());
         dto.setId(recurso.getId());
 
@@ -181,7 +184,7 @@ public class IncidenteServices implements IIncidenteService {
         if (!incidenteRepository.existsById(idIncidente)) {
             throw new RuntimeException("El incidente no existe.");
         }
-
+        IncidenteDTO inc = getById(idIncidente);
         boolean yaExiste = tiempoRepository.existsByIdIncidenteAndTipoTiempo(
                 idIncidente,
                 tipoTiempo
@@ -206,16 +209,50 @@ public class IncidenteServices implements IIncidenteService {
 
         entity = tiempoRepository.save(entity);
         switch (tipoTiempo){
-            case TiempoTipo.REPORTE,
-                 TiempoTipo.DESPACHO -> cambiarEstado(idIncidente, IncidenteEstado.Pendiente);
+            case TiempoTipo.REPORTE -> {
+                cambiarEstado(idIncidente, IncidenteEstado.PendienteAsignacion);
+            }
+            case TiempoTipo.DESPACHO -> {
+                cambiarEstado(idIncidente, IncidenteEstado.Pendiente);
+                cambiarDisponibilidadUnidades( inc, false);
+            }
             case TiempoTipo.SALIDA_ESTACION,
                  TiempoTipo.CONTROLADO,
                  TiempoTipo.LLEGADA -> cambiarEstado(idIncidente, IncidenteEstado.Ejecucion);
-            case TiempoTipo.FINALIZACION -> cambiarEstado(idIncidente, IncidenteEstado.Finalizado);
+            case TiempoTipo.FINALIZACION -> {
+                cambiarEstado( idIncidente, IncidenteEstado.Finalizado );
+                cambiarDisponibilidadUnidades( inc, true);
+            }
         }
 
 
         return toDTO_Tiempo(entity);
+    }
+
+
+    private void cambiarDisponibilidadUnidades(
+            IncidenteDTO incidente,
+            boolean disponible
+    ) {
+        if (
+                incidente == null ||
+                        incidente.getRecursos() == null ||
+                        incidente.getRecursos().isEmpty()
+        ) {
+            return;
+        }
+
+        incidente.getRecursos()
+                .stream()
+                .map(recurso -> recurso.getIdUnidad())
+                .filter(Objects::nonNull)
+                .distinct()
+                .forEach(idUnidad ->
+                        unidadService.toggleDisponible(
+                                idUnidad,
+                                disponible
+                        )
+                );
     }
 
     public TiempoDTO getTimer(UUID idIncidente, TiempoTipo tipoTiempo) {
@@ -746,6 +783,8 @@ public class IncidenteServices implements IIncidenteService {
             );
         }
 
+        UnidadDTO u = unidadService.getById(entity.getUnidad());
+
         return RecursoDTO.builder()
                 .id(entity.getId())
                 .idIncidente(entity.getIdIncidente())
@@ -759,7 +798,8 @@ public class IncidenteServices implements IIncidenteService {
                                 ? estacion.id()
                                 : entity.getIdEstacion()
                 )
-                .unidad(entity.getUnidad())
+                .unidad(u.getNombre())
+                .idUnidad(u.getId())
                 .oficialEncargado(entity.getOficialEncargado())
                 .numPersonal(entity.getNumPersonal())
                 .galonAgua(entity.getGalonAgua())

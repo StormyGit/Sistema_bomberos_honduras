@@ -710,8 +710,8 @@ IrPreliminar(data: incidente | null){
 }
 abrirModal_detalles(row: any) {
 
-  console.log(row.estado);
-  if (row.estado !== "Finalizado" && row.estado !== "Cancelado" ) return;
+  //console.log(row.estado);
+  //if (row.estado !== "Finalizado" && row.estado !== "Cancelado" ) return;
 
   this.incidente_selection = {
     ...row

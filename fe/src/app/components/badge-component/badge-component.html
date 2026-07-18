@@ -9,16 +9,50 @@
     py-1
     text-xs
     font-bold
-    shadow-sm
-    whitespace-nowrap
+    cursor-help
+    select-none
   "
   [ngClass]="badgeClass"
+
+  [matTooltip]="badgeDescripcion"
+  [matTooltipPosition]="'above'"
+  [matTooltipShowDelay]="250"
+  [matTooltipHideDelay]="100"
+  [matTooltipClass]="'badge-tooltip'"
+
+  [attr.aria-label]="
+    badgeLabel + '. ' + badgeDescripcion
+  "
 >
-  <span
-    class="h-2 w-2 rounded-full"
-    [class.animate-pulse]="shouldPulse"
-    [ngClass]="dotClass"
-  ></span>
+  <span class="relative flex h-2 w-2">
+
+    @if (shouldPulse) {
+      <span
+        class="
+          absolute
+          inline-flex
+          h-full
+          w-full
+          animate-ping
+          rounded-full
+          opacity-75
+        "
+        [ngClass]="dotClass"
+      ></span>
+    }
+
+    <span
+      class="
+        relative
+        inline-flex
+        h-2
+        w-2
+        rounded-full
+      "
+      [ngClass]="dotClass"
+    ></span>
+
+  </span>
 
   {{ badgeLabel }}
 </span>

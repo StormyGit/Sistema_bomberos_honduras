@@ -1,3 +1,17 @@
 :host {
   display: inline-block;
 }
+
+.badge-tooltip {
+  --mat-tooltip-container-color: #0f1216;
+  --mat-tooltip-supporting-text-color: #e5e7eb;
+  --mat-tooltip-container-shape: 12px;
+
+  max-width: 320px !important;
+  white-space: normal !important;
+  line-height: 1.5 !important;
+  font-size: 12px !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  box-shadow: 0 15px 35px rgb(0 0 0 / 0.45);
+}

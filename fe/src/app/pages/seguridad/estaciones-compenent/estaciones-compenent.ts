@@ -33,6 +33,7 @@ import {
   EstacionUpdateRequest,
   Municipio
 } from '../../../service/catalogo-lugares-services';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-estaciones-compenent',
@@ -52,6 +53,11 @@ export class EstacionesCompenent implements OnInit {
 
   private readonly formBuilder =
     inject(FormBuilder);
+
+  private readonly route =
+    inject(Router);
+
+
 
   // =====================================================
   // LISTAS
@@ -159,6 +165,11 @@ export class EstacionesCompenent implements OnInit {
       key: 'edit',
       label: 'Editar',
       class: 'btn btn-sm btn-yellow'
+    },
+    {
+      key: 'unidades',
+      label: 'ver unidades',
+      class: 'btn btn-sm btn-blue'
     }
   ];
 
@@ -830,6 +841,9 @@ private cargarEstacionesYMunicipiosFiltro(
       this.abrirModalEdicion(
         event.row
       );
+    }
+    if (event.action === 'unidades') {
+      this.route.navigate(['seguridad/unidades', event.row.id])
     }
   }
 
