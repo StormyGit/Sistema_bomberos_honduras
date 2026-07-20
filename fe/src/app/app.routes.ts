@@ -13,6 +13,8 @@ import { PublicLayout } from './layouts/public-layout/public-layout';
 import { IncidenteResumen } from './pages/public/incidente-resumen/incidente-resumen';
 import { EstacionesCompenent } from './pages/seguridad/estaciones-compenent/estaciones-compenent';
 import { UnidadesComponent } from './pages/seguridad/unidades-component/unidades-component';
+import { SeguridadLayoutComponent } from './layouts/seguridad-layout-component/seguridad-layout-component';
+import { DashboardLayoutComponent } from './layouts/dashboard-layout-component/dashboard-layout-component';
 
 export const routes: Routes = [
   {
@@ -28,7 +30,7 @@ export const routes: Routes = [
     path:"seguridad",
     canActivate: [authGuard],
     canActivateChild: [authGuard],
-    component: CceLayoutComponent, children:[
+    component: SeguridadLayoutComponent, children:[
       {path:"usuarios", component: UsuariosComponent},
       {path:"roles", component: RolComponents},
       {path:'roles/:rolId/permisos', component: PermisosComponent},
@@ -47,7 +49,7 @@ export const routes: Routes = [
       {path:"incidente/:incidenteId", component: IncidenteResumen},
   ]},
   {path:"login", canActivate: [authGuard_login], component:LoginLayoutComponent},
-  {path:"dashboard", canActivate: [authGuard], component:CceLayoutComponent},
+  {path:"dashboard", canActivate: [authGuard], component:DashboardLayoutComponent},
   {path:"**", redirectTo: "dashboard"}
 
 ];

@@ -1,0 +1,12 @@
+.back {
+  --s: 249px; /* control the size*/
+  --c1: #0b0d10;
+  --c2: #121212;
+  --c3: #141414;
+
+  background:
+    repeating-conic-gradient(from 30deg,#0000 0 120deg,var(--c3) 0 50%)
+     calc(var(--s)/2) calc(var(--s)*tan(30deg)/2),
+    repeating-conic-gradient(from 30deg,var(--c1) 0 60deg,var(--c2) 0 120deg,var(--c3) 0 50%);
+  background-size: var(--s) calc(var(--s)*tan(30deg));
+}

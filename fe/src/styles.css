@@ -5,6 +5,14 @@
   @apply bg-gradient-to-r from-[#3A0E0A] via-red-600 to-[#3A0E0A]
 }
 
+.color-bombero_blue {
+  @apply bg-gradient-to-r from-[#0b0a3a] via-blue-600 to-[#130a3a]
+}
+
+.color-bombero_gray {
+  @apply bg-gradient-to-r from-[#313131] via-gray-600 to-[#313131]
+}
+
 .color-botton{
 
   @apply bg-red-600;
