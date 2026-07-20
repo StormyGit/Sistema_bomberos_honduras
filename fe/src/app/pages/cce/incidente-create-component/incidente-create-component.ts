@@ -77,6 +77,7 @@ incidente_reset(): void {
   this.mostrarTimers = false;
   this.tiemposPorTipo = {};
   this.formCreate?.resetForm();   // <-- nuevo
+  this.formInfo?.resetForm();   // <-- nuevo
   this.cambiarPasoWizard(0);
   this.recargarList();
 }

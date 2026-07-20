@@ -72,7 +72,7 @@ public class IncidenteEntity {
     @Column(name = "observacion_general", columnDefinition = "TEXT")
     private String observacionGeneral;
 
-    @CreationTimestamp
+
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 }
