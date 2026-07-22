@@ -1,0 +1,250 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.download-button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.download-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.report-page {
+  width: 216mm;
+  min-height: 279mm;
+
+  margin: auto;
+  padding: 12mm;
+
+  box-sizing: border-box;
+
+  background: white;
+  color: black;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+
+  box-shadow:
+    0 4px 20px
+    rgba(0, 0, 0, 0.2);
+}
+
+.report-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.report-logo {
+  width: 70px;
+  height: 70px;
+
+  object-fit: contain;
+}
+
+.header-text {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.header-text h1 {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.header-text h2 {
+  margin: 4px 0 0;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.report-sections {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.report-section {
+  box-sizing: border-box;
+  padding: 4px;
+}
+
+.section-title {
+  margin: 8px 0;
+
+  font-size: 12px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.fields-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.report-field {
+  box-sizing: border-box;
+  padding: 3px;
+}
+
+.line-field {
+  display: flex;
+  align-items: flex-end;
+
+  min-height: 20px;
+}
+
+.field-label {
+  margin-right: 4px;
+
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.field-value {
+  flex: 1;
+
+  min-height: 17px;
+  padding: 0 4px 5px 4px; /* <- importante */
+
+  border-bottom: 1px solid black;
+
+  overflow-wrap: anywhere;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  min-height: 20px;
+
+  text-transform: uppercase;
+}
+
+.checkbox-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 14px;
+  height: 14px;
+
+  border: 1px solid black;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.textarea-field {
+  width: 100%;
+}
+
+.textarea-field strong {
+  display: block;
+  margin-bottom: 3px;
+
+  text-transform: uppercase;
+}
+
+.textarea-value {
+  width: 100%;
+  padding: 0 3px;
+
+  box-sizing: border-box;
+
+  line-height: 24px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 23px,
+      black 23px,
+      black 24px
+    );
+}
+
+.image-field {
+  width: 100%;
+}
+
+.image-field strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.image-field img {
+  display: block;
+
+  max-width: 100%;
+  max-height: 220px;
+
+  margin: auto;
+
+  object-fit: contain;
+}
+
+
+
+.report-hidden {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 216mm;
+  pointer-events: none;
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.download-button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.download-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

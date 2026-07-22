@@ -1,0 +1,115 @@
+<div class="report-toolbar">
+  <button
+    type="button"
+    class="download-button"
+    [disabled]="generandoPdf || !structure"
+    (click)="descargarPdf()"
+  >
+    {{ generandoPdf ? 'Generando PDF...' : 'Descargar PDF' }}
+  </button>
+</div>
+
+@if (structure) {
+  <div class="report-hidden" aria-hidden="true">
+    <article #reportContent class="report-page">
+
+      <header class="report-header">
+        <div class="logo-container">
+          @if (logoIzquierdo) {
+            <img [src]="'assets/img/icon.png'" alt="Logo" class="report-logo">
+          }
+        </div>
+
+        <div class="header-text">
+          <h1>{{ titulo }}</h1>
+
+          @if (subtitulo) {
+            <h2>{{ subtitulo }}</h2>
+          }
+        </div>
+
+        <div class="logo-container">
+          @if (logoDerecho) {
+            <img [src]="'assets/img/icon3.png'" alt="Logo" class="report-logo">
+          }
+        </div>
+      </header>
+
+      <main class="report-sections">
+        @for (section of structure.seccions; track $index) {
+          <section
+            class="report-section"
+            [style.width]="getWidth(section.w)"
+          >
+            @if (section.title && section.showTitle !== false) {
+              <h3 class="section-title">{{ section.title }}</h3>
+            }
+
+            @for (context of getSectionRows(section); track $index) {
+              <div class="fields-container">
+                @for (field of section.field; track field.name) {
+                  <div
+                    class="report-field"
+                    [style.width]="getWidth(field.w)"
+                  >
+                    @if (field.type === 'checkbox') {
+                      <div class="checkbox-field">
+                        <span>{{ field.label }}</span>
+
+                        <span class="checkbox-box">
+                          @if (isChecked(field, context)) {
+                            X
+                          }
+                        </span>
+                      </div>
+                    }
+
+                    @else if (field.type === 'textarea') {
+                      <div class="textarea-field">
+                        @if (field.label) {
+                          <strong>{{ field.label }}</strong>
+                        }
+
+                        <div
+                          class="textarea-value"
+                          [style.min-height.px]="getTextareaHeight(field)"
+                        >
+                          {{ getValue(field, context) }}
+                        </div>
+                      </div>
+                    }
+
+                    @else if (field.type === 'image') {
+                      <div class="image-field">
+                        @if (field.label) {
+                          <strong>{{ field.label }}</strong>
+                        }
+
+                        @if (getImage(field, context); as image) {
+                          <img [src]="image" [alt]="field.label">
+                        }
+                      </div>
+                    }
+
+                    @else {
+                      <div class="line-field">
+                        @if (field.label) {
+                          <span class="field-label">{{ field.label }}:</span>
+                        }
+
+                        <span class="field-value">
+                          {{ getValue(field, context) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+      </main>
+
+    </article>
+  </div>
+}

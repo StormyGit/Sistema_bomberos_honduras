@@ -2,6 +2,7 @@ package com.bomberoshn.cceAplications.DTO;
 
 import com.bomberoshn.cceAplications.Entitys.IncidenteEstado;
 import com.bomberoshn.cceAplications.Entitys.IncidenteRecepcion;
+import com.bomberoshn.cceAplications.Entitys.ReporteIncidenteEntity;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -39,4 +40,5 @@ public class IncidenteDTO {
     private List<RecursoDTO> recursos;
     private List<TiempoDTO> tiempos;
     private List<ArchivoDTO> images;
+    private ReporteIncidenteEntity reporte;
 }

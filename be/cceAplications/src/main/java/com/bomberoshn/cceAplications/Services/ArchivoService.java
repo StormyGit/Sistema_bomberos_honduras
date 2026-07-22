@@ -200,7 +200,7 @@ public class ArchivoService {
         }
         return nombreArchivo.substring(index);
     }
-    private ArchivoDTO agregarUrls(ArchivoDTO archivo) {
+    public ArchivoDTO agregarUrls(ArchivoDTO archivo) {
 
         String baseUrl = ServletUriComponentsBuilder
                 .fromCurrentContextPath()

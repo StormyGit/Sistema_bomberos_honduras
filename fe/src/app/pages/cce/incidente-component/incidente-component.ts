@@ -36,6 +36,7 @@ import { Router } from '@angular/router';
 import { ToastService } from '../../../components/toast-service';
 
 
+
 export interface TipoMunicipioResumen {
   municipioId: string;
   municipio: string;
@@ -708,6 +709,17 @@ IrPreliminar(data: incidente | null){
   }
   this.router.navigate(['/public', 'incidente', data.id])
 }
+onReporte(data: incidente | null){
+  console.log(data);
+  if (!this.incidente_selection?.reporte){
+    this.router.navigate(['cce', 'reporteIncidente', data?.id])
+  }else{
+
+  }
+}
+
+
+
 abrirModal_detalles(row: any) {
 
   //console.log(row.estado);
@@ -727,5 +739,7 @@ abrirModal_detalles(row: any) {
   this.showModal_detalles = true;
   //console.log(json);
 }
+
+
 
 }

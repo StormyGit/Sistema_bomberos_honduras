@@ -10,7 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { Popover } from '../../../shared/popover/popover';
+import { Popover } from '../../popover/popover.js';
 import { AuthServiceService } from '../../../auth/authService.service';
 
 import {
@@ -133,6 +133,12 @@ export class NavbarComponent implements OnInit {
         {
           path: '/seguridad/estaciones',
           name: 'Estaciones',
+
+          accion: 'View'
+        },
+        {
+          path: '/seguridad/incidenteTipo',
+          name: 'Tipos',
 
           accion: 'View'
         }

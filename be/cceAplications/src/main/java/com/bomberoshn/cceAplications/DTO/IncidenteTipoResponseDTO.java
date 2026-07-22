@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public record IncidenteTipoResponseDTO(
         UUID id,
-        String nombre
+        String nombre,
+        String urlImagen,
+        String indexReporte
 ) {
 }

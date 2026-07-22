@@ -15,6 +15,8 @@ import { EstacionesCompenent } from './pages/seguridad/estaciones-compenent/esta
 import { UnidadesComponent } from './pages/seguridad/unidades-component/unidades-component';
 import { SeguridadLayoutComponent } from './layouts/seguridad-layout-component/seguridad-layout-component';
 import { DashboardLayoutComponent } from './layouts/dashboard-layout-component/dashboard-layout-component';
+import { Compoenentesss } from './pages/compoenentesss/compoenentesss';
+import { IncidenteTiposComponent } from './pages/seguridad/incidentes-tipos-component/incidentes-tipos-component';
 
 export const routes: Routes = [
   {
@@ -25,6 +27,7 @@ export const routes: Routes = [
     component: CceLayoutComponent, children:[
       {path:"incidente/create", component: IncidenteComponent,    data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},},
       {path:"incidente", component: IncidenteCreateComponent,    data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},},
+      {path:"reporteIncidente/:idincidente", component:Compoenentesss, data: {objetoId: 'cd65e978-b655-4c18-b70e-e973676b92a4',accion: 'View'},},
   ]},
   {
     path:"seguridad",
@@ -37,6 +40,7 @@ export const routes: Routes = [
       {path:"objeto", component: ObjetoComponent},
       {path:"estaciones", component: EstacionesCompenent},
       {path:"unidades/:idEstacion", component: UnidadesComponent},
+      {path:"incidenteTipo", component: IncidenteTiposComponent},
   ]},
 
   {

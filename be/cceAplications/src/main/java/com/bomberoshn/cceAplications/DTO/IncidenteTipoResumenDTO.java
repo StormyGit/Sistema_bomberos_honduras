@@ -16,4 +16,6 @@ public class IncidenteTipoResumenDTO {
     private String nombre;
 
     private Long total;
+
+    private String urlImagen;
 }

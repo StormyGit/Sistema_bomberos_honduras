@@ -1,6 +1,7 @@
 package com.bomberoshn.cceAplications.Services;
 
 import com.bomberoshn.cceAplications.DTO.*;
+import com.bomberoshn.cceAplications.Entitys.ReporteIncidenteEntity;
 import com.bomberoshn.cceAplications.Entitys.TiempoTipo;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface IIncidenteService {
     public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros);
     public IncidenteEstadoResumenDTO resumenIncidentesPorEstado(SearchIncidenteDTO filtros);
     List<IncidenteTipoResponseDTO> buscar_tipo(String buscar);
+    ReporteIncidenteEntity getReporteIncidente(UUID id);
+    ReporteIncidenteEntity reporteIncidente(ReporteIncidenteRequestDTO request);
 }

@@ -8,18 +8,8 @@ import { CatalogoLugaresServices } from '../service/catalogo-lugares-services';
   providedIn: 'root',
 })
 export class DataFormService {
-
-
-  private svrCatalogo = inject(CatalogoLugaresServices);
-
   scrAuth = inject(AuthServiceService);
   User = signal<User | null>(this.scrAuth.getUser);
-
-  private listEstaciones: { label: string; value: string }[] = [];
-  private cargandoEstaciones = false;
-  private estacionesCargadas = false;
-
-
 
   public login(): iFormGroup {
     return {
@@ -70,15 +60,7 @@ export class DataFormService {
     };
   }
 
-
   public incidente(type: 'info' | 'recursos' | 'seguimiento'): iFormGroup {
-
-
-    const incidente_list = incidentes_list().map((incidente) => ({
-      label: incidente.label,
-      value: incidente.value,
-    }));
-
     const ahora = new Date();
     const fechaActual = ahora.toISOString().split('T')[0];
     const horaActual = ahora.toTimeString().slice(0, 5);

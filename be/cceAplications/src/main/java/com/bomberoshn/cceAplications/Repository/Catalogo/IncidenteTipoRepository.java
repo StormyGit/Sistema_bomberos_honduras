@@ -14,6 +14,9 @@ public interface IncidenteTipoRepository
 
     boolean existsByNombreIgnoreCase(String nombre);
 
-    List<IncidenteTipoEntity>
-    findByNombreContainingIgnoreCaseOrderByNombreAsc(String nombre);
+    List<IncidenteTipoEntity> findByNombreContainingIgnoreCaseOrderByNombreAsc(String nombre);
+
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, UUID id);
+
+    List<IncidenteTipoEntity> findAllByOrderByNombreAsc();
 }

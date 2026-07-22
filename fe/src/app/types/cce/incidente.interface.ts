@@ -22,7 +22,15 @@ export interface incidente {
   punto?           : string;
   point?: string;
   images?: imagen[];
+  reporte?: reporteIncidente[];
 }
+
+export interface reporteIncidente {
+  idIncidente: string,
+  estructuraForm: string,
+  dataForm: string
+}
+
 export interface imagen{
   id: string,
   urlVisualizacion: string;
@@ -55,6 +63,7 @@ export interface TipoResumen {
   tipoId: string;
   nombre: string;
   total: number;
+  urlImagen?: string;
 }
 
 

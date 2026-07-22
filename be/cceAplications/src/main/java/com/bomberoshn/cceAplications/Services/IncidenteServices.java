@@ -4,7 +4,6 @@ import com.bomberoshn.cceAplications.DTO.*;
 import com.bomberoshn.cceAplications.DTO.Catalogo.EstacionResponseDTO;
 import com.bomberoshn.cceAplications.Entitys.*;
 import com.bomberoshn.cceAplications.Entitys.Catalogo.IncidenteTipoEntity;
-import com.bomberoshn.cceAplications.Entitys.Catalogo.UnidadEntity;
 import com.bomberoshn.cceAplications.Repository.*;
 import com.bomberoshn.cceAplications.Repository.Catalogo.IncidenteTipoRepository;
 import com.bomberoshn.cceAplications.Services.Catalogo.UnidadService;
@@ -13,14 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class IncidenteServices implements IIncidenteService {
@@ -33,8 +31,9 @@ public class IncidenteServices implements IIncidenteService {
     private final CatalogoServices catalogoServices;
     private final UnidadService unidadService;
     private final IncidenteTipoRepository incidenteTipoRepository;
+    private final ReporteIncidenteRepository reporteIncidenteRepository;
 
-    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices, UnidadService unidadService, IncidenteTipoRepository incidenteTipoRepository) {
+    public IncidenteServices(IncidenteRepository incidenteRepository, RecursoRepository recursoRepository, TiempoRepository tiempoRepository, EvidenciaRepository evidenciaRepository, ArchivoService archivoService, CatalogoServices catalogoServices, UnidadService unidadService, IncidenteTipoRepository incidenteTipoRepository, ReporteIncidenteRepository reporteIncidenteRepository) {
         this.incidenteRepository = incidenteRepository;
         this.recursoRepository = recursoRepository;
         this.tiempoRepository = tiempoRepository;
@@ -43,6 +42,7 @@ public class IncidenteServices implements IIncidenteService {
         this.catalogoServices = catalogoServices;
         this.unidadService = unidadService;
         this.incidenteTipoRepository = incidenteTipoRepository;
+        this.reporteIncidenteRepository = reporteIncidenteRepository;
     }
 
     public List<IncidenteDTO> getAll() {
@@ -149,6 +149,7 @@ public class IncidenteServices implements IIncidenteService {
         return toDTO(entity);
     }
 
+    @Transactional
     public RecursoDTO addRecurso(UUID idIncidente, RecursoDTO dto){
         IncidenteEntity incidente = incidenteRepository.findById(idIncidente)
                 .orElseThrow(() -> new RuntimeException("El incidente no existe."));
@@ -171,6 +172,8 @@ public class IncidenteServices implements IIncidenteService {
 
         return dto;
     }
+
+    @Transactional
     public TiempoDTO addTimer(UUID idIncidente, TiempoTipo tipoTiempo) {
 
         if (idIncidente == null) {
@@ -229,11 +232,8 @@ public class IncidenteServices implements IIncidenteService {
         return toDTO_Tiempo(entity);
     }
 
-
-    private void cambiarDisponibilidadUnidades(
-            IncidenteDTO incidente,
-            boolean disponible
-    ) {
+    @Transactional
+    private void cambiarDisponibilidadUnidades(IncidenteDTO incidente, boolean disponible) {
         if (
                 incidente == null ||
                         incidente.getRecursos() == null ||
@@ -255,6 +255,7 @@ public class IncidenteServices implements IIncidenteService {
                 );
     }
 
+    @Transactional
     public TiempoDTO getTimer(UUID idIncidente, TiempoTipo tipoTiempo) {
 
         if (idIncidente == null) {
@@ -274,6 +275,7 @@ public class IncidenteServices implements IIncidenteService {
                 .orElse(null);
     }
 
+    @Transactional
     public IncidenteDTO cambiarEstado(UUID idIncidente, IncidenteEstado estado) {
 
         if (idIncidente == null) {
@@ -294,6 +296,7 @@ public class IncidenteServices implements IIncidenteService {
         return toDTO(entity);
     }
 
+    @Transactional
     public void addEvidencia(UUID idIncidente, UUID idArchivo){
         EvidenciasEntity evidencia = new EvidenciasEntity();
         evidencia.setIdIncidente(idIncidente);
@@ -304,9 +307,7 @@ public class IncidenteServices implements IIncidenteService {
 
 
     @Transactional(readOnly = true)
-    public List<IncidenteDTO> buscarIncidentes(
-            SearchIncidenteDTO filtros
-    ) {
+    public List<IncidenteDTO> buscarIncidentes(SearchIncidenteDTO filtros) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -362,9 +363,7 @@ public class IncidenteServices implements IIncidenteService {
 
 
     @Transactional(readOnly = true)
-    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo(
-            SearchIncidenteDTO filtros
-    ) {
+    public List<IncidenteTipoResumenDTO> resumenIncidentesPorTipo( SearchIncidenteDTO filtros ) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -422,23 +421,52 @@ public class IncidenteServices implements IIncidenteService {
         }
 
         return tipos.stream()
-                .map(tipo -> IncidenteTipoResumenDTO.builder()
-                        .tipoId(tipo.getId())
-                        .nombre(tipo.getNombre())
-                        .total(
-                                totalesPorTipo.getOrDefault(
-                                        tipo.getId(),
-                                        0L
-                                )
-                        )
-                        .build()
+                .filter(tipo ->
+                        totalesPorTipo.getOrDefault(
+                                tipo.getId(),
+                                0L
+                        ) > 0
                 )
+                .map(tipo -> {
+
+                    Long total = totalesPorTipo.getOrDefault(
+                            tipo.getId(),
+                            0L
+                    );
+
+                    return IncidenteTipoResumenDTO.builder()
+                            .tipoId(tipo.getId())
+                            .nombre(tipo.getNombre())
+                            .total(total)
+                            .urlImagen(
+                                    obtenerUrlImagen(tipo)
+                            )
+                            .build();
+                })
                 .toList();
     }
 
+    private String obtenerUrlImagen(IncidenteTipoEntity tipo) {
+
+        if (tipo.getIdImagen() == null) {
+            return null;
+        }
+
+        ArchivoDTO archivo =
+                archivoService.obtenerArchivo(tipo.getIdImagen());
+
+        if (archivo == null) {
+            return null;
+        }
+
+        archivoService.agregarUrls(archivo);
+
+        return archivo.getUrlVisualizacion();
+    }
+
+
     @Transactional(readOnly = true)
-    public List<IncidenteMunicipioTipoResumenDTO>
-    resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros) {
+    public List<IncidenteMunicipioTipoResumenDTO> resumenIncidentesPorMunicipios(SearchIncidenteDTO filtros) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -526,15 +554,15 @@ public class IncidenteServices implements IIncidenteService {
         return tipos.stream()
                 .map(tipo -> new IncidenteTipoResponseDTO(
                         tipo.getId(),
-                        tipo.getNombre()
+                        tipo.getNombre(),
+                        tipo.getIdImagen().toString(),
+                        tipo.getIndexReporte()
                 ))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public IncidenteEstadoResumenDTO resumenIncidentesPorEstado(
-            SearchIncidenteDTO filtros
-    ) {
+    public IncidenteEstadoResumenDTO resumenIncidentesPorEstado( SearchIncidenteDTO filtros) {
 
         if (filtros == null) {
             filtros = new SearchIncidenteDTO();
@@ -605,6 +633,37 @@ public class IncidenteServices implements IIncidenteService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public ReporteIncidenteEntity getReporteIncidente(UUID idIncidente) {
+        return reporteIncidenteRepository.findByIdIncidente(idIncidente).orElse(null);
+    }
+
+    @Transactional
+    public ReporteIncidenteEntity reporteIncidente( ReporteIncidenteRequestDTO request) {
+
+        if (request.getIdIncidente() == null) {
+            throw new IllegalArgumentException( "El ID del incidente es obligatorio");
+        }
+
+        return reporteIncidenteRepository
+                .findByIdIncidente(request.getIdIncidente())
+                .map(reporteExistente -> {
+                    reporteExistente.setEstructuraForm( request.getEstructuraForm());
+                    reporteExistente.setDataForm( request.getDataForm());
+                    return reporteIncidenteRepository.save(reporteExistente);
+                })
+                .orElseGet(() -> {
+                    ReporteIncidenteEntity nuevoReporte =
+                            ReporteIncidenteEntity.builder()
+                                    .idIncidente( request.getIdIncidente() )
+                                    .estructuraForm( request.getEstructuraForm() )
+                                    .dataForm( request.getDataForm() )
+                                    .build();
+                    return reporteIncidenteRepository.save(nuevoReporte);
+                });
+    }
+
+
 
     private IncidenteDTO toDTO(IncidenteEntity entity) {
         if (entity == null) return null;
@@ -659,6 +718,7 @@ public class IncidenteServices implements IIncidenteService {
                                 .toList()
                 )
                 .images( images )
+                .reporte(reporteIncidenteRepository.findByIdIncidente(entity.getId()).orElse(null))
                 .build();
     }
     private IncidenteEntity toEntity(IncidenteDTO dto) {
@@ -698,6 +758,7 @@ public class IncidenteServices implements IIncidenteService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         return fecha.format(formatter);
     }
+
     private void updateFields(IncidenteEntity entity, IncidenteDTO dto) {
 
         if (dto.getIncidente() != null
@@ -818,20 +879,6 @@ public class IncidenteServices implements IIncidenteService {
                 .fechaCreacion(entity.getFechaCreacion())
                 .observacion(entity.getObservacion())
                 .build();
-    }
-
-
-    private ArchivoDTO agregarUrls(ArchivoDTO archivo) {
-
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString();
-
-        archivo.setUrlVisualizacion(baseUrl + "/archivos/ver/" + archivo.getId());
-        archivo.setUrlDescarga(baseUrl + "/archivos/descargar/" + archivo.getId());
-
-        return archivo;
     }
 
     private IncidenteTipoEntity obtenerOCrearTipoIncidente(String nombre) {

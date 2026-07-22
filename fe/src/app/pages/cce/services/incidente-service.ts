@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { incidente, Recurso, Tiempo, TiempoTipo } from '../../../types/cce/incidente.interface';
+import { incidente, Recurso, reporteIncidente, Tiempo, TiempoTipo } from '../../../types/cce/incidente.interface';
 import { environment } from '../../../../environments/environment';
 
 export interface SearchIncidenteDTO {
@@ -19,6 +19,7 @@ export interface Resumen {
   tipoAndMunicipios: any[];
   incidenteEstadoResumenDTO: any;
 }
+
 
 @Injectable({
   providedIn: 'root',
@@ -62,21 +63,32 @@ export class IncidenteService {
     );
   }
 
-    buscarIncidentes(data: SearchIncidenteDTO): Observable<Resumen> {
-      const body: SearchIncidenteDTO = {
-        fecha_Inicio: data.fecha_Inicio || null,
-        fecha_Final: data.fecha_Final || null,
-        isFinalizado: data.isFinalizado || false,
-        buscar: data.buscar?.trim() || null,
-        tipo: data.tipo || null,
-        idEstacion: data.idEstacion || null
-      };
+  buscarIncidentes(data: SearchIncidenteDTO): Observable<Resumen> {
+    const body: SearchIncidenteDTO = {
+      fecha_Inicio: data.fecha_Inicio || null,
+      fecha_Final: data.fecha_Final || null,
+      isFinalizado: data.isFinalizado || false,
+      buscar: data.buscar?.trim() || null,
+      tipo: data.tipo || null,
+      idEstacion: data.idEstacion || null
+    };
 
-      console.log("body: ", body)
-      return this.http.post<Resumen>(
-        `${this.apiUrl}/buscar`,
-        body
-      );
-    }
+    console.log("body: ", body)
+    return this.http.post<Resumen>(
+      `${this.apiUrl}/buscar`,
+      body
+    );
+  }
+
+  getReporteIncidente(idIncidente: string): Observable<reporteIncidente>{
+    return this.http.get<reporteIncidente>(`${this.apiUrl}/reporteIncidente/${idIncidente}`);
+  }
+
+  reporteIncidente(data: reporteIncidente): Observable<reporteIncidente>{
+    return this.http.post<reporteIncidente>(
+      `${this.apiUrl}/reporteIncidente`,
+      data
+    );
+  }
 
 }

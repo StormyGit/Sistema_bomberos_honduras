@@ -1,6 +1,7 @@
 package com.bomberoshn.cceAplications.Controller;
 
 import com.bomberoshn.cceAplications.DTO.*;
+import com.bomberoshn.cceAplications.Entitys.ReporteIncidenteEntity;
 import com.bomberoshn.cceAplications.Entitys.TiempoTipo;
 import com.bomberoshn.cceAplications.Services.ArchivoService;
 import com.bomberoshn.cceAplications.Services.IIncidenteService;
@@ -148,7 +149,22 @@ public class IncidenteController {
         return resumen;
     }
 
+    @GetMapping("/reporteIncidente/{idIncidente}")
+    public ResponseEntity<ReporteIncidenteEntity> getReporteIncidente(@PathVariable UUID idIncidente) {
+        ReporteIncidenteEntity reporte = incidenteSrv.getReporteIncidente(idIncidente);
 
+        if (reporte == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(reporte);
+    }
+
+    @PostMapping("/reporteIncidente")
+    public ResponseEntity<ReporteIncidenteEntity> reporteIncidente( @RequestBody ReporteIncidenteRequestDTO request) {
+        ReporteIncidenteEntity reporte = incidenteSrv.reporteIncidente(request);
+        return ResponseEntity.ok(reporte);
+    }
 
 
 }

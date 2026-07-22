@@ -39,9 +39,17 @@ export interface EstacionUpdateRequest {
 }
 
 export interface IncidenteTipo {
-  id: string;
+  id?: string;
   nombre: string;
+  indexReporte?: string;
+  urlImagen?: string;
 }
+export interface IncidenteTipoRequest {
+  nombre: string;
+  indexReporte?: string | null;
+  imagen?: File | null;
+}
+
 
 @Injectable({
   providedIn: 'root',
@@ -60,11 +68,7 @@ export class CatalogoLugaresServices {
   private http = inject(HttpClient);
 
 
-  obtenerEstacionesPorDepartamento(
-    departamentoId?: string | null,
-    isCentral?: boolean | null
-  ): Observable<Estacion[]> {
-
+  obtenerEstacionesPorDepartamento(departamentoId?: string | null, isCentral?: boolean | null ): Observable<Estacion[]> {
     let params = new HttpParams();
 
     if (departamentoId !== null && departamentoId !== undefined && departamentoId !== '') {
@@ -84,8 +88,7 @@ export class CatalogoLugaresServices {
   obtenerDepartamentos(): Observable<Departamento[]> {
     if (!this.departamentos$) {
       this.departamentos$ = this.http
-        .get<Departamento[]>(`${this.apiUrl}/departamentos`)
-        .pipe(
+        .get<Departamento[]>(`${this.apiUrl}/departamentos`).pipe(
           shareReplay({ bufferSize: 1, refCount: false })
         );
     }
@@ -129,15 +132,7 @@ export class CatalogoLugaresServices {
     return request$;
   }
 
-
-
-
-  obtenerEstacionesPorDepartamentoYMunicipio(
-    departamentoId: string,
-    municipioId: string,
-    isCentral?: boolean | null
-  ): Observable<Estacion[]> {
-
+  obtenerEstacionesPorDepartamentoYMunicipio( departamentoId: string, municipioId: string, isCentral?: boolean | null ): Observable<Estacion[]> {
     let params = new HttpParams();
 
     if (isCentral !== null && isCentral !== undefined) {
@@ -150,20 +145,14 @@ export class CatalogoLugaresServices {
     );
   }
 
-  actualizarEstacion(
-    id: string,
-    estacion: EstacionUpdateRequest
-  ): Observable<Estacion | null> {
-
+  actualizarEstacion( id: string, estacion: EstacionUpdateRequest ): Observable<Estacion | null> {
     return this.http.put<Estacion | null>(
       `${this.apiUrl}/estacion/${id}`,
       estacion
     );
   }
 
-  buscarTiposIncidente(
-    buscar?: string
-  ): Observable<IncidenteTipo[]> {
+  buscarTiposIncidente( buscar?: string ): Observable<IncidenteTipo[]> {
 
     let params = new HttpParams();
 
@@ -179,8 +168,65 @@ export class CatalogoLugaresServices {
     );
   }
 
-  limpiarCache(): void {
+
+  private readonly incidenteTiposUrl = `${this.apiUrl}/incidente-tipos`;
+  IncidenteTipo_GetAll(): Observable<IncidenteTipo[]> {
+    return this.http.get<IncidenteTipo[]>(
+      this.incidenteTiposUrl
+    );
+  }
+
+  IncidenteTipoById(id: string): Observable<IncidenteTipo> {
+    return this.http.get<IncidenteTipo>(
+      `${this.incidenteTiposUrl}/${id}`
+    );
+  }
+
+  IncidenteTipoCrear(request: IncidenteTipoRequest): Observable<IncidenteTipo> {
+
+    if (!request.imagen) {
+      throw new Error(
+        'La imagen es obligatoria para crear un tipo de incidente.'
+      );
+    }
+
+    const formData = this.crearFormData(request);
+
+    return this.http.post<IncidenteTipo>( this.incidenteTiposUrl, formData );
+  }
+
+  IncidenteTipoUpdate( id: string, request: IncidenteTipoRequest ): Observable<IncidenteTipo> {
+    const formData = this.crearFormData(request);
+    return this.http.put<IncidenteTipo>( `${this.incidenteTiposUrl}/${id}`, formData );
+  }
+
+  IncidenteTipoDelete(id: string): Observable<void> {
+    return this.http.delete<void>( `${this.incidenteTiposUrl}/${id}`);
+  }
+
+
+  private limpiarCache(): void {
     this.departamentos$ = undefined;
     this.municipiosPorDepartamentoCache.clear();
   }
+
+  private crearFormData( request: IncidenteTipoRequest ): FormData {
+    const formData = new FormData();
+
+    formData.append('nombre', request.nombre.trim());
+    if (
+      request.indexReporte !== null && request.indexReporte !== undefined && request.indexReporte.trim() !== ''
+    ) {
+      formData.append( 'indexReporte', request.indexReporte.trim() );
+    }
+
+    if (request.imagen) {
+      formData.append( 'imagen', request.imagen, request.imagen.name );
+    }
+
+    return formData;
+  }
+
+
+
 }

@@ -1,7 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { User } from './auth.interface.ts';
-import { CURRENT_USER } from '../mocks/current-user.js';
-import { PermisosService } from '../service/seguridad/permisos-service.js';
 
 @Injectable({
   providedIn: 'root'
