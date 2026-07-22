@@ -5,15 +5,15 @@ import {
   ViewChild
 } from '@angular/core';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReportComponent } from '../../components/reporte-component/reporte-component';
 import { FormComponent } from '../../components/form-component/form-component';
-import { reporteIncendio } from '../../mocks/formReportes';
+import { reporteIncendio, reporteRescate } from '../../mocks/formReportes';
 import { IncidenteService } from '../cce/services/incidente-service';
 import { incidente, reporteIncidente, Tiempo, TiempoTipo } from '../../types/cce/incidente.interface';
 import { AuthServiceService } from '../../auth/authService.service';
 import { User } from '../../auth/auth.interface.ts';
-
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-compoenentesss',
@@ -32,6 +32,8 @@ export class Compoenentesss {
   @ViewChild('formReporte') formReporte?: FormComponent;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly svrIncidente = inject(IncidenteService);
   private readonly scrAuth = inject(AuthServiceService);
   readonly idIncidente = signal<string>('');
@@ -39,7 +41,7 @@ export class Compoenentesss {
 
   readonly User = signal<User | null>( this.scrAuth.getUser );
 
-  reporteStructure: iFormGroup = reporteIncendio();
+  reporteStructure = signal<iFormGroup>(reporteIncendio());
   reporteValues = signal<Record<string, any>>({});
 
   ngOnInit(): void {
@@ -55,16 +57,13 @@ export class Compoenentesss {
 
     console.log( 'ID del incidente:', this.idIncidente() );
 
-    this.svrIncidente.getReporteIncidente(id).subscribe({
-      next: res => this.cargarValoresReporte(res.dataForm),
-      error: error => console.error('Error:', error)
-    });
-
 
     this.svrIncidente.getById(id).subscribe({
         next: (res) => {
           this.incidente.set(res);
           console.log( 'Incidente:', this.incidente());
+          this.setStructure(this.incidente() ?? null);
+          //this.reporteStructure.set(reporteRescate());
 
           setTimeout(() => { this.setDataForm(); }, 0);
         },
@@ -73,6 +72,14 @@ export class Compoenentesss {
           console.error( 'Error obteniendo incidente:', error );
         }
       });
+
+
+    this.svrIncidente.getReporteIncidente(id).subscribe({
+      next: res => this.cargarValoresReporte(res.dataForm),
+      error: error => console.error('Error:', error)
+    });
+
+
   }
 
   setDataForm(): void {
@@ -108,12 +115,14 @@ export class Compoenentesss {
     console.log(data.data);
     const body: reporteIncidente = {
       idIncidente: this.idIncidente(),
-      estructuraForm: JSON.stringify(this.reporteStructure),
+      estructuraForm: JSON.stringify(this.reporteStructure()),
       dataForm: JSON.stringify(data.data)
     }
     this.svrIncidente.reporteIncidente(body).subscribe({
         next: (res) => {
           console.log( 'reporte: ', res);
+          this.location.back();
+
         },
         error: (error) => {
           console.error( 'Error obteniendo reporte:', error );
@@ -122,77 +131,99 @@ export class Compoenentesss {
   }
 
 
-cargarDataForm(dataForm: string | null | undefined): void {
-  const form = this.formReporte;
+  setStructure(incidente: incidente | null){
+    if (!incidente) return;
 
-  if (!form || !dataForm) return;
+    switch(incidente.reportByIncidente){
+      case "reporteIncendio":
+        this.reporteStructure.set(reporteIncendio());
+      break;
 
-  try {
-    const datos = JSON.parse(dataForm) as Record<string, any>;
-
-    Object.entries(datos).forEach(([campo, valor]) => {
-      form.setFieldValue(campo, valor);
-    });
-
-    console.log('Datos del reporte cargados:', datos);
-  } catch (error) {
-    console.error('El dataForm no contiene un JSON válido:', error);
+      default:
+        this.reporteStructure.set(reporteRescate());
+      break;
+    }
   }
-}
+  // {
+  //   value: 'reporteIncendio',
+  //   label: 'Reporte de incendio'
+  // },
+  // {
+  //   value: 'reporteRescate',
+  //   label: 'Reporte de rescate'
+  // }
 
-cargarValoresReporte(dataForm: string | Record<string, any> | null | undefined): void {
-  try {
-    const valores = typeof dataForm === 'string' ? JSON.parse(dataForm) : dataForm ?? {};
+  cargarDataForm(dataForm: string | null | undefined): void {
+    const form = this.formReporte;
 
-    this.reporteValues.set(valores);
-    this.cargarDataForm(dataForm as string);
+    if (!form || !dataForm) return;
 
-    console.log('Valores cargados:', valores);
-  } catch (error) {
-    this.reporteValues.set({});
-    console.error('dataForm no contiene un JSON válido:', error);
-  }
-}
+    try {
+      const datos = JSON.parse(dataForm) as Record<string, any>;
 
-formatearLista<T>(
-  elementos: T[] | null | undefined,
-  obtenerValor: (elemento: T) => unknown,
-  valorVacio: string = 'No disponible'
-): string {
+      Object.entries(datos).forEach(([campo, valor]) => {
+        form.setFieldValue(campo, valor);
+      });
 
-  const valores = (elementos ?? [])
-    .map(obtenerValor)
-    .filter(valor =>
-      valor !== null &&
-      valor !== undefined &&
-      String(valor).trim() !== ''
-    )
-    .map(valor => String(valor).trim());
-
-  if (valores.length === 0) {
-    return valorVacio;
+      console.log('Datos del reporte cargados:', datos);
+    } catch (error) {
+      console.error('El dataForm no contiene un JSON válido:', error);
+    }
   }
 
-  if (valores.length === 1) {
-    return valores[0];
+  cargarValoresReporte(dataForm: string | Record<string, any> | null | undefined): void {
+    try {
+      const valores = typeof dataForm === 'string' ? JSON.parse(dataForm) : dataForm ?? {};
+
+      this.reporteValues.set(valores);
+      this.cargarDataForm(dataForm as string);
+
+      console.log('Valores cargados:', valores);
+    } catch (error) {
+      this.reporteValues.set({});
+      console.error('dataForm no contiene un JSON válido:', error);
+    }
   }
 
-  if (valores.length === 2) {
-    return `${valores[0]} y ${valores[1]}`;
+  formatearLista<T>(
+    elementos: T[] | null | undefined,
+    obtenerValor: (elemento: T) => unknown,
+    valorVacio: string = 'No disponible'
+  ): string {
+
+    const valores = (elementos ?? [])
+      .map(obtenerValor)
+      .filter(valor =>
+        valor !== null &&
+        valor !== undefined &&
+        String(valor).trim() !== ''
+      )
+      .map(valor => String(valor).trim());
+
+    if (valores.length === 0) {
+      return valorVacio;
+    }
+
+    if (valores.length === 1) {
+      return valores[0];
+    }
+
+    if (valores.length === 2) {
+      return `${valores[0]} y ${valores[1]}`;
+    }
+
+    const ultimo = valores.pop();
+
+    return `${valores.join(', ')} y ${ultimo}`;
   }
 
-  const ultimo = valores.pop();
+  obtenerTiempoPorTipo(
+    tiempos: Tiempo[] | null | undefined,
+    tipo: TiempoTipo
+  ): Tiempo | null {
 
-  return `${valores.join(', ')} y ${ultimo}`;
-}
-
-obtenerTiempoPorTipo(
-  tiempos: Tiempo[] | null | undefined,
-  tipo: TiempoTipo
-): Tiempo | null {
-
-  return tiempos?.find(
-    tiempo => tiempo.tipoTiempo === tipo
-  ) ?? null;
-}
+    return tiempos?.find(
+      tiempo => tiempo.tipoTiempo === tipo
+    ) ?? null;
+  }
 }

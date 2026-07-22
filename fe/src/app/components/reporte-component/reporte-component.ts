@@ -17,6 +17,8 @@ import { jsPDF } from 'jspdf';
 })
 export class ReportComponent {
 
+  @Input() showBotton: boolean = true;
+
   @Input()
   titulo = 'Reporte';
 
@@ -46,7 +48,7 @@ export class ReportComponent {
 
   generandoPdf = false;
 
-async descargarPdf(): Promise<void> {
+public async descargarPdf(): Promise<void> {
 
   const element = this.reportContent?.nativeElement;
 

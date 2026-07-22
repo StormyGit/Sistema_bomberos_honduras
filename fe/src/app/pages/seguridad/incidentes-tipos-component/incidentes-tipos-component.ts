@@ -40,6 +40,7 @@ import {
   environment
 } from '../../../../environments/environment';
 import { IncidenteTipo, CatalogoLugaresServices, IncidenteTipoRequest } from '../../../service/catalogo-lugares-services';
+import { TipoReporte, TIPOS_REPORTES } from '../../../mocks/formReportes';
 
 
 interface IncidenteTipoTabla extends IncidenteTipo {
@@ -87,6 +88,8 @@ export class IncidenteTiposComponent implements OnInit {
   readonly textoBusqueda =
     signal<string>('');
 
+    readonly tiposReportes: TipoReporte[] =
+  TIPOS_REPORTES;
 
   readonly tiposFiltrados = computed(() => {
     const texto = this.textoBusqueda()
@@ -204,12 +207,7 @@ export class IncidenteTiposComponent implements OnInit {
         ]
       ],
 
-      indexReporte: [
-        '',
-        [
-          Validators.maxLength(100)
-        ]
-      ]
+      indexReporte: ['']
     });
 
 

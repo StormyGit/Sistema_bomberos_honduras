@@ -1,5 +1,6 @@
 package com.bomberoshn.cceAplications.DTO;
 
+import com.bomberoshn.cceAplications.Entitys.Catalogo.IncidenteTipoEntity;
 import com.bomberoshn.cceAplications.Entitys.IncidenteEstado;
 import com.bomberoshn.cceAplications.Entitys.IncidenteRecepcion;
 import com.bomberoshn.cceAplications.Entitys.ReporteIncidenteEntity;
@@ -20,6 +21,7 @@ public class IncidenteDTO {
     private UUID id;
     private String incidente;
     private UUID incidenteTipoId;
+    private String reportByIncidente;
     private UUID idParent;
     private IncidenteEstado estado;
     private String departamento;

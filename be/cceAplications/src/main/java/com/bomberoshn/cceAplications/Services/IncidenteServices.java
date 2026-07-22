@@ -555,7 +555,7 @@ public class IncidenteServices implements IIncidenteService {
                 .map(tipo -> new IncidenteTipoResponseDTO(
                         tipo.getId(),
                         tipo.getNombre(),
-                        tipo.getIdImagen().toString(),
+                        (tipo.getIdImagen() != null) ? tipo.getIdImagen().toString() : null,
                         tipo.getIndexReporte()
                 ))
                 .toList();
@@ -680,6 +680,11 @@ public class IncidenteServices implements IIncidenteService {
                 .incidenteTipoId(
                         entity.getIncidenteTipo() != null
                                 ? entity.getIncidenteTipo().getId()
+                                : null
+                )
+                .reportByIncidente(
+                        entity.getIncidenteTipo() != null
+                                ? entity.getIncidenteTipo().getIndexReporte()
                                 : null
                 )
                 .idParent(entity.getIdParent())

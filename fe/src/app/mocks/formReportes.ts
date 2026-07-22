@@ -1,3 +1,23 @@
+export interface TipoReporte {
+  value: string;
+  label: string;
+}
+
+export const TIPOS_REPORTES: TipoReporte[] = [
+  {
+    value: 'reporteIncendio',
+    label: 'Reporte de incendio'
+  },
+  {
+    value: 'reporteRescate',
+    label: 'Reporte de rescate'
+  }
+];
+
+
+
+
+
 
 
 export function reporteIncendio(): iFormGroup {

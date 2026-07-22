@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, output, QueryList, Signal, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, output, QueryList, Signal, ViewChildren, SimpleChanges, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -20,7 +20,7 @@ interface iFilePreview {
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './form-component.html'
 })
-export class FormComponent implements OnDestroy {
+export class FormComponent implements OnDestroy, OnChanges {
   @ViewChildren('panelRef', { read: ElementRef })
   panels?: QueryList<ElementRef<HTMLElement>>;
 
@@ -65,6 +65,12 @@ ngOnDestroy() {
   this._autocompleteSubject.complete();
 }
 
+ngOnChanges(changes: SimpleChanges) {
+  // Solo nos interesa reaccionar si cambió Formulary (y no es el primer ngOnInit)
+  if (changes['Formulary'] && !changes['Formulary'].firstChange) {
+    this.resetForm(true); // true = también limpia las opciones dinámicas
+  }
+}
 
 buildForm() {
   const controls: any = {};
@@ -172,7 +178,18 @@ onClickOutside(event: MouseEvent) {
       this._OpenSelectInput === name ? '' : name;
   }
 
+changeFormulary(nuevoFormulary: iFormGroup) {
+  this.Formulary = nuevoFormulary;
+  this.resetForm(true);
+}
+
+
+
   // ---------- Archivos / Imágenes ----------
+
+
+
+
 
   // mapea field.file -> accept del input nativo
   getFileAccept(field: iFormField): string {

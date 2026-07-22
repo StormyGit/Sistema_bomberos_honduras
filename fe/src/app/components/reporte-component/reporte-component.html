@@ -1,13 +1,15 @@
-<div class="report-toolbar">
-  <button
+@if(false){
+  <div class="report-toolbar">
+    <button
     type="button"
     class="download-button"
     [disabled]="generandoPdf || !structure"
     (click)="descargarPdf()"
-  >
-    {{ generandoPdf ? 'Generando PDF...' : 'Descargar PDF' }}
-  </button>
-</div>
+    >
+      {{ generandoPdf ? 'Generando PDF...' : 'Descargar PDF' }}
+    </button>
+  </div>
+}
 
 @if (structure) {
   <div class="report-hidden" aria-hidden="true">

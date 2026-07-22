@@ -401,14 +401,24 @@
           Índice de reporte
         </label>
 
-        <input
+        <select
           id="indexReporte"
-          type="text"
           formControlName="indexReporte"
-          maxlength="100"
-          placeholder="Ejemplo: incendioEstructural"
           class="input-form"
         >
+          <option value="">
+            Sin reporte asignado
+          </option>
+
+          @for (
+            reporte of tiposReportes;
+            track reporte.value
+          ) {
+            <option [value]="reporte.value">
+              {{ reporte.label }}
+            </option>
+          }
+        </select>
 
         <p class="text-xs text-gray-500 mt-1">
           Este campo es opcional y puede utilizarse para identificar

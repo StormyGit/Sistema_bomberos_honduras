@@ -469,6 +469,12 @@
       >
       {{(incidente_selection?.reporte) ? 'reporte' : 'Hacer Reporte'}}
     </button>
+
+    <div>
+      @if(hasReporte()){
+        <app-report-component #reporteIncidente [showBotton]="false" [structure]="ReporteStruct()" [values]="ReporteValue()" />
+      }
+    </div>
   </div>
 
       <app-incidente-info-components [dataIncidente]="incidente_selection" [showImage]="true" [showRecurso]="true" [showTimer]="true" [showMap]="true"></app-incidente-info-components>

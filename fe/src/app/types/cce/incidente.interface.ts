@@ -22,7 +22,12 @@ export interface incidente {
   punto?           : string;
   point?: string;
   images?: imagen[];
-  reporte?: reporteIncidente[];
+
+
+  reportByIncidente?: string;
+
+
+  reporte?: reporteIncidente;
 }
 
 export interface reporteIncidente {

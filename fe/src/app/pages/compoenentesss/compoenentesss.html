@@ -2,7 +2,7 @@
 
 <div class="w-3/4 mx-auto">
 <app-report-component
-  [structure]="reporteStructure"
+  [structure]="reporteStructure()"
   [values]="reporteValues()"
   titulo="Heroico y Benemérito Cuerpo de Bomberos de Honduras"
   subtitulo="Reporte de incendio"
@@ -12,7 +12,7 @@
 
 <div class="w-3/4 mx-auto">
     <app-form-component #formReporte
-      [Formulary]="reporteStructure"
+      [Formulary]="reporteStructure()"
       (getSubmit)="sudmit($event)"
       [labelSudmit]="'guardar informe'"
     />

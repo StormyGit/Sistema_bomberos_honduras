@@ -34,6 +34,7 @@ import { IncidenteInfoComponents } from "../../components/incidente-info-compone
 import { ModalComponent } from "../../../components/modal-component/modal-component";
 import { Router } from '@angular/router';
 import { ToastService } from '../../../components/toast-service';
+import { ReportComponent } from "../../../components/reporte-component/reporte-component";
 
 
 
@@ -122,11 +123,14 @@ export interface IncidenteEstadoResumen {
 
 @Component({
   selector: 'app-incidente-component',
-  imports: [MatTableModule, MatPaginatorModule, CardComponent, FormComponent, TableCustomComponent, BaseChartDirective, IncidenteInfoComponents, ModalComponent],
+  imports: [MatTableModule, MatPaginatorModule, CardComponent, FormComponent, TableCustomComponent, BaseChartDirective, IncidenteInfoComponents, ModalComponent, ReportComponent],
   templateUrl: './incidente-component.html',
   styleUrl: './incidente-component.css',
 })
 export class IncidenteComponent implements OnInit {
+
+  @ViewChild('reporteIncidente') reporteIncidente!: ReportComponent;
+
   private scrToast = inject(ToastService);
   private zone = inject(NgZone);
   router = inject(Router);
@@ -652,6 +656,7 @@ doughnutChartOptions:
 showModal_detalles: boolean = false;
 cerrarModal_detalles() {
   this.showModal_detalles = false;
+  this.hasReporte.set(false);
 }
 
 async compartirPreliminar(data: incidente | null): Promise<void> {
@@ -709,15 +714,20 @@ IrPreliminar(data: incidente | null){
   }
   this.router.navigate(['/public', 'incidente', data.id])
 }
-onReporte(data: incidente | null){
+async onReporte(data: incidente | null){
   console.log(data);
   if (!this.incidente_selection?.reporte){
     this.router.navigate(['cce', 'reporteIncidente', data?.id])
   }else{
-
+    this.hasReporte.set(true);
+    this.ReporteStruct.set( JSON.parse(data?.reporte?.estructuraForm ?? '') );
+    this.ReporteValue.set( JSON.parse(data?.reporte?.dataForm ?? '') )
+    await setTimeout(()=> this.reporteIncidente.descargarPdf(), 10);
   }
 }
-
+hasReporte = signal<boolean>(false);
+ReporteStruct = signal<any>({});
+ReporteValue = signal<any>({});
 
 
 abrirModal_detalles(row: any) {
